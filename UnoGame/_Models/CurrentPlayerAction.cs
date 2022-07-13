@@ -6,7 +6,7 @@
 public enum CurrentPlayerAction
 {
     /// <summary>
-    /// No action.
+    /// The card has no effect on the player who dropped it.
     /// </summary>
     None,
 
