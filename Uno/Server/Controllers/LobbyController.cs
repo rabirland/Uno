@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System.Net;
-using System.Net.Sockets;
 using System.Text;
 using System.Text.Json;
 using Uno.Server.LobbyService;
@@ -8,6 +7,7 @@ using Uno.Shared;
 
 namespace Uno.Server.Controllers
 {
+    [ApiController]
     public class LobbyController : Controller
     {
         /// <summary>
@@ -20,7 +20,7 @@ namespace Uno.Server.Controllers
             this.lobbyService = lobbyService;
         }
 
-        [HttpPost(URL.Lobby.Crate)]
+        [HttpPost(URL.Lobby.Create)]
         public CreateLobbyResponse Create(CreateLobbyRequest request)
         {
             if (string.IsNullOrEmpty(request.LobbyName))
@@ -38,25 +38,27 @@ namespace Uno.Server.Controllers
             return new CreateLobbyResponse(string.IsNullOrEmpty(token) == false, token);
         }
 
-        [HttpGet(URL.Lobby.Listen)]
-        public async Task Listen()
+        [HttpPost(URL.Lobby.Listen)]
+        public async Task Listen(ListenLobbyRequest request)
         {
             Response.StatusCode = (int)HttpStatusCode.PartialContent;
             Response.ContentType = "application/json";
             await Response.StartAsync();
 
-            int index = 0;
             try
             {
-                while (true)
+                var isConnectionEnded = false;
+                do
                 {
-                    await Task.Delay(1000);
-                    var json = JsonSerializer.Serialize(new ListenLobbyResponse { Test = $"Wot {index}" });
+                    await Task.Delay(500);
+                    var json = JsonSerializer.Serialize(new ListenLobbyResponse { Test = $"Wot" });
 
                     await Response.WriteAsync($"{json.Length}\r\n", Encoding.UTF8);
                     await Response.WriteAsync(json, Encoding.UTF8);
-                    index++;
+
+                    isConnectionEnded = HttpContext.RequestAborted.IsCancellationRequested;
                 }
+                while (isConnectionEnded == false);
             }
             catch (Exception ex)
             {

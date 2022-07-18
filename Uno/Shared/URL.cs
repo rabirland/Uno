@@ -8,7 +8,7 @@
         public static class Lobby
         {
             public const string Controller = "/api/lobby";
-            public const string Crate = Controller + "/create";
+            public const string Create = Controller + "/create";
             public const string Listen = Controller + "/listen";
         }
     }

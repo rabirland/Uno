@@ -1,6 +1,6 @@
 ﻿namespace Uno.Shared
 {
-    public record CreateLobbyRequest
+    public class CreateLobbyRequest
     {
         public string? LobbyName { get; set; }
 

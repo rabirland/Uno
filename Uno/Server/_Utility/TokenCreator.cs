@@ -15,6 +15,7 @@
             for (int i = 0; i < token.Length; i++)
             {
                 char randomCh = TokenCharacters[Random.Shared.Next(0, TokenCharacters.Length)];
+                token[i] = randomCh;
             }
 
             return new string(token);

@@ -18,30 +18,19 @@
 @code {
     private string output = "Start ";
 
-    protected override async Task OnInitializedAsync()
+    protected override void OnInitialized()
     {
-        var json = JsonSerializer.Serialize(new ListenLobbyRequest { Token = "token" });
-        var request = new HttpRequestMessage(HttpMethod.Get, URL.Lobby.Listen);
-        request.SetBrowserResponseStreamingEnabled(true);
-        request.Version = new Version(2, 0);
-        //request.Content = new StringContent(json);
-        var response = await http.SendAsync(request, HttpCompletionOption.ResponseHeadersRead);
-        var stream = await response.Content.ReadAsStreamAsync();
-        var blockStream = new HttpPayloadStream(stream);
-
-        await LobbyListenerTask(blockStream);
+        LobbyListenerTask()
+            .CatchExceptions(); // Run in background
     }
 
-    private async Task LobbyListenerTask(HttpPayloadStream stream)
+    private async Task LobbyListenerTask()
     {
-        string block = string.Empty;
-        do
+        await foreach (var response in http.PostAsJsonStreamAsync<ListenLobbyResponse>(URL.Lobby.Listen, new ListenLobbyRequest { Token = "token" }))
         {
-            block = await stream.ReadAsync();
-            output += block;
+            output += response.Test + " ";
 
             this.StateHasChanged();
         }
-        while (string.IsNullOrEmpty(block) == false);
     }
 }
