@@ -7,43 +7,52 @@ namespace Uno.Server.LobbyService
     public class LobbyService : ILobbyService
     {
         private const int TokenLength = 256;
-        private readonly Dictionary<string, Lobby> lobbies = new();
+        private readonly List<Lobby> lobbies = new();
 
         public event Action<Lobby> OnLobbyChange = _ => { };
 
         /// <inheritdoc/>
         public string CreateLobby(string name, string adminName)
         {
-            if (lobbies.ContainsKey(name))
+            var existingLobby = lobbies.Any(l => l.Name == name);
+            if (existingLobby)
             {
                 return string.Empty;
             }
 
-            var token = TokenCreator.CreateRandomToken(TokenLength);
-            var lobby = new Lobby(token);
-            if (lobby.AddPlayer(adminName) == false)
+            var lobby = new Lobby(name);
+            var adminToken = lobby.AddPlayer(adminName);
+            if (string.IsNullOrEmpty(adminToken))
             {
                 return string.Empty;
             }
 
-            lobbies.Add(name, lobby);
-            return lobby.Token;
+            lobbies.Add(lobby);
+            return adminToken;
         }
 
         /// <inheritdoc/>
-        public bool AddPlayerToLobby(string playerName, string lobbyName)
+        public string AddPlayerToLobby(string playerName, string lobbyName)
         {
-            if (lobbies.TryGetValue(lobbyName, out var lobby))
+            var lobby = lobbies.FirstOrDefault(l => l.Name == lobbyName);
+            if (lobby != null)
             {
                 lock (lobby.Lock)
                 {
-                    return lobby.AddPlayer(playerName);
+                    var token = lobby.AddPlayer(playerName);
+                    return token;
                 }
             }
             else
             {
-                return false;
+                return string.Empty;
             }
+        }
+
+        /// <inheritdoc/>
+        public Lobby? FindLobbyByPlayerToken(string token)
+        {
+            return lobbies.FirstOrDefault(l => l.HasPlayerByToken(token));
         }
     }
 }

@@ -11,7 +11,7 @@ namespace Uno.Server.LobbyService
         /// </summary>
         /// <param name="name">The name of the lobby.</param>
         /// <param name="adminName">The name of the admin player.</param>
-        /// <returns>If the lobby is created, the security token of the lobby. Otherwise an empty string.</returns>
+        /// <returns>The security token of the admin player.</returns>
         string CreateLobby(string name, string adminName);
 
         /// <summary>
@@ -19,7 +19,14 @@ namespace Uno.Server.LobbyService
         /// </summary>
         /// <param name="playerName">The name of the player.</param>
         /// <param name="lobbyName">The name of the lobby.</param>
-        /// <returns><see langword="true"/> if the player could be added.</returns>
-        bool AddPlayerToLobby(string playerName, string lobbyName);
+        /// <returns>The security token of the added player, or empty string if could not be added.</returns>
+        string AddPlayerToLobby(string playerName, string lobbyName);
+
+        /// <summary>
+        /// Finds the lobby that contains the player with the given token.
+        /// </summary>
+        /// <param name="token">The player security token.</param>
+        /// <returns>The lobby that contains the player or <see langword="null"/> if the player is not found.</returns>
+        Lobby? FindLobbyByPlayerToken(string token);
     }
 }

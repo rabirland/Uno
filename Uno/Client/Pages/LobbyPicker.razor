@@ -17,12 +17,19 @@ Pick lobby
 </div>
 
 <div>
+    Join lobby:
+    <input @bind-value="joinLobbyName"/>
+    <button @onclick="OnClickJoinLobby">Join</button>
+</div>
+
+<div>
     Token: @token
 </div>
 
 @code {
     private string playerName = string.Empty;
     private string newLobbyName = string.Empty;
+    private string joinLobbyName = string.Empty;
 
     private string token = string.Empty;
 
@@ -33,6 +40,17 @@ Pick lobby
         if (result.IsSuccessful)
         {
             this.token = result.token;
+            this.StateHasChanged();
+        }
+    }
+
+    private async Task OnClickJoinLobby()
+    {
+        var result = await this.api.Lobby.JoinLobbyAsync(new JoinLobbyRequest(playerName, joinLobbyName));
+
+        if (result.IsSuccessful)
+        {
+            this.token = result.Token;
             this.StateHasChanged();
         }
     }

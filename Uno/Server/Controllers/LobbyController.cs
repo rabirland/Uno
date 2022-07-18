@@ -34,14 +34,49 @@ namespace Uno.Server.Controllers
             }
 
             var token = this.lobbyService.CreateLobby(request.LobbyName, request.PlayerName);
+            AppendTokenCookie(token);
 
-            return new CreateLobbyResponse(string.IsNullOrEmpty(token) == false, token);
+            return new CreateLobbyResponse(string.IsNullOrEmpty(token) == false);
+        }
+
+        [HttpPost(URL.Lobby.Join)]
+        public JoinLobbyResponse Join(JoinLobbyRequest request)
+        {
+            if (string.IsNullOrEmpty(request.PlayerName))
+            {
+                return JoinLobbyResponse.Failed;
+            }
+
+            if (string.IsNullOrEmpty(request.LobbyName))
+            {
+                return JoinLobbyResponse.Failed;
+            }
+
+            var token = this.lobbyService.AddPlayerToLobby(request.PlayerName, request.LobbyName);
+            AppendTokenCookie(token);
+
+            return new JoinLobbyResponse(string.IsNullOrEmpty(token) == false);
         }
 
         [HttpPost(URL.Lobby.Listen)]
         public async Task Listen(ListenLobbyRequest request)
         {
-            Response.StatusCode = (int)HttpStatusCode.PartialContent;
+            var token = GetTokenCookie();
+
+            if (string.IsNullOrEmpty(token))
+            {
+                Response.StatusCode = (int)HttpStatusCode.Unauthorized;
+                await Response.CompleteAsync();
+            }
+
+            var lobby = lobbyService.FindLobbyByPlayerToken(token);
+
+            if (lobby == null)
+            {
+                Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                await Response.CompleteAsync();
+            }
+
             Response.ContentType = "application/json";
             await Response.StartAsync();
 
@@ -64,6 +99,22 @@ namespace Uno.Server.Controllers
             {
 
             }
+        }
+
+        private void AppendTokenCookie(string token)
+        {
+            var options = new CookieOptions
+            {
+                SameSite = SameSiteMode.Strict,
+                Secure = true,
+                HttpOnly = true,
+            };
+            Response.Cookies.Append(Consts.CookieKeys.PlayerToken, token, options);
+        }
+
+        private string GetTokenCookie()
+        {
+            return Request.Cookies[Consts.CookieKeys.PlayerToken] ?? string.Empty;
         }
     }
 }

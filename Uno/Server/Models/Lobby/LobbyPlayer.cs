@@ -1,4 +1,4 @@
 ﻿namespace Uno.Server.Models.Lobby
 {
-    public record LobbyPlayer(string Name);
+    public record LobbyPlayer(string Name, string Token);
 }

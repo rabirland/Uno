@@ -7,34 +7,45 @@
     {
         private readonly List<LobbyPlayer> players = new();
 
-        public Lobby(string securityToken)
+        public Lobby(string name)
         {
-            this.Token = securityToken;
+            this.Name = name;
         }
+
+        public string Name { get; }
 
         /// <summary>
         /// The object used for thread locking operations on one lobby.
         /// </summary>
         public object Lock { get; } = new();
 
-        public string Token { get; }
-
         /// <summary>
         /// Adds a player to the lobby.
         /// </summary>
         /// <param name="playerName">The name of the player.</param>
-        /// <returns><see langword="true"/> if the player could be added, otherwise <see langword="false"/>.</returns>
-        public bool AddPlayer(string playerName)
+        /// <returns>The security token of the player, or empty string if the player could not be added.</returns>
+        public string AddPlayer(string playerName)
         {
             if (players.Any(p => p.Name == playerName))
             {
-                return false;
+                return string.Empty;
             }
             else
             {
-                players.Add(new LobbyPlayer(playerName));
-                return true;
+                var token = TokenCreator.CreateRandomToken(256);
+                players.Add(new LobbyPlayer(playerName, token));
+                return token;
             }
+        }
+
+        /// <summary>
+        /// Checks whether any player in the lobby has the given security token.
+        /// </summary>
+        /// <param name="playerToken">The token to search for.</param>
+        /// <returns><see langword="true"/> if any player in this lobby has the given security token.</returns>
+        public bool HasPlayerByToken(string playerToken)
+        {
+            return players.Any(p => p.Token == playerToken);
         }
     }
 }

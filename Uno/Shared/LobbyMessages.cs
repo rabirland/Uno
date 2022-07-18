@@ -1,22 +1,17 @@
 ﻿namespace Uno.Shared
 {
-    public class CreateLobbyRequest
+    public record CreateLobbyRequest(string? LobbyName, string? PlayerName);
+    public record CreateLobbyResponse(bool IsSuccessful)
     {
-        public string? LobbyName { get; set; }
-
-        public string? PlayerName { get; set; }
-    }
-    public record CreateLobbyResponse(bool IsSuccessful, string token)
-    {
-        public static CreateLobbyResponse Failed => new CreateLobbyResponse(false, string.Empty);
+        public static CreateLobbyResponse Failed => new CreateLobbyResponse(false);
     }
 
-    public class ListenLobbyRequest
+    public record ListenLobbyRequest();
+    public record ListenLobbyResponse();
+
+    public record JoinLobbyRequest(string? PlayerName, string? LobbyName);
+    public record JoinLobbyResponse(bool IsSuccessful)
     {
-        public string? Token { get; set; }
-    }
-    public class ListenLobbyResponse
-    {
-        public string? Test { get; set; }
+        public static JoinLobbyResponse Failed => new JoinLobbyResponse(false);
     }
 }
