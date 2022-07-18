@@ -1,12 +1,13 @@
-using Microsoft.AspNetCore.ResponseCompression;
+using Uno.Server;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
+builder.Services.AddMarkedServices();
 
+// ================================== APP
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

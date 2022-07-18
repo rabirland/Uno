@@ -1,9 +1,47 @@
 ﻿@page "/"
+@using System.Text.Json
+@using System.Net.Sockets
+@using System.Net
+@using System.Text
+@using Uno.Shared
+@using Uno.Client
+
+@inject HttpClient http
 
 <PageTitle>Index</PageTitle>
 
 <h1>Hello, world!</h1>
 
-Welcome to your new app.
+<div>Output:</div>
+<div>@output</div>
 
-<SurveyPrompt Title="How is Blazor working for you?" />
+@code {
+    private string output = "Start ";
+
+    protected override async Task OnInitializedAsync()
+    {
+        var json = JsonSerializer.Serialize(new ListenLobbyRequest { Token = "token" });
+        var request = new HttpRequestMessage(HttpMethod.Get, URL.Lobby.Listen);
+        request.Version = new Version(2, 0);
+        //request.Content = new StringContent(json);
+        //var response = await http.SendAsync(request, HttpCompletionOption.ResponseHeadersRead);
+        //var stream = await response.Content.ReadAsStreamAsync();
+
+        var stream = await http.GetStreamAsync(URL.Lobby.Listen);
+
+        var blockStream = new TerminatedBlockStream(stream, '¤');
+
+        await LobbyListenerTask(blockStream);
+    }
+
+    private async Task LobbyListenerTask(TerminatedBlockStream stream)
+    {
+        while (true)
+        {
+            var block = await stream.ReadAsync();
+            output += block;
+
+            this.StateHasChanged();
+        }
+    }
+}
