@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System.Net;
 using System.Net.Sockets;
+using System.Text;
 using System.Text.Json;
 using Uno.Server.LobbyService;
 using Uno.Shared;
@@ -47,11 +48,13 @@ namespace Uno.Server.Controllers
             int index = 0;
             try
             {
-                while (index < 3)
+                while (true)
                 {
                     await Task.Delay(1000);
-                    var json = JsonSerializer.Serialize(new ListenLobbyResponse { Test = "Wot" });
-                    await Response.WriteAsync(json + "¤"); // Block terminator character
+                    var json = JsonSerializer.Serialize(new ListenLobbyResponse { Test = $"Wot {index}" });
+
+                    await Response.WriteAsync($"{json.Length}\r\n", Encoding.UTF8);
+                    await Response.WriteAsync(json, Encoding.UTF8);
                     index++;
                 }
             }

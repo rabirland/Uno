@@ -22,26 +22,26 @@
     {
         var json = JsonSerializer.Serialize(new ListenLobbyRequest { Token = "token" });
         var request = new HttpRequestMessage(HttpMethod.Get, URL.Lobby.Listen);
+        request.SetBrowserResponseStreamingEnabled(true);
         request.Version = new Version(2, 0);
         //request.Content = new StringContent(json);
-        //var response = await http.SendAsync(request, HttpCompletionOption.ResponseHeadersRead);
-        //var stream = await response.Content.ReadAsStreamAsync();
-
-        var stream = await http.GetStreamAsync(URL.Lobby.Listen);
-
-        var blockStream = new TerminatedBlockStream(stream, '¤');
+        var response = await http.SendAsync(request, HttpCompletionOption.ResponseHeadersRead);
+        var stream = await response.Content.ReadAsStreamAsync();
+        var blockStream = new HttpPayloadStream(stream);
 
         await LobbyListenerTask(blockStream);
     }
 
-    private async Task LobbyListenerTask(TerminatedBlockStream stream)
+    private async Task LobbyListenerTask(HttpPayloadStream stream)
     {
-        while (true)
+        string block = string.Empty;
+        do
         {
-            var block = await stream.ReadAsync();
+            block = await stream.ReadAsync();
             output += block;
 
             this.StateHasChanged();
         }
+        while (string.IsNullOrEmpty(block) == false);
     }
 }
