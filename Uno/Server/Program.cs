@@ -37,11 +37,9 @@ app.MapFallbackToFile("index.html");
 
 app.UseMiddleware<DataStreamMiddleware>(); // Advised to come after every other middleware
 
-/*
- 
- app.UseWhen(context => context.Request.Path.StartsWithSegments("/api"), appBuilder =>
-        {
-            appBuilder.UseMiddleware<MyMiddlewareOne>();
-        });*/
+/*app.UseWhen(context => context.Request.Path.StartsWithSegments("/api"), appBuilder =>
+{
+    appBuilder.UseMiddleware<MyMiddlewareOne>();
+});*/
 
 app.Run();

@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System.Net;
 using Uno.Server.Annotation;
+using Uno.Server.GameService;
 using Uno.Server.LobbyService;
+using Uno.Server.Models.Game;
 using Uno.Shared;
 
 namespace Uno.Server.Controllers
@@ -13,12 +15,15 @@ namespace Uno.Server.Controllers
         /// Fired when any of the lobbies change.
         /// </summary>
         private readonly ILobbyService lobbyService;
+        private readonly IGameService gameService;
 
-        public LobbyController(ILobbyService lobbyService)
+        public LobbyController(ILobbyService lobbyService, IGameService gameService)
         {
             this.lobbyService = lobbyService;
+            this.gameService = gameService;
         }
 
+        // TODO: handle duplicated lobby names
         [HttpPost(URL.Lobby.Create)]
         public CreateLobbyResponse Create(CreateLobbyRequest request)
         {
@@ -144,7 +149,12 @@ namespace Uno.Server.Controllers
 
             if (allPlayerReady)
             {
-                // TODO: Success
+                this.gameService.Create(
+                    lobby.Name,
+                    lobby.Players.Select(p => new GamePlayer(p.Name, p.Token)),
+                    lobby.AdminPlayerName);
+
+                return new StartGameResponse(true, StartGameFailedReason.Unknown);
             }
             else
             {

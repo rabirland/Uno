@@ -1,11 +1,14 @@
-﻿using Uno.Server.Models.Game;
+﻿using Uno.Server.Annotation;
+using Uno.Server.Models.Game;
 
 namespace Uno.Server.GameService;
 
-public class GameService
+[Service(AsSingleton = true)]
+public class GameService : IGameService
 {
     private readonly List<GameEntry> games = new List<GameEntry>();
 
+    /// <inheritdoc/>
     public void Create(
         string gameName,
         IEnumerable<GamePlayer> players,
