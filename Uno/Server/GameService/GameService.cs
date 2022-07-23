@@ -20,4 +20,10 @@ public class GameService
 
         games.Add(entry);
     }
+
+    public GameEntry? FindGameByPlayerToken(string token)
+    {
+        var entry = this.games.FirstOrDefault(e => e.Players.Any(p => p.Token == token));
+        return entry;
+    }
 }

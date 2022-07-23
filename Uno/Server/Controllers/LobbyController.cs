@@ -170,6 +170,12 @@ namespace Uno.Server.Controllers
             }
 
             lobby.RemovePlayerByToken(token);
+
+            // Clean up empty lobbies
+            if (lobby.Players.Count() == 0)
+            {
+                this.lobbyService.RemoveLobby(lobby.Name);
+            }
         }
 
         private string GetPlayerToken()

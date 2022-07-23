@@ -28,5 +28,11 @@ namespace Uno.Server.LobbyService
         /// <param name="token">The player security token.</param>
         /// <returns>The lobby that contains the player or <see langword="null"/> if the player is not found.</returns>
         Lobby? FindLobbyByPlayerToken(string token);
+
+        /// <summary>
+        /// Removes a lobby, given it's name.
+        /// </summary>
+        /// <param name="name">The lobby name.</param>
+        void RemoveLobby(string name);
     }
 }

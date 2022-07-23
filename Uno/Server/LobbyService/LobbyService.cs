@@ -51,5 +51,12 @@ namespace Uno.Server.LobbyService
         {
             return lobbies.FirstOrDefault(l => l.HasPlayerByToken(token));
         }
+
+        /// <inheritdoc/>
+        public void RemoveLobby(string name)
+        {
+            var index = this.lobbies.FindIndex(l => l.Name == name);
+            this.lobbies.RemoveAt(index);
+        }
     }
 }
