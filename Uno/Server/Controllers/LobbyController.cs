@@ -75,22 +75,80 @@ namespace Uno.Server.Controllers
                 yield break;
             }
 
-            var player = lobby.Players.FirstOrDefault(p => p.Token == token);
-
-            if (player == null)
-            {
-                Response.StatusCode = (int)HttpStatusCode.BadRequest;
-                yield break;
-            }
-
             while (true)
             {
                 yield return new ListenLobbyResponse(
                     lobby.Name,
-                    player.Name,
                     lobby.Players.Select(p => new ListenLobbyPlayerEntry(p.Name, p.IsReady)));
 
                 Thread.Sleep(100); // Wait for anything to change instead
+            }
+        }
+
+        [HttpPost(URL.Lobby.SetReady)]
+        public SetReadyResponse SetReady(SetReadyRequest request)
+        {
+            var token = GetPlayerToken();
+            var lobby = this.lobbyService.FindLobbyByPlayerToken(token);
+
+            if (lobby == null)
+            {
+                Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                return new SetReadyResponse();
+            }
+
+            lobby.SetPlayerReadyByToken(token, request.IsReady);
+
+            return new SetReadyResponse();
+        }
+
+        [HttpPost(URL.Lobby.StartGame)]
+        public StartGameResponse StartGame()
+        {
+            var token = GetPlayerToken();
+
+            if (string.IsNullOrEmpty(token))
+            {
+                Response.StatusCode = (int)HttpStatusCode.Unauthorized;
+                return StartGameResponse.Empty;
+            }
+
+            var lobby = this.lobbyService.FindLobbyByPlayerToken(token);
+
+            if (lobby == default)
+            {
+                Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                return StartGameResponse.Empty;
+            }
+
+            var player = lobby.GetPlayerByToken(token);
+
+            if (player == default)
+            {
+                Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                return StartGameResponse.Empty;
+            }
+
+            if (player.Name != lobby.AdminPlayerName)
+            {
+                Response.StatusCode = (int)HttpStatusCode.Unauthorized;
+                return StartGameResponse.Empty;
+            }
+
+            if (lobby.Players.Count() < 2)
+            {
+                return new StartGameResponse(false, StartGameFailedReason.NotEnoughPlayers);
+            }
+
+            var allPlayerReady = lobby.Players.All(p => p.IsReady);
+
+            if (allPlayerReady)
+            {
+                // TODO: Success
+            }
+            else
+            {
+                return new StartGameResponse(false, StartGameFailedReason.PlayerNotReady);
             }
         }
 
@@ -112,23 +170,6 @@ namespace Uno.Server.Controllers
             }
 
             lobby.RemovePlayerByToken(token);
-        }
-
-        [HttpPost(URL.Lobby.SetReady)]
-        public SetReadyResponse SetReady(SetReadyRequest request)
-        {
-            var token = GetPlayerToken();
-            var lobby = this.lobbyService.FindLobbyByPlayerToken(token);
-
-            if (lobby == null)
-            {
-                Response.StatusCode = (int)HttpStatusCode.BadRequest;
-                return new SetReadyResponse();
-            }
-
-            lobby.SetPlayerReadyByToken(token, request.IsReady);
-
-            return new SetReadyResponse();
         }
 
         private string GetPlayerToken()

@@ -12,12 +12,15 @@
 
         private readonly List<LobbyPlayer> players = new();
 
-        public Lobby(string name)
+        public Lobby(string name, string adminName)
         {
             this.Name = name;
+            this.AdminPlayerName = adminName;
         }
 
         public string Name { get; }
+
+        public string AdminPlayerName { get; }
 
         /// <summary>
         /// The players within the lobby.
@@ -88,6 +91,16 @@
                 var index = players.FindIndex(p => p.Token == token);
                 this.players[index] = this.players[index] with { IsReady = isReady };
             }
+        }
+
+        /// <summary>
+        /// Searches the player with the given token.
+        /// </summary>
+        /// <param name="token">The player token.</param>
+        /// <returns>The player, or <see langword="default"/> if there is no player with the given token.</returns>
+        public LobbyPlayer? GetPlayerByToken(string token)
+        {
+            return players.FirstOrDefault(p => p.Token == token);
         }
     }
 }

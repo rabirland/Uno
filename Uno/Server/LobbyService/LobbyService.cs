@@ -20,7 +20,7 @@ namespace Uno.Server.LobbyService
                 return string.Empty;
             }
 
-            var lobby = new Lobby(name);
+            var lobby = new Lobby(name, adminName);
             var adminToken = lobby.AddPlayer(adminName);
             if (string.IsNullOrEmpty(adminToken))
             {

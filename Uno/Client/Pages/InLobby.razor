@@ -1,9 +1,11 @@
 ﻿@page "/lobby"
 
 @using Uno.Client
+@using Uno.Client.GameService
 @using Uno.Shared
 
 @inject Api api
+@inject IGameService gameService
 
 <h4>@lastUpdate.LobbyName</h4>
 
@@ -45,7 +47,7 @@
             this.lastUpdate = lobbyStatus;
             this.isReady = lobbyStatus
                 .Players
-                .First(p => p.Name == lobbyStatus.PlayerName)
+                .First(p => p.Name == this.gameService.PlayerName)
                 .IsReady;
             this.waitingForReadyResponse = false;
 

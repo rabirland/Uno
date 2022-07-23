@@ -12,6 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\UnoGame\UnoGame.csproj" />
     <ProjectReference Include="..\Client\Uno.Client.csproj" />
     <ProjectReference Include="..\Shared\Uno.Shared.csproj" />
   </ItemGroup>

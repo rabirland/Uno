@@ -12,6 +12,7 @@
             public const string Listen = Controller + "/listen";
             public const string Join = Controller + "/join";
             public const string SetReady = Controller + "/set-ready";
+            public const string StartGame = Controller + "/start-game";
         }
     }
 }
