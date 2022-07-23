@@ -1,4 +1,5 @@
 using Uno.Server;
+using Uno.Server.Middlewares;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -33,5 +34,14 @@ app.UseRouting();
 app.MapRazorPages();
 app.MapControllers();
 app.MapFallbackToFile("index.html");
+
+app.UseMiddleware<DataStreamMiddleware>(); // Advised to come after every other middleware
+
+/*
+ 
+ app.UseWhen(context => context.Request.Path.StartsWithSegments("/api"), appBuilder =>
+        {
+            appBuilder.UseMiddleware<MyMiddlewareOne>();
+        });*/
 
 app.Run();

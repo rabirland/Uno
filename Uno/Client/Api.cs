@@ -11,8 +11,8 @@ public record Api(HttpClient client)
         public Task<CreateLobbyResponse> CreateLobbyAsync(CreateLobbyRequest request) =>
             this.client.PostAsApiJsonAsync<CreateLobbyResponse>(URL.Lobby.Create, request);
 
-        public Task<ListenLobbyResponse> ListenLobbyAsync(ListenLobbyRequest request) =>
-            this.client.PostAsApiJsonAsync<ListenLobbyResponse>(URL.Lobby.Listen, request);
+        public IAsyncEnumerable<ListenLobbyResponse> ListenLobbyAsync(ListenLobbyRequest request) =>
+            this.client.PostAsJsonStreamAsync<ListenLobbyResponse>(URL.Lobby.Listen, request);
 
         public Task<JoinLobbyResponse> JoinLobbyAsync(JoinLobbyRequest request) =>
             this.client.PostAsApiJsonAsync<JoinLobbyResponse>(URL.Lobby.Join, request);

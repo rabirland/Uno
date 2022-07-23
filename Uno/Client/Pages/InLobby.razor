@@ -1,0 +1,36 @@
+﻿@page "/lobby"
+
+@using Uno.Client
+@using Uno.Shared
+
+@inject Api api
+
+<h4>@lastUpdate.LobbyName</h4>
+<ul>
+    @foreach (var playerName in lastUpdate.Players)
+    {
+        <li>@playerName</li>
+    }
+</ul>
+
+@code {
+    ListenLobbyResponse lastUpdate = new ListenLobbyResponse(string.Empty, Array.Empty<string>());
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+
+        ListenLobby()
+            .CatchExceptions();
+    }
+
+    private async Task ListenLobby()
+    {
+        await foreach (var lobbyStatus in api.Lobby.ListenLobbyAsync(new ListenLobbyRequest()))
+        {
+            lastUpdate = lobbyStatus;
+
+            this.StateHasChanged();
+        }
+    }
+}

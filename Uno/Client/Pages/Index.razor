@@ -16,21 +16,5 @@
 <div>@output</div>
 
 @code {
-    private string output = "Start ";
-
-    protected override void OnInitialized()
-    {
-        LobbyListenerTask()
-            .CatchExceptions(); // Run in background
-    }
-
-    private async Task LobbyListenerTask()
-    {
-        await foreach (var response in http.PostAsJsonStreamAsync<ListenLobbyResponse>(URL.Lobby.Listen, new ListenLobbyRequest { Token = "token" }))
-        {
-            output += response.Test + " ";
-
-            this.StateHasChanged();
-        }
-    }
+    private string output = "Hey";
 }

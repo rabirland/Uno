@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System.Net;
-using System.Text;
-using System.Text.Json;
+using Uno.Server.Annotation;
 using Uno.Server.LobbyService;
 using Uno.Shared;
 
@@ -58,15 +57,16 @@ namespace Uno.Server.Controllers
             return new JoinLobbyResponse(string.IsNullOrEmpty(token) == false);
         }
 
+        [DataStream]
         [HttpPost(URL.Lobby.Listen)]
-        public async Task Listen(ListenLobbyRequest request)
+        public IEnumerable<ListenLobbyResponse> Listen(ListenLobbyRequest request)
         {
             var token = GetTokenCookie();
 
             if (string.IsNullOrEmpty(token))
             {
                 Response.StatusCode = (int)HttpStatusCode.Unauthorized;
-                await Response.CompleteAsync();
+                yield break;
             }
 
             var lobby = lobbyService.FindLobbyByPlayerToken(token);
@@ -74,31 +74,36 @@ namespace Uno.Server.Controllers
             if (lobby == null)
             {
                 Response.StatusCode = (int)HttpStatusCode.BadRequest;
-                await Response.CompleteAsync();
+                yield break;
             }
 
-            Response.ContentType = "application/json";
-            await Response.StartAsync();
-
-            try
+            while (true)
             {
-                var isConnectionEnded = false;
-                do
-                {
-                    await Task.Delay(500);
-                    var json = JsonSerializer.Serialize(new ListenLobbyResponse { Test = $"Wot" });
-
-                    await Response.WriteAsync($"{json.Length}\r\n", Encoding.UTF8);
-                    await Response.WriteAsync(json, Encoding.UTF8);
-
-                    isConnectionEnded = HttpContext.RequestAborted.IsCancellationRequested;
-                }
-                while (isConnectionEnded == false);
+                Thread.Sleep(1000);
+                yield return new ListenLobbyResponse(
+                    lobby.Name,
+                    lobby.Players.Select(p => p.Name));
             }
-            catch (Exception ex)
+        }
+
+        [NonAction]
+        public void ListenEnded()
+        {
+            var token = GetTokenCookie();
+
+            if (string.IsNullOrEmpty(token))
             {
-
+                return; // Shouldn't happen
             }
+
+            var lobby = lobbyService.FindLobbyByPlayerToken(token);
+
+            if (lobby == null)
+            {
+                return; // Shouldn't happen
+            }
+
+            lobby.RemovePlayerByToken(token);
         }
 
         private void AppendTokenCookie(string token)

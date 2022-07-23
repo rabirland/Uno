@@ -2,6 +2,7 @@
 @using Uno.Shared
 
 @inject Api api
+@inject NavigationManager navigationManager
 
 Pick lobby
 
@@ -22,25 +23,18 @@ Pick lobby
     <button @onclick="OnClickJoinLobby">Join</button>
 </div>
 
-<div>
-    Token: @token
-</div>
-
 @code {
     private string playerName = string.Empty;
     private string newLobbyName = string.Empty;
     private string joinLobbyName = string.Empty;
 
-    private string token = string.Empty;
-
     private async Task OnClickCreateLobby()
     {
-        var result = await this.api.Lobby.CreateLobbyAsync(new CreateLobbyRequest { LobbyName = newLobbyName, PlayerName = playerName });
+        var result = await this.api.Lobby.CreateLobbyAsync(new CreateLobbyRequest(newLobbyName, playerName));
 
         if (result.IsSuccessful)
         {
-            this.token = result.token;
-            this.StateHasChanged();
+            navigationManager.NavigateTo("/lobby");
         }
     }
 
@@ -50,8 +44,7 @@ Pick lobby
 
         if (result.IsSuccessful)
         {
-            this.token = result.Token;
-            this.StateHasChanged();
+            navigationManager.NavigateTo("/lobby");
         }
     }
 }

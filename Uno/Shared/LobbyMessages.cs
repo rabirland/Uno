@@ -7,7 +7,7 @@
     }
 
     public record ListenLobbyRequest();
-    public record ListenLobbyResponse();
+    public record ListenLobbyResponse(string LobbyName, IEnumerable<string> Players);
 
     public record JoinLobbyRequest(string? PlayerName, string? LobbyName);
     public record JoinLobbyResponse(bool IsSuccessful)

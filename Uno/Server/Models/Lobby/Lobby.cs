@@ -20,6 +20,11 @@
         public object Lock { get; } = new();
 
         /// <summary>
+        /// The players within the lobby.
+        /// </summary>
+        public IEnumerable<LobbyPlayer> Players => this.players;
+
+        /// <summary>
         /// Adds a player to the lobby.
         /// </summary>
         /// <param name="playerName">The name of the player.</param>
@@ -35,6 +40,20 @@
                 var token = TokenCreator.CreateRandomToken(256);
                 players.Add(new LobbyPlayer(playerName, token));
                 return token;
+            }
+        }
+
+        /// <summary>
+        /// Removes a player from the lobby given it's token.
+        /// </summary>
+        /// <param name="token">The player's security token.</param>
+        public void RemovePlayerByToken(string token)
+        {
+            var index = this.players.FindIndex(p => p.Token == token);
+
+            if (index >= 0)
+            {
+                this.players.RemoveAt(index);
             }
         }
 
