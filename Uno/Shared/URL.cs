@@ -14,5 +14,11 @@
             public const string SetReady = Controller + "/set-ready";
             public const string StartGame = Controller + "/start-game";
         }
+
+        public static class Game
+        {
+            public const string Controller = "/api/game";
+            public const string Listen = Controller + "/listen";
+        }
     }
 }

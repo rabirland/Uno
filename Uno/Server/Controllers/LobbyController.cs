@@ -64,7 +64,7 @@ namespace Uno.Server.Controllers
         [HttpPost(URL.Lobby.Listen)]
         public IEnumerable<ListenLobbyResponse> Listen(ListenLobbyRequest request)
         {
-            var token = GetPlayerToken();
+            var token = this.GetPlayerToken();
 
             if (string.IsNullOrEmpty(token))
             {
@@ -93,7 +93,7 @@ namespace Uno.Server.Controllers
         [HttpPost(URL.Lobby.SetReady)]
         public SetReadyResponse SetReady(SetReadyRequest request)
         {
-            var token = GetPlayerToken();
+            var token = this.GetPlayerToken();
             var lobby = this.lobbyService.FindLobbyByPlayerToken(token);
 
             if (lobby == null)
@@ -110,7 +110,7 @@ namespace Uno.Server.Controllers
         [HttpPost(URL.Lobby.StartGame)]
         public StartGameResponse StartGame()
         {
-            var token = GetPlayerToken();
+            var token = this.GetPlayerToken();
 
             if (string.IsNullOrEmpty(token))
             {
@@ -165,7 +165,7 @@ namespace Uno.Server.Controllers
         [NonAction]
         public void ListenEnded()
         {
-            var token = GetPlayerToken();
+            var token = this.GetPlayerToken();
 
             if (string.IsNullOrEmpty(token))
             {
@@ -186,11 +186,6 @@ namespace Uno.Server.Controllers
             {
                 this.lobbyService.RemoveLobby(lobby.Name);
             }
-        }
-
-        private string GetPlayerToken()
-        {
-            return Request.Headers[SharedConsts.HttpHeaders.PlayerToken];
         }
     }
 }
