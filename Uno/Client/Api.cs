@@ -16,5 +16,8 @@ public record Api(HttpClient client)
 
         public Task<JoinLobbyResponse> JoinLobbyAsync(JoinLobbyRequest request) =>
             this.client.PostAsApiJsonAsync<JoinLobbyResponse>(URL.Lobby.Join, request);
+
+        public Task<SetReadyResponse> SetReadyAsync(SetReadyRequest request) =>
+            this.client.PostAsApiJsonAsync<SetReadyResponse>(URL.Lobby.SetReady, request);
     }
 }

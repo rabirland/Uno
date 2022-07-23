@@ -1,26 +1,28 @@
-﻿@page "/pick-lobby"
+﻿@page "/"
+@using Uno.Client.GameService
 @using Uno.Shared
 
 @inject Api api
 @inject NavigationManager navigationManager
+@inject IGameService gameService
 
-Pick lobby
+<h2>Pick/Create lobby</h2>
 
-<div>
-    <span>Player name:</span>
-    <input @bind-value="playerName"/>
+<div class="form-group">
+    <span class="label">Player name:</span>
+    <input class="input" @bind-value="playerName"/>
 </div>
 
-<div>
-    Create new lobby:
-    <input @bind-value="newLobbyName"/>
-    <button @onclick="OnClickCreateLobby">Create</button>
+<div class="form-group">
+    <span class="label">Create new lobby:</span>
+    <input class="input" @bind-value="newLobbyName"/>
+    <button class="btn" @onclick="OnClickCreateLobby">Create</button>
 </div>
 
-<div>
-    Join lobby:
-    <input @bind-value="joinLobbyName"/>
-    <button @onclick="OnClickJoinLobby">Join</button>
+<div class="form-group">
+    <span class="label">Join lobby:</span>
+    <input class="input" @bind-value="joinLobbyName"/>
+    <button class="btn" @onclick="OnClickJoinLobby">Join</button>
 </div>
 
 @code {
@@ -34,6 +36,7 @@ Pick lobby
 
         if (result.IsSuccessful)
         {
+            gameService.Set(result.AdminPlayerToken, playerName);
             navigationManager.NavigateTo("/lobby");
         }
     }
@@ -44,6 +47,7 @@ Pick lobby
 
         if (result.IsSuccessful)
         {
+            gameService.Set(result.Token, playerName);
             navigationManager.NavigateTo("/lobby");
         }
     }

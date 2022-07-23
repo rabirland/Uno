@@ -33,9 +33,8 @@ namespace Uno.Server.Controllers
             }
 
             var token = this.lobbyService.CreateLobby(request.LobbyName, request.PlayerName);
-            AppendTokenCookie(token);
 
-            return new CreateLobbyResponse(string.IsNullOrEmpty(token) == false);
+            return new CreateLobbyResponse(string.IsNullOrEmpty(token) == false, token);
         }
 
         [HttpPost(URL.Lobby.Join)]
@@ -52,16 +51,15 @@ namespace Uno.Server.Controllers
             }
 
             var token = this.lobbyService.AddPlayerToLobby(request.PlayerName, request.LobbyName);
-            AppendTokenCookie(token);
 
-            return new JoinLobbyResponse(string.IsNullOrEmpty(token) == false);
+            return new JoinLobbyResponse(string.IsNullOrEmpty(token) == false, token);
         }
 
         [DataStream]
         [HttpPost(URL.Lobby.Listen)]
         public IEnumerable<ListenLobbyResponse> Listen(ListenLobbyRequest request)
         {
-            var token = GetTokenCookie();
+            var token = GetPlayerToken();
 
             if (string.IsNullOrEmpty(token))
             {
@@ -77,19 +75,29 @@ namespace Uno.Server.Controllers
                 yield break;
             }
 
+            var player = lobby.Players.FirstOrDefault(p => p.Token == token);
+
+            if (player == null)
+            {
+                Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                yield break;
+            }
+
             while (true)
             {
-                Thread.Sleep(1000);
                 yield return new ListenLobbyResponse(
                     lobby.Name,
-                    lobby.Players.Select(p => p.Name));
+                    player.Name,
+                    lobby.Players.Select(p => new ListenLobbyPlayerEntry(p.Name, p.IsReady)));
+
+                Thread.Sleep(100); // Wait for anything to change instead
             }
         }
 
         [NonAction]
         public void ListenEnded()
         {
-            var token = GetTokenCookie();
+            var token = GetPlayerToken();
 
             if (string.IsNullOrEmpty(token))
             {
@@ -106,20 +114,26 @@ namespace Uno.Server.Controllers
             lobby.RemovePlayerByToken(token);
         }
 
-        private void AppendTokenCookie(string token)
+        [HttpPost(URL.Lobby.SetReady)]
+        public SetReadyResponse SetReady(SetReadyRequest request)
         {
-            var options = new CookieOptions
+            var token = GetPlayerToken();
+            var lobby = this.lobbyService.FindLobbyByPlayerToken(token);
+
+            if (lobby == null)
             {
-                SameSite = SameSiteMode.Strict,
-                Secure = true,
-                HttpOnly = true,
-            };
-            Response.Cookies.Append(Consts.CookieKeys.PlayerToken, token, options);
+                Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                return new SetReadyResponse();
+            }
+
+            lobby.SetPlayerReadyByToken(token, request.IsReady);
+
+            return new SetReadyResponse();
         }
 
-        private string GetTokenCookie()
+        private string GetPlayerToken()
         {
-            return Request.Cookies[Consts.CookieKeys.PlayerToken] ?? string.Empty;
+            return Request.Headers[SharedConsts.HttpHeaders.PlayerToken];
         }
     }
 }

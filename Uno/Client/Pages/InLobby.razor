@@ -6,15 +6,29 @@
 @inject Api api
 
 <h4>@lastUpdate.LobbyName</h4>
-<ul>
-    @foreach (var playerName in lastUpdate.Players)
-    {
-        <li>@playerName</li>
-    }
-</ul>
+
+@foreach (var player in lastUpdate.Players)
+{
+    <div class="btn disabled @GetListButtonClass(player)">@player.Name</div>
+}
+
+<div>
+    <button class="btn @readyButtonColorClass @readyButtonStatusClass" @onclick="OnClickReady">Ready</button>
+</div>
+
 
 @code {
-    ListenLobbyResponse lastUpdate = new ListenLobbyResponse(string.Empty, Array.Empty<string>());
+    private bool waitingForReadyResponse = true;
+    private bool isReady = false;
+    ListenLobbyResponse lastUpdate = ListenLobbyResponse.Empty;
+
+    private string readyButtonColorClass => this.isReady
+        ? "safe"
+        : "unsafe";
+
+    private string readyButtonStatusClass => this.waitingForReadyResponse
+        ? "disabled"
+        : string.Empty;
 
     protected override void OnInitialized()
     {
@@ -28,9 +42,27 @@
     {
         await foreach (var lobbyStatus in api.Lobby.ListenLobbyAsync(new ListenLobbyRequest()))
         {
-            lastUpdate = lobbyStatus;
+            this.lastUpdate = lobbyStatus;
+            this.isReady = lobbyStatus
+                .Players
+                .First(p => p.Name == lobbyStatus.PlayerName)
+                .IsReady;
+            this.waitingForReadyResponse = false;
 
             this.StateHasChanged();
         }
+    }
+
+    private async Task OnClickReady()
+    {
+        this.waitingForReadyResponse = true;
+        await api.Lobby.SetReadyAsync(new SetReadyRequest(!isReady));
+    }
+
+    private string GetListButtonClass(ListenLobbyPlayerEntry player)
+    {
+        return player.IsReady
+            ? "safe"
+            : "unsafe";
     }
 }

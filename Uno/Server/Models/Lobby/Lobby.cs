@@ -5,6 +5,11 @@
     /// </summary>
     public class Lobby
     {
+        /// <summary>
+        /// The object used for thread locking operations on one lobby.
+        /// </summary>
+        private readonly object lockObj = new();
+
         private readonly List<LobbyPlayer> players = new();
 
         public Lobby(string name)
@@ -13,11 +18,6 @@
         }
 
         public string Name { get; }
-
-        /// <summary>
-        /// The object used for thread locking operations on one lobby.
-        /// </summary>
-        public object Lock { get; } = new();
 
         /// <summary>
         /// The players within the lobby.
@@ -31,15 +31,18 @@
         /// <returns>The security token of the player, or empty string if the player could not be added.</returns>
         public string AddPlayer(string playerName)
         {
-            if (players.Any(p => p.Name == playerName))
+            lock (this.lockObj)
             {
-                return string.Empty;
-            }
-            else
-            {
-                var token = TokenCreator.CreateRandomToken(256);
-                players.Add(new LobbyPlayer(playerName, token));
-                return token;
+                if (players.Any(p => p.Name == playerName))
+                {
+                    return string.Empty;
+                }
+                else
+                {
+                    var token = TokenCreator.CreateRandomToken(256);
+                    players.Add(new LobbyPlayer(playerName, token, false));
+                    return token;
+                }
             }
         }
 
@@ -49,11 +52,14 @@
         /// <param name="token">The player's security token.</param>
         public void RemovePlayerByToken(string token)
         {
-            var index = this.players.FindIndex(p => p.Token == token);
-
-            if (index >= 0)
+            lock (this.lockObj)
             {
-                this.players.RemoveAt(index);
+                var index = this.players.FindIndex(p => p.Token == token);
+
+                if (index >= 0)
+                {
+                    this.players.RemoveAt(index);
+                }
             }
         }
 
@@ -64,7 +70,24 @@
         /// <returns><see langword="true"/> if any player in this lobby has the given security token.</returns>
         public bool HasPlayerByToken(string playerToken)
         {
-            return players.Any(p => p.Token == playerToken);
+            lock (this.lockObj)
+            {
+                return players.Any(p => p.Token == playerToken);
+            }
+        }
+
+        /// <summary>
+        /// Sets a player's ready state given the player token.
+        /// </summary>
+        /// <param name="token">The token of the player.</param>
+        /// <param name="isReady">Whether the player is ready.</param>
+        public void SetPlayerReadyByToken(string token, bool isReady)
+        {
+            lock (lockObj)
+            {
+                var index = players.FindIndex(p => p.Token == token);
+                this.players[index] = this.players[index] with { IsReady = isReady };
+            }
         }
     }
 }

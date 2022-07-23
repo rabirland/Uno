@@ -37,11 +37,8 @@ namespace Uno.Server.LobbyService
             var lobby = lobbies.FirstOrDefault(l => l.Name == lobbyName);
             if (lobby != null)
             {
-                lock (lobby.Lock)
-                {
-                    var token = lobby.AddPlayer(playerName);
-                    return token;
-                }
+                var token = lobby.AddPlayer(playerName);
+                return token;
             }
             else
             {
