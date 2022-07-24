@@ -21,14 +21,14 @@
 
 <div class="form-group">
     <span class="label">Join lobby:</span>
-    <input class="input" @bind-value="joinLobbyName"/>
+    <input class="input" @bind-value="joinLobbyId"/>
     <button class="btn" @onclick="OnClickJoinLobby">Join</button>
 </div>
 
 @code {
     private string playerName = string.Empty;
     private string newLobbyName = string.Empty;
-    private string joinLobbyName = string.Empty;
+    private string joinLobbyId = string.Empty;
 
     private async Task OnClickCreateLobby()
     {
@@ -43,12 +43,15 @@
 
     private async Task OnClickJoinLobby()
     {
-        var result = await this.api.Lobby.JoinLobbyAsync(new JoinLobbyRequest(playerName, joinLobbyName));
-
-        if (result.IsSuccessful)
+        if (long.TryParse(joinLobbyId, out var id))
         {
-            gameService.Set(result.Token, playerName);
-            navigationManager.NavigateTo("/lobby");
+            var result = await this.api.Lobby.JoinLobbyAsync(new JoinLobbyRequest(playerName, id));
+
+            if (result.IsSuccessful)
+            {
+                gameService.Set(result.Token, playerName);
+                navigationManager.NavigateTo("/lobby");
+            }
         }
     }
 }

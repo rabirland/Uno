@@ -18,9 +18,9 @@ namespace Uno.Server.LobbyService
         /// Attempts to add a player to a lobby.
         /// </summary>
         /// <param name="playerName">The name of the player.</param>
-        /// <param name="lobbyName">The name of the lobby.</param>
+        /// <param name="lobbyId">The id of the lobby.</param>
         /// <returns>The security token of the added player, or empty string if could not be added.</returns>
-        string AddPlayerToLobby(string playerName, string lobbyName);
+        string AddPlayerToLobby(string playerName, long lobbyId);
 
         /// <summary>
         /// Finds the lobby that contains the player with the given token.
@@ -33,6 +33,6 @@ namespace Uno.Server.LobbyService
         /// Removes a lobby, given it's name.
         /// </summary>
         /// <param name="name">The lobby name.</param>
-        void RemoveLobby(string name);
+        void RemoveLobby(long id);
     }
 }

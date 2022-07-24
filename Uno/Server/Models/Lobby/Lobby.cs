@@ -12,15 +12,33 @@
 
         private readonly List<LobbyPlayer> players = new();
 
-        public Lobby(string name, string adminName)
+        public Lobby(long id, string name, string adminName)
         {
+            this.Id = id;
             this.Name = name;
             this.AdminPlayerName = adminName;
         }
 
+        /// <summary>
+        /// The unqie ID of the lobby.
+        /// </summary>
+        public long Id { get; }
+
+        /// <summary>
+        /// The name of the lobby.
+        /// </summary>
         public string Name { get; }
 
+        /// <summary>
+        /// The name of the admin player.
+        /// </summary>
         public string AdminPlayerName { get; }
+
+        /// <summary>
+        /// Whether the lobby is "finished".
+        /// A finished lobby means the game is ready and the clients should listen for that.
+        /// </summary>
+        public bool IsFinished { get; private set; }
 
         /// <summary>
         /// The players within the lobby.
@@ -101,6 +119,14 @@
         public LobbyPlayer? GetPlayerByToken(string token)
         {
             return players.FirstOrDefault(p => p.Token == token);
+        }
+
+        /// <summary>
+        /// Marks the lobby as "finished" where the game is ready and the players should be moved.
+        /// </summary>
+        public void MarkFinished()
+        {
+            this.IsFinished = true;
         }
     }
 }

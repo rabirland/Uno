@@ -6,6 +6,7 @@
 
 @inject Api api
 @inject IGameService gameService
+@inject NavigationManager navigationManager
 
 <h4>@lastUpdate.LobbyName</h4>
 
@@ -51,7 +52,14 @@
                 .IsReady;
             this.waitingForReadyResponse = false;
 
-            this.StateHasChanged();
+            if (lobbyStatus.GameReady)
+            {
+                this.navigationManager.NavigateTo("/game");
+            }
+            else
+            {
+                this.StateHasChanged();
+            }
         }
     }
 

@@ -9,14 +9,17 @@ public record CreateLobbyResponse(bool IsSuccessful, string AdminPlayerToken)
 
 //=========================================================================================== Listen Lobby
 public record ListenLobbyRequest();
-public record ListenLobbyResponse(string LobbyName, IEnumerable<ListenLobbyPlayerEntry> Players)
+public record ListenLobbyResponse(
+    string LobbyName,
+    IEnumerable<ListenLobbyPlayerEntry> Players,
+    bool GameReady)
 {
-    public static ListenLobbyResponse Empty { get; } = new ListenLobbyResponse(string.Empty, Array.Empty<ListenLobbyPlayerEntry>());
+    public static ListenLobbyResponse Empty { get; } = new ListenLobbyResponse(string.Empty, Array.Empty<ListenLobbyPlayerEntry>(), false);
 }
 public record ListenLobbyPlayerEntry(string Name, bool IsReady);
 
 //=========================================================================================== Join Lobby
-public record JoinLobbyRequest(string? PlayerName, string? LobbyName);
+public record JoinLobbyRequest(string? PlayerName, long lobbyId);
 public record JoinLobbyResponse(bool IsSuccessful, string Token)
 {
     public static JoinLobbyResponse Failed => new JoinLobbyResponse(false, string.Empty);
@@ -37,5 +40,10 @@ public enum StartGameFailedReason
     Unknown,
     PlayerNotReady,
     NotEnoughPlayers,
+
+    /// <summary>
+    /// The lobby is valid for a game to be started.
+    /// </summary>
+    Valid,
 }
 
