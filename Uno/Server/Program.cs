@@ -1,5 +1,6 @@
 using Uno.Server;
 using Uno.Server.Middlewares;
+using Uno.Shared;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -36,10 +37,14 @@ app.MapControllers();
 app.MapFallbackToFile("index.html");
 
 app.UseMiddleware<DataStreamMiddleware>(); // Advised to come after every other middleware
-
-/*app.UseWhen(context => context.Request.Path.StartsWithSegments("/api"), appBuilder =>
+/*TODO: MAKE EXTENSION METHOD:
+app.UseWhen(context => context.Request.Path.StartsWithSegments("/api"), appBuilder =>
 {
     appBuilder.UseMiddleware<MyMiddlewareOne>();
 });*/
+
+// Premature validations
+EnumMapper.EnsureValueMatching<ListenGameResponse.CardColor, UnoGame.CardColor>();
+EnumMapper.EnsureValueMatching<ListenGameResponse.CardType, UnoGame.CardType>();
 
 app.Run();

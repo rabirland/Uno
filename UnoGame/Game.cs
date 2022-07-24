@@ -37,6 +37,8 @@ public class Game
 
     public string CurrentPlayer => this.players[currentPlayerIndex].Name;
 
+    public IEnumerable<Player> Players => this.players;
+
     /// <summary>
     /// The player tries to drop a card.
     /// </summary>

@@ -37,10 +37,28 @@ public class GameController : Controller
         }
 
         var game = gameEntry.Game;
+        var listeningPlayer = gameEntry.Players.First(p => p.Token == token);
+        var gamePlayer = game.Players.First(p => p.Name == listeningPlayer.PlayerName);
 
-        while(true)
+        while (true)
         {
-            yield return new ListenGameResponse(ListenGameStatus.AwaitingConnecting);
+            var players = game
+                .Players
+                .Where(p => p.Name != listeningPlayer.PlayerName)
+                .Select(p => new ListenGameResponse.PlayerEntry(p.Name, p.Cards.Count()));
+
+            var cards = gamePlayer
+                .Cards
+                .Select(c => new ListenGameResponse.CardCount(
+                    EnumMapper.CardColor.ToListenGameResponse(c.Key.Color),
+                    EnumMapper.CardType.ToListenGameResponse(c.Key.Type),
+                    c.Value));
+
+            yield return new ListenGameResponse(
+                ListenGameResponse.GameStatus.AwaitingConnecting,
+                game.CurrentPlayer,
+                players,
+                cards);
         }
     }
 }
