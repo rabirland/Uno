@@ -16,11 +16,22 @@ public interface IGameService
     string PlayerName { get; }
 
     /// <summary>
+    /// The name of the admin player.
+    /// </summary>
+    string AdminPlayerName { get; }
+
+    /// <summary>
+    /// Whether this player is the admin.
+    /// </summary>
+    bool IsAdmin { get; }
+
+    /// <summary>
     /// Sets the player data.
     /// </summary>
     /// <param name="token">The security token.</param>
     /// <param name="playerName">The player name.</param>
-    void Set(string token, string playerName);
+    /// <param name="adminPlayerName">The name of the admin player.</param>
+    void Set(string token, string playerName, string adminPlayerName);
 
     /// <summary>
     /// Clears the player data.

@@ -1,0 +1,66 @@
+﻿@using System.Web
+@using Uno.Shared
+
+<div class="uno-card front">
+    <div class="color @fillColorClass">
+        <div class="ellipse"></div>
+
+        @if (this.text != null)
+        {
+            <div class="text-anchor">
+                <span class="text @charTiltedClass">@this.text.Value</span>
+            </div>
+            @*<div class="text-anchor @charTiltedClass">
+                <span class="uno-character @charTiltedClass">@this.text.Value</span>
+            </div>
+            <div class="text-anchor @charTiltedClass">
+                <span class="uno-character @charTiltedClass">@this.text.Value</span>
+            </div>*@
+        }
+    </div>
+</div>
+
+@code {
+    private string fillColorClass => this.Color.ToString().ToLowerInvariant();
+
+    [Parameter]
+    public ListenGameResponse.CardColor Color { get; set; }
+
+    [Parameter]
+    public ListenGameResponse.CardType Type { get; set; }
+
+    private MarkupString? text = null;
+    private string charTiltedClass = string.Empty;
+
+    protected override void OnParametersSet()
+    {
+        var raw = Type switch
+        {
+            ListenGameResponse.CardType.Num0 => "0",
+            ListenGameResponse.CardType.Num1 => "1",
+            ListenGameResponse.CardType.Num2 => "2",
+            ListenGameResponse.CardType.Num3 => "3",
+            ListenGameResponse.CardType.Num4 => "4",
+            ListenGameResponse.CardType.Num5 => "5",
+            ListenGameResponse.CardType.Num6 => "6",
+            ListenGameResponse.CardType.Num7 => "7",
+            ListenGameResponse.CardType.Num8 => "8",
+            ListenGameResponse.CardType.Num9 => "9",
+            ListenGameResponse.CardType.Block => "&#x1F6C7;", // 🛇
+            ListenGameResponse.CardType.Swap => "&#x21CB;", // ⇋
+            ListenGameResponse.CardType.Reverse => "&#x1F501;", // 🔁
+            _ => null,
+        };
+
+        // Append Unicode variation selector to prevent the texts turning into emojis
+        this.text = raw != null
+            ? new MarkupString(raw + "&#xFE0E;")
+            : null;
+
+        var isTextTilted = Type == ListenGameResponse.CardType.Swap
+            || Type == ListenGameResponse.CardType.Reverse;
+        this.charTiltedClass = isTextTilted
+            ? "tilted"
+            : string.Empty;
+    }
+}

@@ -6,6 +6,8 @@ public record Api(HttpClient client)
 {
     public LobbyApi Lobby { get; } = new LobbyApi(client);
 
+    public GameApi Game { get; } = new GameApi(client);
+
     public readonly record struct LobbyApi(HttpClient client)
     {
         public Task<CreateLobbyResponse> CreateLobbyAsync(CreateLobbyRequest request) =>
@@ -19,5 +21,14 @@ public record Api(HttpClient client)
 
         public Task<SetReadyResponse> SetReadyAsync(SetReadyRequest request) =>
             this.client.PostAsApiJsonAsync<SetReadyResponse>(URL.Lobby.SetReady, request);
+
+        public Task<StartGameResponse> StartGameAsync(StartGameRequest request) =>
+            this.client.PostAsApiJsonAsync<StartGameResponse>(URL.Lobby.StartGame, request);
+    }
+
+    public readonly record struct GameApi(HttpClient client)
+    {
+        public IAsyncEnumerable<ListenGameResponse> ListenGameAsync(ListenGameRequest request) =>
+            this.client.PostAsJsonStreamAsync<ListenGameResponse>(URL.Game.Listen, request);
     }
 }

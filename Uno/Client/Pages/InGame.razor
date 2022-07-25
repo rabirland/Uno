@@ -1,5 +1,37 @@
 ﻿@page "/game"
+@using Uno.Shared
+
+@inject Api api
+
+<UnoSwapArrow />
+
+<CardBackFace />
+
+@foreach (var color in Enum.GetValues<ListenGameResponse.CardColor>())
+{
+    @foreach (var type in Enum.GetValues<ListenGameResponse.CardType>())
+    {
+        <CardFrontFace Color="color" Type="type"/>
+    }
+    <br/>
+}
 
 @code {
+    private ListenGameResponse lastStatus = ListenGameResponse.Empty;
 
+    protected override void OnInitialized()
+    {
+        base.OnInitializedAsync();
+
+        ListenGame()
+            .CatchExceptions();
+    }
+
+    private async Task ListenGame()
+    {
+        //await foreach (var status in this.api.Game.ListenGameAsync(new ListenGameRequest()))
+        //{
+            
+        //}
+    }
 }

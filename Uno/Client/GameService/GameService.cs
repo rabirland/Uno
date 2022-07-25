@@ -9,10 +9,17 @@ public class GameService : IGameService
     public string PlayerName { get; private set; } = string.Empty;
 
     /// <inheritdoc/>
-    public void Set(string token, string playerName)
+    public string AdminPlayerName { get; private set; } = string.Empty;
+
+    /// <inheritdoc/>
+    public bool IsAdmin => this.PlayerName == this.AdminPlayerName;
+
+    /// <inheritdoc/>
+    public void Set(string token, string playerName, string adminPlayerName)
     {
         this.Token = token;
         this.PlayerName = playerName;
+        this.AdminPlayerName = adminPlayerName;
     }
 
     /// <inheritdoc/>

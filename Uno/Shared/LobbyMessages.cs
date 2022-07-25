@@ -12,17 +12,22 @@ public record ListenLobbyRequest();
 public record ListenLobbyResponse(
     string LobbyName,
     IEnumerable<ListenLobbyPlayerEntry> Players,
-    bool GameReady)
+    bool GameReady,
+    bool CanStart)
 {
-    public static ListenLobbyResponse Empty { get; } = new ListenLobbyResponse(string.Empty, Array.Empty<ListenLobbyPlayerEntry>(), false);
+    public static ListenLobbyResponse Empty { get; } = new ListenLobbyResponse(
+        string.Empty,
+        Enumerable.Empty<ListenLobbyPlayerEntry>(),
+        false,
+        false);
 }
 public record ListenLobbyPlayerEntry(string Name, bool IsReady);
 
 //=========================================================================================== Join Lobby
-public record JoinLobbyRequest(string? PlayerName, long lobbyId);
-public record JoinLobbyResponse(bool IsSuccessful, string Token)
+public record JoinLobbyRequest(string? PlayerName, string lobbyName);
+public record JoinLobbyResponse(bool IsSuccessful, string Token, string AdminPlayerName)
 {
-    public static JoinLobbyResponse Failed => new JoinLobbyResponse(false, string.Empty);
+    public static JoinLobbyResponse Failed => new JoinLobbyResponse(false, string.Empty, string.Empty);
 }
 
 //=========================================================================================== Set Ready

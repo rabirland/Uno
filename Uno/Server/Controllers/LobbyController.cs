@@ -24,7 +24,6 @@ namespace Uno.Server.Controllers
 			this.gameService = gameService;
 		}
 
-		// TODO: handle duplicated lobby names
 		[HttpPost(URL.Lobby.Create)]
 		public CreateLobbyResponse Create(CreateLobbyRequest request)
 		{
@@ -48,12 +47,27 @@ namespace Uno.Server.Controllers
 		{
 			if (string.IsNullOrEmpty(request.PlayerName))
 			{
+				Response.StatusCode = (int)HttpStatusCode.BadRequest;
 				return JoinLobbyResponse.Failed;
 			}
 
-			var token = this.lobbyService.AddPlayerToLobby(request.PlayerName, request.lobbyId);
+			var lobby = this.lobbyService.GetLobby(request.lobbyName);
 
-			return new JoinLobbyResponse(string.IsNullOrEmpty(token) == false, token);
+			if (lobby == null)
+			{
+				Response.StatusCode = (int)HttpStatusCode.BadRequest;
+				return JoinLobbyResponse.Failed;
+			}
+
+			var token = this.lobbyService.AddPlayerToLobby(request.PlayerName, request.lobbyName);
+
+			if (string.IsNullOrEmpty(token))
+			{
+				Response.StatusCode = (int)HttpStatusCode.BadRequest;
+				return JoinLobbyResponse.Failed;
+			}
+
+			return new JoinLobbyResponse(string.IsNullOrEmpty(token) == false, token, lobby.AdminPlayerName);
 		}
 
 		[DataStream]
@@ -76,17 +90,33 @@ namespace Uno.Server.Controllers
 				yield break;
 			}
 
+			var player = lobby.GetPlayerByToken(token);
+
+			if (player == null)
+            {
+				Response.StatusCode = (int)HttpStatusCode.BadRequest;
+				yield break;
+			}
+
+			var isAdmin = player.Name == lobby.AdminPlayerName;
+
 			while (true)
 			{
+				// Only admin can see the flag
+				var canBeStarted = isAdmin
+					? CanGameBeStarted(lobby) == StartGameFailedReason.Valid
+					: false;
+
 				yield return new ListenLobbyResponse(
 					lobby.Name,
 					lobby.Players.Select(p => new ListenLobbyPlayerEntry(p.Name, p.IsReady)),
-					lobby.IsFinished);
+					lobby.IsFinished,
+					canBeStarted);
 
 				if (lobby.IsFinished)
-                {
+				{
 					yield break;
-                }
+				}
 
 				Thread.Sleep(100); // TODO: Wait for anything to change instead
 			}
@@ -150,19 +180,19 @@ namespace Uno.Server.Controllers
 			var startStatus = CanGameBeStarted(lobby);
 
 			if (startStatus == StartGameFailedReason.Valid)
-            {
+			{
 				this.gameService.Create(
 					lobby.Name,
 					lobby.Players.Select(p => new GamePlayer(p.Name, p.Token)),
 					lobby.AdminPlayerName);
 
 				lobby.MarkFinished();
-				this.lobbyService.RemoveLobby(lobby.Id);
+				this.lobbyService.RemoveLobby(lobby.Name);
 
 				return new StartGameResponse(true, startStatus);
 			}
 			else
-            {
+			{
 				return new StartGameResponse(false, startStatus);
 			}
 		}
@@ -189,12 +219,12 @@ namespace Uno.Server.Controllers
 			// Clean up empty lobbies
 			if (lobby.Players.Count() == 0)
 			{
-				this.lobbyService.RemoveLobby(lobby.Id);
+				this.lobbyService.RemoveLobby(lobby.Name);
 			}
 		}
 
-		private StartGameFailedReason CanGameBeStarted(Lobby lobby)
-        {
+		private static StartGameFailedReason CanGameBeStarted(Lobby lobby)
+		{
 			if (lobby.Players.Count() < 2)
 			{
 				return StartGameFailedReason.NotEnoughPlayers;

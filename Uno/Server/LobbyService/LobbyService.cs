@@ -20,8 +20,7 @@ namespace Uno.Server.LobbyService
                 return string.Empty;
             }
 
-            var id = this.CreateId();
-            var lobby = new Lobby(id, name, adminName);
+            var lobby = new Lobby(name, adminName);
             var adminToken = lobby.AddPlayer(adminName);
             if (string.IsNullOrEmpty(adminToken))
             {
@@ -33,9 +32,9 @@ namespace Uno.Server.LobbyService
         }
 
         /// <inheritdoc/>
-        public string AddPlayerToLobby(string playerName, long lobbyId)
+        public string AddPlayerToLobby(string playerName, string lobbyName)
         {
-            var lobby = lobbies.FirstOrDefault(l => l.Id == lobbyId);
+            var lobby = lobbies.FirstOrDefault(l => l.Name == lobbyName);
             if (lobby != null)
             {
                 var token = lobby.AddPlayer(playerName);
@@ -54,21 +53,16 @@ namespace Uno.Server.LobbyService
         }
 
         /// <inheritdoc/>
-        public void RemoveLobby(long id)
+        public void RemoveLobby(string lobbyName)
         {
-            var index = this.lobbies.FindIndex(l => l.Id == id);
+            var index = this.lobbies.FindIndex(l => l.Name == lobbyName);
             this.lobbies.RemoveAt(index);
         }
 
-        private long CreateId()
+        /// <inheritdoc/>
+        public Lobby? GetLobby(string lobbyName)
         {
-            long id;
-            do
-            {
-                id = Random.Shared.NextInt64();
-            } while (this.lobbies.Any(l => l.Id == id));
-
-            return id;
+            return lobbies.FirstOrDefault(l => l.Name == lobbyName);
         }
     }
 }

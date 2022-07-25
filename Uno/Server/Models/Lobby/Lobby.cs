@@ -12,17 +12,11 @@
 
         private readonly List<LobbyPlayer> players = new();
 
-        public Lobby(long id, string name, string adminName)
+        public Lobby(string name, string adminName)
         {
-            this.Id = id;
             this.Name = name;
             this.AdminPlayerName = adminName;
         }
-
-        /// <summary>
-        /// The unqie ID of the lobby.
-        /// </summary>
-        public long Id { get; }
 
         /// <summary>
         /// The name of the lobby.

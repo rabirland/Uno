@@ -19,6 +19,11 @@
     <button class="btn @readyButtonColorClass @readyButtonStatusClass" @onclick="OnClickReady">Ready</button>
 </div>
 
+@if (gameService.IsAdmin)
+{
+    <button class="btn @startButtonClass" @onclick="OnClickStart">Start</button>
+}
+
 
 @code {
     private bool waitingForReadyResponse = true;
@@ -32,6 +37,10 @@
     private string readyButtonStatusClass => this.waitingForReadyResponse
         ? "disabled"
         : string.Empty;
+
+    private string startButtonClass => this.lastUpdate.CanStart
+        ? "safe"
+        : "disabled";
 
     protected override void OnInitialized()
     {
@@ -61,6 +70,11 @@
                 this.StateHasChanged();
             }
         }
+    }
+
+    private async Task OnClickStart()
+    {
+        var result = await api.Lobby.StartGameAsync(new StartGameRequest());
     }
 
     private async Task OnClickReady()

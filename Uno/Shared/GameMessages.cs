@@ -8,6 +8,12 @@ public record ListenGameResponse(
     IEnumerable<ListenGameResponse.PlayerEntry> OtherPlayers,
     IEnumerable<ListenGameResponse.CardCount> Cards)
 {
+    public static ListenGameResponse Empty => new ListenGameResponse(
+        GameStatus.AwaitingConnecting,
+        String.Empty,
+        Enumerable.Empty<PlayerEntry>(),
+        Enumerable.Empty<CardCount>());
+
     public enum GameStatus
     {
         /// <summary>
