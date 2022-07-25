@@ -3,17 +3,6 @@
 
 @inject Api api
 
-<UnoCard IsBackFace="true" />
-
-@foreach (var color in Enum.GetValues<ListenGameResponse.CardColor>())
-{
-    @foreach (var type in Enum.GetValues<ListenGameResponse.CardType>())
-    {
-        <UnoCard Color="color" Type="type" IsBackFace="false"/>
-    }
-    <br/>
-}
-
 @code {
     private ListenGameResponse lastStatus = ListenGameResponse.Empty;
 
@@ -27,9 +16,9 @@
 
     private async Task ListenGame()
     {
-        //await foreach (var status in this.api.Game.ListenGameAsync(new ListenGameRequest()))
-        //{
+        await foreach (var status in this.api.Game.ListenGameAsync(new ListenGameRequest()))
+        {
             
-        //}
+        }
     }
 }
