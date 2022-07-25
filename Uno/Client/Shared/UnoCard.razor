@@ -1,0 +1,128 @@
+﻿@using System.Web
+@using Uno.Shared
+
+<div class="uno-card @this.backClass">
+    <div class="color @fillColorClass">
+        <div class="ellipse">
+            @if (this.hasColorChange)
+            {
+                <div class="color-wheel slot-1 yellow"></div>
+                <div class="color-wheel slot-2 green"></div>
+                <div class="color-wheel slot-3 blue"></div>
+                <div class="color-wheel slot-4 red"></div>
+            }
+        </div>
+
+        @if (this.hasCentralText)
+        {
+            <div class="text-anchor">
+                <span class="text @swapArrowClass @charTiltedClass">@this.text</span>
+            </div>   
+        }
+
+        @if (this.hasEdgeText)
+        {
+            <div class="text-anchor top">
+                <span class="text @swapArrowClass @charTiltedClass">@this.text</span>
+            </div>
+            <div class="text-anchor bottom">
+                <span class="text @swapArrowClass @charTiltedClass">@this.text</span>
+            </div>
+        }
+
+        @if (this.hasTwoMiniCard)
+        {
+            <span class="mini-card mini-slot-2-1"></span>
+            <span class="mini-card mini-slot-2-2"></span>
+        }
+
+        @if (this.hasFourMiniCard)
+        {
+            <span class="mini-card mini-slot-4-1 yellow"></span>
+            <span class="mini-card mini-slot-4-2 green"></span>
+            <span class="mini-card mini-slot-4-3 blue"></span>
+            <span class="mini-card mini-slot-4-4 red"></span>
+        }
+    </div>
+</div>
+
+@code {
+    private string fillColorClass => this.Color.ToString().ToLowerInvariant();
+
+    [Parameter]
+    public ListenGameResponse.CardColor Color { get; set; }
+
+    [Parameter]
+    public ListenGameResponse.CardType Type { get; set; }
+
+    [Parameter]
+    public bool IsBackFace { get; set; }
+
+    private MarkupString text = new MarkupString();
+    private string charTiltedClass = string.Empty;
+    private string swapArrowClass = string.Empty;
+    private string backClass = string.Empty;
+    private bool hasCentralText = true;
+    private bool hasEdgeText = true;
+    private bool hasTwoMiniCard = false;
+    private bool hasFourMiniCard = false;
+    private bool hasColorChange = false;
+
+    protected override void OnParametersSet()
+    {
+        if (IsBackFace)
+        {
+            this.text = new MarkupString("UNO");
+            this.backClass = "back";
+            this.hasCentralText = true;
+            this.hasEdgeText = false;
+        }
+        else
+        {
+            var raw = Type switch
+            {
+                ListenGameResponse.CardType.Num0 => "0",
+                ListenGameResponse.CardType.Num1 => "1",
+                ListenGameResponse.CardType.Num2 => "2",
+                ListenGameResponse.CardType.Num3 => "3",
+                ListenGameResponse.CardType.Num4 => "4",
+                ListenGameResponse.CardType.Num5 => "5",
+                ListenGameResponse.CardType.Num6 => "6",
+                ListenGameResponse.CardType.Num7 => "7",
+                ListenGameResponse.CardType.Num8 => "8",
+                ListenGameResponse.CardType.Num9 => "9",
+                ListenGameResponse.CardType.Block => "&#x1F6C7;", // 🛇
+                ListenGameResponse.CardType.Reverse => "&#x1F501;", // 🔁
+                ListenGameResponse.CardType.Plus2 => "+2",
+                ListenGameResponse.CardType.Plus4 => "+4",
+                _ => string.Empty,
+            };
+
+            // Append Unicode variation selector to prevent the texts turning into emojis
+            this.text = new MarkupString(raw + "&#xFE0E;");
+
+            var isTextTilted = this.IsBackFace
+                || Type == ListenGameResponse.CardType.Swap
+                || Type == ListenGameResponse.CardType.Reverse;
+            this.charTiltedClass = isTextTilted
+                ? "tilted"
+                : string.Empty;
+
+            var isSwapper = Type == ListenGameResponse.CardType.Swap;
+            this.swapArrowClass = isSwapper
+                ? "swap-arrow"
+                : string.Empty;
+
+            this.backClass = "front";
+
+            this.hasCentralText = Type != ListenGameResponse.CardType.Plus2
+                && Type != ListenGameResponse.CardType.Plus4;
+
+            this.hasEdgeText = true;
+
+            this.hasTwoMiniCard = Type == ListenGameResponse.CardType.Plus2;
+            this.hasFourMiniCard = Type == ListenGameResponse.CardType.Plus4;
+            this.hasColorChange = Type == ListenGameResponse.CardType.ColorChange;
+        }
+    }
+}

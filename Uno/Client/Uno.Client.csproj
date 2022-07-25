@@ -9,11 +9,6 @@
 
   <ItemGroup>
     <None Remove="Shared\CardBackFace - Copy.razor.css" />
-    <None Remove="Shared\UnoSwapArrow.razor.css" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Content Include="Shared\UnoSwapArrow.razor.css" />
   </ItemGroup>
 
   <ItemGroup>
