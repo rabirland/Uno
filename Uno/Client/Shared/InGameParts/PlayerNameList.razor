@@ -1,0 +1,20 @@
+﻿@using Uno.Shared
+
+@namespace Uno.Client.Shared
+
+@if (Status != null)
+{
+    @foreach (var player in this.Status.OtherPlayers)
+    {
+        <div class="name-box">
+            <div class="head">&#x1F464;</div>
+            <div class="name">@player.PlayerName</div>
+        </div>
+    }
+}
+
+
+@code {
+    [Parameter]
+    public ListenGameResponse? Status { get; set; }
+}

@@ -33,28 +33,88 @@ public class GameController : Controller
         if (game == null)
         {
             Response.StatusCode = (int)HttpStatusCode.BadRequest;
-            return new JoinGameResponse(false);
+            return JoinGameResponse.Failed;
         }
 
         var token = GetPlayerToken(game.GameId);
-        if (token == null)
-        {
-            token = TokenCreator.CreateRandomToken(64);
-        }
+        var isAdmin = game.AdminPlayerToken == token;
 
-        if (game.Players.Any(p => p.Token == token))
+        if (isAdmin)
         {
-            return new JoinGameResponse(true); // Also give player name
-        }
+            if (token == null) // Theoretically, should NEVER happen.
+            {
+                throw new Exception("The admin is set to null token");
+            }
 
-        if (game.TryAddPlayer(new Models.Game.GamePlayer(request.PlayerName, token)))
+            if (game.TryAddPlayer(new Models.Game.GamePlayer(request.PlayerName, token)))
+            {
+                return new JoinGameResponse(true);
+            }
+            else
+            {
+                return JoinGameResponse.Failed;
+            }
+        }
+        else if (token != null)
         {
-            AppendPlayerToken(game.GameId, token);
-            return new JoinGameResponse(true);
+            // If the player already has a token for this game, the player is trying to join twice. Should use Rejoin endpoint.
+            // Except for the admin, who will have a token already assigned, but no name picked yet.
+
+            Response.StatusCode = (int)HttpStatusCode.BadRequest;
+            return JoinGameResponse.Failed;
         }
         else
         {
-            return new JoinGameResponse(false);
+            // Otherwise a new player is joining.
+            token = TokenCreator.CreateRandomToken(64);
+
+            if (game.TryAddPlayer(new Models.Game.GamePlayer(request.PlayerName, token)))
+            {
+                AppendPlayerToken(game.GameId, token);
+                return new JoinGameResponse(true);
+            }
+            else
+            {
+                return JoinGameResponse.Failed;
+            }
+        }
+    }
+
+    [HttpPost(URL.Game.Rejoin)]
+    public RejoinGameResponse Rejoin(RejoinGameRequest request)
+    {
+        var game = gameService.GetGame(request.GameId);
+        
+        if (game == null)
+        {
+            Response.StatusCode = (int)HttpStatusCode.BadRequest;
+            return RejoinGameResponse.Failed;
+        }
+
+        var token = GetPlayerToken(game.GameId);
+
+        if (token == null)
+        {
+            return RejoinGameResponse.Failed;
+        }
+
+        var playerEntry = game.Players.FirstOrDefault(p => p.Token == token);
+
+        if (playerEntry != null)
+        {
+            return new RejoinGameResponse(true, playerEntry.PlayerName);
+        }
+        else
+        {
+            // When the admin player first joins the game, he already has a token assigned, but still haven't picked a name.
+            if (game.AdminPlayerToken == token)
+            {
+                return RejoinGameResponse.Failed;
+            }
+            // The player has a token for *this* game, but is not registered for the game.
+            // Shouldn't happen under normal conditions.
+            Response.StatusCode = (int)HttpStatusCode.BadRequest;
+            return RejoinGameResponse.Failed;
         }
     }
 
@@ -62,15 +122,21 @@ public class GameController : Controller
     [HttpPost(URL.Game.Listen)]
     public IEnumerable<ListenGameResponse> Listen(ListenGameRequest request)
     {
-        var token = ControllerExtensions.GetPlayerToken(this);
-
-        if (token == default)
+        if (string.IsNullOrEmpty(request.GameId))
         {
             Response.StatusCode = (int)HttpStatusCode.Unauthorized;
             yield break;
         }
 
-        var gameEntry = gameService.FindGameByPlayerToken(token);
+        var token = GetPlayerToken(request.GameId);
+
+        if (string.IsNullOrEmpty(token))
+        {
+            Response.StatusCode = (int)HttpStatusCode.Unauthorized;
+            yield break;
+        }
+
+        var gameEntry = gameService.GetGame(request.GameId);
 
         if (gameEntry == default)
         {
@@ -78,18 +144,66 @@ public class GameController : Controller
             yield break;
         }
 
-        var game = gameEntry.Game;
-        var listeningPlayer = gameEntry.Players.First(p => p.Token == token);
-        var gamePlayer = game.Players.First(p => p.Name == listeningPlayer.PlayerName);
+        var listeningPlayer = gameEntry.Players.FirstOrDefault(p => p.Token == token);
 
-        while (true)
+        if (listeningPlayer == default)
         {
-            var players = game
-                .Players
-                .Where(p => p.Name != listeningPlayer.PlayerName)
-                .Select(p => new ListenGameResponse.PlayerEntry(p.Name, p.Cards.Count()));
+            Response.StatusCode = (int)HttpStatusCode.BadRequest;
+            yield break;
+        }
 
-            var cards = gamePlayer
+        foreach (var status in ReportLobbyStatus(gameEntry, listeningPlayer))
+        {
+            yield return status;
+            Thread.Sleep(300);
+        }
+
+        foreach (var status in ReportGameStatus(gameEntry, listeningPlayer))
+        {
+            yield return status;
+            Thread.Sleep(300);
+        }
+    }
+
+    [NonAction]
+    public void ListenEnded()
+    {
+
+    }
+
+    private IEnumerable<ListenGameResponse> ReportLobbyStatus(Models.Game.GameEntry gameEntry, Models.Game.GamePlayer player)
+    {
+        while (gameEntry.Status == Models.Game.GameStatus.InLobby)
+        {
+            var palyers = gameEntry.Players.Select(p => p.PlayerName);
+            yield return ListenGameResponse.AwaitingStart(palyers);
+        }
+    }
+
+    private IEnumerable<ListenGameResponse> ReportGameStatus(Models.Game.GameEntry gameEntry, Models.Game.GamePlayer player)
+    {
+        if (gameEntry.Status != Models.Game.GameStatus.Running)
+        {
+            yield break;
+        }
+
+        var game = gameEntry.Game;
+
+        if (game == default)
+        {
+            throw new Exception("Game is running but UnoGame is not initialized");
+        }
+
+        while (gameEntry.Status == Models.Game.GameStatus.Running)
+        {
+            var gamePlayer = game.Players.First(p => p.Name == player.PlayerName);
+
+            var otherPlayers = game
+                   .Players
+                   .Where(p => p.Name != gamePlayer.Name)
+                   .Select(p => new ListenGameResponse.PlayerEntry(p.Name, p.Cards.Count()));
+
+            var cardsInHand = gamePlayer
                 .Cards
                 .Select(c => new ListenGameResponse.CardCount(
                     EnumMapper.CardColor.ToListenGameResponse(c.Key.Color),
@@ -97,16 +211,16 @@ public class GameController : Controller
                     c.Value));
 
             yield return new ListenGameResponse(
-                ListenGameResponse.GameStatus.AwaitingConnecting,
+                ListenGameResponse.GameStatus.AwaitingStart,
                 game.CurrentPlayer,
-                players,
-                cards);
+                otherPlayers,
+                cardsInHand);
         }
     }
 
     private string? GetPlayerToken(string gameId)
     {
-        var token = Request.Cookies[Consts.CookieKeys.PlayerToken];
+        var token = Request.Cookies[$"{Consts.CookieKeys.PlayerToken}_{gameId}"];
         return token;
     }
 

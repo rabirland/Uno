@@ -21,6 +21,12 @@ namespace Uno.Server.Middlewares;
 /// </summary>
 public class DataStreamMiddleware
 {
+    private static JsonSerializerOptions JsonOptions = new JsonSerializerOptions()
+    {
+        PropertyNameCaseInsensitive = true,
+        PropertyNamingPolicy = new JsonPascalCaseNamingPolicy(),
+    };
+
     private readonly RequestDelegate _next;
     private readonly IServiceProvider serviceProvider;
 
@@ -140,7 +146,7 @@ public class DataStreamMiddleware
             }
 
             var obj = enumerator.Current;
-            var json = JsonSerializer.Serialize(obj);
+            var json = JsonSerializer.Serialize(obj, obj.GetType(), JsonOptions);
 
             await context.Response.WriteAsync($"{json.Length}\r\n", Encoding.UTF8);
             await context.Response.WriteAsync(json, Encoding.UTF8);
@@ -160,7 +166,7 @@ public class DataStreamMiddleware
         object? paramObject = null;
         try
         {
-            paramObject = JsonSerializer.DeserializeAsync(bodyStream, type).Result; // Synchronous operations are not allowed HurrDurr
+            paramObject = JsonSerializer.DeserializeAsync(bodyStream, type, JsonOptions).Result; // Synchronous operations are not allowed HurrDurr
         }
         catch (Exception e)
         {

@@ -1,0 +1,44 @@
+﻿@inject Api api
+
+<div class="container @containerClass">
+    <div class="content">
+        <div class="form-group">
+            <span class="label">Name:</span>
+            <input class="input" @bind-value="playerName"/>
+        </div>
+
+        <button class="btn" @onclick="OnClickJoin">Join</button>
+    </div>
+</div>
+
+@code {
+    private string containerClass => this.Show
+        ? "show"
+        : string.Empty;
+
+    private string playerName = string.Empty;
+
+    [Parameter]
+    public bool Show { get; set; }
+
+    [Parameter]
+    public EventCallback<bool> ShowChanged { get; set; }
+
+    [Parameter]
+    public string GameId { get; set; } = string.Empty;
+
+    [Parameter]
+    public EventCallback<string> OnJoined { get; set; }
+
+    private async void OnClickJoin()
+    {
+        var joinResult = await api.Game.JoinGameAsync(new Uno.Shared.JoinGameRequest(this.GameId, this.playerName));
+
+        if (joinResult.IsSuccess)
+        {
+            this.Show = false;
+            await ShowChanged.InvokeAsync(this.Show);
+            await OnJoined.InvokeAsync(this.playerName);
+        }
+    }
+}

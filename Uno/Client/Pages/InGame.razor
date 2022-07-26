@@ -4,25 +4,51 @@
 
 @inject Api api
 
+<JoinGameDialog @bind-Show="showJoinDialog" GameId="@this.Id" OnJoined="OnJoined"/>
+
+@if (lastStatus.State == ListenGameResponse.GameStatus.AwaitingStart)
+{
+	<PlayerNameList Status="lastStatus" />
+}
+
 @code {
-    private ListenGameResponse lastStatus = ListenGameResponse.Empty;
+	private ListenGameResponse lastStatus = ListenGameResponse.Empty;
+	private string playerName = string.Empty;
+	private bool showJoinDialog = false;
 
-    [Parameter]
-    public string Id { get; set; } = string.Empty;
+	[Parameter]
+	public string Id { get; set; } = string.Empty;
 
-    protected override void OnInitialized()
-    {
-        base.OnInitializedAsync();
+	protected override async void OnInitialized()
+	{
+		await base.OnInitializedAsync();
 
-        ListenGame()
-            .CatchExceptions();
-    }
+		var rejoinResult = await api.Game.RejoinGameAsync(new RejoinGameRequest(this.Id));
 
-    private async Task ListenGame()
-    {
-        //await foreach (var status in this.api.Game.ListenGameAsync(new ListenGameRequest()))
-        //{
-            
-        //}
-    }
+		if (rejoinResult.IsSuccess)
+		{
+			this.playerName = rejoinResult.PlayerName;
+			OnJoined();
+		}
+		else
+		{
+			this.showJoinDialog = true;
+			this.StateHasChanged();
+		}
+	}
+
+	private void OnJoined()
+	{
+		Listen()
+			.CatchExceptions();
+	}
+
+	private async Task Listen()
+	{
+		await foreach (var status in api.Game.ListenGameAsync(new ListenGameRequest(this.Id)))
+		{
+			this.lastStatus = status;
+			this.StateHasChanged();
+		}
+	}
 }

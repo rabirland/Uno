@@ -53,6 +53,11 @@ public class GameEntry
             return false;
         }
 
+        if (players.Any(p => p.PlayerName == player.PlayerName))
+        {
+            return false;
+        }
+
         this.players.Add(player);
         return true;
     }

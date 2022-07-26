@@ -13,5 +13,11 @@ public record Api(HttpClient client)
 
         public Task<CreateGameResponse> CreateGameAsync(CreateGameRequest request) =>
             this.client.PostAsApiJsonAsync<CreateGameResponse>(URL.Game.Create, request);
+
+        public Task<JoinGameResponse> JoinGameAsync(JoinGameRequest request) =>
+           this.client.PostAsApiJsonAsync<JoinGameResponse>(URL.Game.Join, request);
+
+        public Task<RejoinGameResponse> RejoinGameAsync(RejoinGameRequest request) =>
+           this.client.PostAsApiJsonAsync<RejoinGameResponse>(URL.Game.Rejoin, request);
     }
 }
