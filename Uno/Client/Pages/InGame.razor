@@ -8,7 +8,7 @@
 
 @if (lastStatus.State == ListenGameResponse.GameStatus.AwaitingStart)
 {
-	<PlayerNameList Status="lastStatus" />
+	<GameWaitingForStart Status="lastStatus" PlayerName="@playerName" />
 }
 
 @code {
@@ -27,8 +27,7 @@
 
 		if (rejoinResult.IsSuccess)
 		{
-			this.playerName = rejoinResult.PlayerName;
-			OnJoined();
+			OnJoined(rejoinResult.PlayerName);
 		}
 		else
 		{
@@ -37,8 +36,10 @@
 		}
 	}
 
-	private void OnJoined()
+	private void OnJoined(string playerName)
 	{
+		this.playerName = playerName;
+
 		Listen()
 			.CatchExceptions();
 	}

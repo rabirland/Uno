@@ -144,21 +144,21 @@ public class GameController : Controller
             yield break;
         }
 
+        // Only allow a player to listen who is joined to the game.
         var listeningPlayer = gameEntry.Players.FirstOrDefault(p => p.Token == token);
-
         if (listeningPlayer == default)
         {
             Response.StatusCode = (int)HttpStatusCode.BadRequest;
             yield break;
         }
 
-        foreach (var status in ReportLobbyStatus(gameEntry, listeningPlayer))
+        foreach (var status in ReportLobbyStatus(gameEntry))
         {
             yield return status;
             Thread.Sleep(300);
         }
 
-        foreach (var status in ReportGameStatus(gameEntry, listeningPlayer))
+        foreach (var status in ReportGameStatus(gameEntry, token))
         {
             yield return status;
             Thread.Sleep(300);
@@ -171,16 +171,17 @@ public class GameController : Controller
 
     }
 
-    private IEnumerable<ListenGameResponse> ReportLobbyStatus(Models.Game.GameEntry gameEntry, Models.Game.GamePlayer player)
+    private IEnumerable<ListenGameResponse> ReportLobbyStatus(Models.Game.GameEntry gameEntry)
     {
         while (gameEntry.Status == Models.Game.GameStatus.InLobby)
         {
             var palyers = gameEntry.Players.Select(p => p.PlayerName);
-            yield return ListenGameResponse.AwaitingStart(palyers);
+            var admin = gameEntry.AdminPlayer;
+            yield return ListenGameResponse.AwaitingStart(palyers, admin?.PlayerName ?? string.Empty);
         }
     }
 
-    private IEnumerable<ListenGameResponse> ReportGameStatus(Models.Game.GameEntry gameEntry, Models.Game.GamePlayer player)
+    private IEnumerable<ListenGameResponse> ReportGameStatus(Models.Game.GameEntry gameEntry, string listenerToken)
     {
         if (gameEntry.Status != Models.Game.GameStatus.Running)
         {
@@ -196,6 +197,9 @@ public class GameController : Controller
 
         while (gameEntry.Status == Models.Game.GameStatus.Running)
         {
+            var player = gameEntry.Players.First(p => p.Token == listenerToken);
+            var adminPlayer = gameEntry.Players.First(p => p.Token == gameEntry.AdminPlayerToken);
+
             var gamePlayer = game.Players.First(p => p.Name == player.PlayerName);
 
             var otherPlayers = game
@@ -212,6 +216,7 @@ public class GameController : Controller
 
             yield return new ListenGameResponse(
                 ListenGameResponse.GameStatus.AwaitingStart,
+                adminPlayer.PlayerName,
                 game.CurrentPlayer,
                 otherPlayers,
                 cardsInHand);

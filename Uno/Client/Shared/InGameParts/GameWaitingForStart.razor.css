@@ -1,0 +1,15 @@
+﻿.name-box {
+    display: inline-block;
+}
+
+.head {
+    font-size: 100px;
+}
+
+.name {
+    display: inline-block;
+    width: 100%;
+    text-align: center;
+    font-size: 20px;
+    font-weight: bold;
+}

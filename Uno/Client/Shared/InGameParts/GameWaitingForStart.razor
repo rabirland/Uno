@@ -1,0 +1,54 @@
+﻿@using Uno.Shared
+
+@namespace Uno.Client.Shared
+
+@if (Status != null)
+{
+    <div>
+        @foreach (var player in this.Status.OtherPlayers)
+        {
+            <div class="name-box">
+                <div class="head">@GetImage(player.PlayerName)</div>
+                <div class="name label">@GetCrown(player.PlayerName)@player.PlayerName</div>
+            </div>
+        }
+    </div>
+
+    @if (IsAdmin)
+    {
+        <button class="btn primary" @onclick="OnClickStart">Start</button>
+    }
+}
+
+
+@code {
+    [Parameter]
+    public ListenGameResponse? Status { get; set; }
+
+    [Parameter]
+    public string PlayerName { get; set; } = string.Empty;
+
+    private bool IsAdmin => this.PlayerName == this.Status?.AdminPlayerName;
+
+    private MarkupString GetImage(string playerName)
+    {
+        return new MarkupString(Emoji.GetPlayerEmoji(playerName));
+    }
+
+    private MarkupString GetCrown(string playerName)
+    {
+        if (playerName == this.Status?.AdminPlayerName)
+        {
+            return new MarkupString("&#x1F451;"); // Crown
+        }
+        else
+        {
+            return new MarkupString();
+        }
+    }
+
+    private async void OnClickStart()
+    {
+        
+    }
+}

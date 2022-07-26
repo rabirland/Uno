@@ -32,6 +32,11 @@ public class GameEntry
     public IEnumerable<GamePlayer> Players => this.players;
 
     /// <summary>
+    /// The admin player or <see langword="null"/> if haven't joined yet.
+    /// </summary>
+    public GamePlayer? AdminPlayer => this.players.FirstOrDefault(p => p.Token == this.AdminPlayerToken);
+
+    /// <summary>
     /// The token of the admin player.
     /// </summary>
     public string AdminPlayerToken { get; }

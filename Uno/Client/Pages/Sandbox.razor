@@ -1,0 +1,15 @@
+﻿@page "/sandbox"
+@using Uno.Shared
+
+<UnoCard IsBackFace="true"/>
+@foreach (var color in Enum.GetValues<ListenGameResponse.CardColor>())
+{
+    @foreach (var type in Enum.GetValues<ListenGameResponse.CardType>())
+    {
+        <UnoCard Type="type" Color="color" IsBackFace="false"/>
+    }
+}
+
+@code {
+
+}

@@ -22,6 +22,7 @@ public record RejoinGameResponse(bool IsSuccess, string PlayerName)
 public record ListenGameRequest(string GameId);
 public record ListenGameResponse(
     ListenGameResponse.GameStatus State,
+    string AdminPlayerName,
     string CurrentPlayerName,
     IEnumerable<ListenGameResponse.PlayerEntry> OtherPlayers,
     IEnumerable<ListenGameResponse.CardCount> Cards)
@@ -29,11 +30,13 @@ public record ListenGameResponse(
     public static ListenGameResponse Empty => new ListenGameResponse(
         GameStatus.Unknown,
         string.Empty,
+        string.Empty,
         Enumerable.Empty<PlayerEntry>(),
         Enumerable.Empty<CardCount>());
 
-    public static ListenGameResponse AwaitingStart(IEnumerable<string> players) => new ListenGameResponse(
+    public static ListenGameResponse AwaitingStart(IEnumerable<string> players, string adminName) => new ListenGameResponse(
         GameStatus.AwaitingStart,
+        adminName,
         string.Empty,
         players.Select(p => new PlayerEntry(p, 0)),
         Enumerable.Empty<CardCount>());
