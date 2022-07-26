@@ -1,10 +1,14 @@
-﻿@page "/game"
+﻿@page "/game/{id}"
+
 @using Uno.Shared
 
 @inject Api api
 
 @code {
     private ListenGameResponse lastStatus = ListenGameResponse.Empty;
+
+    [Parameter]
+    public string Id { get; set; } = string.Empty;
 
     protected override void OnInitialized()
     {
@@ -16,9 +20,9 @@
 
     private async Task ListenGame()
     {
-        await foreach (var status in this.api.Game.ListenGameAsync(new ListenGameRequest()))
-        {
+        //await foreach (var status in this.api.Game.ListenGameAsync(new ListenGameRequest()))
+        //{
             
-        }
+        //}
     }
 }

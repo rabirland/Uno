@@ -1,0 +1,23 @@
+﻿@page "/"
+
+@using Uno.Client
+@using Uno.Client.GameService
+@using Uno.Shared
+
+@inject Api api
+@inject NavigationManager navigationManager
+
+<button class="btn" @onclick="OnClickCreateGame">Create game</button>
+
+@code {
+    private string playerName;
+
+    private async Task OnClickCreateGame()
+    {
+        var result = await api.Game.CreateGameAsync(new CreateGameRequest());
+        if (result.IsSuccess)
+        {
+            this.navigationManager.NavigateTo($"/game/{result.GameId}");
+        }
+    }
+}

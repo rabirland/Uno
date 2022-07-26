@@ -16,11 +16,26 @@ public class GameController : Controller
         this.gameService = gameService;
     }
 
+    [HttpPost(URL.Game.Create)]
+    public CreateGameResponse Create(CreateGameRequest request)
+    {
+        var result = this.gameService.Create();
+        AppendPlayerToken(result.GameId, result.AdminToken);
+
+        return new CreateGameResponse(true, result.GameId);
+    }
+
+    [HttpPost(URL.Game.Join)]
+    public JoinGameResponse Join(JoinGameRequest request)
+    {
+
+    }
+
     [DataStream]
     [HttpPost(URL.Game.Listen)]
     public IEnumerable<ListenGameResponse> Listen(ListenGameRequest request)
     {
-        var token = this.GetPlayerToken();
+        var token = ControllerExtensions.GetPlayerToken(this);
 
         if (token == default)
         {
@@ -60,5 +75,21 @@ public class GameController : Controller
                 players,
                 cards);
         }
+    }
+
+    private string? GetPlayerToken(string gameId)
+    {
+        var token = Request.Cookies[Consts.CookieKeys.PlayerToken];
+        return token;
+    }
+
+    private void AppendPlayerToken(string gameId, string token)
+    {
+        var options = new CookieOptions();
+        options.HttpOnly = true;
+        options.SameSite = SameSiteMode.Strict;
+        options.Secure = true;
+        var key = $"{Consts.CookieKeys.PlayerToken}_{gameId}";
+        Response.Cookies.Append(key, token, options);
     }
 }

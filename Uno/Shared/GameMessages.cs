@@ -1,5 +1,13 @@
 ﻿namespace Uno.Shared;
 
+//=========================================================================================== Create Game
+public record CreateGameRequest();
+public record CreateGameResponse(bool IsSuccess, string GameId);
+
+//=========================================================================================== Join Game
+public record JoinGameRequest();
+public record JoinGameResponse(bool IsSuccess);
+
 //=========================================================================================== Listen Game
 public record ListenGameRequest();
 public record ListenGameResponse(
