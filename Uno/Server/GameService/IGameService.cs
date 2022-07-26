@@ -20,10 +20,9 @@ public interface IGameService
     GameEntry? FindGameByPlayerToken(string token);
 
     /// <summary>
-    /// Joins a player to a game.
+    /// Returns a game by it's id.
     /// </summary>
-    /// <param name="gameId">The ID of the game.</param>
-    /// <param name="player">The player.</param>
-    /// <returns><see langword="true"/> if the player is added to the game.</returns>
-    bool JoinPlayerToGame(string gameId, GamePlayer player);
+    /// <param name="gameId">The Id of the game.</param>
+    /// <returns>The game, or <see langword="null"/> if the game not exists.</returns>
+    GameEntry? GetGame(string gameId);
 }

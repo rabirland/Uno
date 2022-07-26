@@ -5,7 +5,7 @@ public record CreateGameRequest();
 public record CreateGameResponse(bool IsSuccess, string GameId);
 
 //=========================================================================================== Join Game
-public record JoinGameRequest();
+public record JoinGameRequest(string GameId, string PlayerName);
 public record JoinGameResponse(bool IsSuccess);
 
 //=========================================================================================== Listen Game

@@ -28,7 +28,34 @@ public class GameController : Controller
     [HttpPost(URL.Game.Join)]
     public JoinGameResponse Join(JoinGameRequest request)
     {
+        var game = this.gameService.GetGame(request.GameId);
 
+        if (game == null)
+        {
+            Response.StatusCode = (int)HttpStatusCode.BadRequest;
+            return new JoinGameResponse(false);
+        }
+
+        var token = GetPlayerToken(game.GameId);
+        if (token == null)
+        {
+            token = TokenCreator.CreateRandomToken(64);
+        }
+
+        if (game.Players.Any(p => p.Token == token))
+        {
+            return new JoinGameResponse(true); // Also give player name
+        }
+
+        if (game.TryAddPlayer(new Models.Game.GamePlayer(request.PlayerName, token)))
+        {
+            AppendPlayerToken(game.GameId, token);
+            return new JoinGameResponse(true);
+        }
+        else
+        {
+            return new JoinGameResponse(false);
+        }
     }
 
     [DataStream]

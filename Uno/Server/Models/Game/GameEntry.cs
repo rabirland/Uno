@@ -48,6 +48,11 @@ public class GameEntry
             return false;
         }
 
+        if (players.Any(p => p.Token == player.Token))
+        {
+            return false;
+        }
+
         this.players.Add(player);
         return true;
     }

@@ -20,21 +20,16 @@ public class GameService : IGameService
         return new GameCreateResult(gameToken, adminToken);
     }
 
+    /// <inheritdoc/>
     public GameEntry? FindGameByPlayerToken(string token)
     {
         var entry = this.games.FirstOrDefault(e => e.Players.Any(p => p.Token == token));
         return entry;
     }
 
-    public bool JoinPlayerToGame(string gameId, GamePlayer player)
+    /// <inheritdoc/>
+    public GameEntry? GetGame(string gameId)
     {
-        var game = this.games.FirstOrDefault(g => g.GameId == gameId);
-
-        if (game == default)
-        {
-            throw new Exception("Invalid game id");
-        }
-
-        return game.TryAddPlayer(player);
+        return this.games.FirstOrDefault(g => g.GameId == gameId);
     }
 }
