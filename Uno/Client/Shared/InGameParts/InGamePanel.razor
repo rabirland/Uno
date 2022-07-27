@@ -6,9 +6,8 @@
     @foreach (var player in Status.OtherPlayerCards)
     {
         <div class="player-box">
-
+            <PlayerCards PlayerName="@player.PlayerName" CardCount="player.CardCount" />
         </div>
-        <PlayerCards PlayerName="@player.PlayerName" CardCount="player.CardCount" />
     }
 }
 else
