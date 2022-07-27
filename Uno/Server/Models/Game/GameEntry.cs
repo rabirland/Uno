@@ -19,12 +19,12 @@ public class GameEntry
     /// <summary>
     /// The status of the game.
     /// </summary>
-    public GameStatus Status { get; }
+    public GameStatus Status { get; private set; }
 
     /// <summary>
     /// The UNO game.
     /// </summary>
-    public UnoGame.Game? Game { get; }
+    public UnoGame.Game? Game { get; private set; }
 
     /// <summary>
     /// The list of players in the game or waiting for the game.
@@ -35,6 +35,11 @@ public class GameEntry
     /// The admin player or <see langword="null"/> if haven't joined yet.
     /// </summary>
     public GamePlayer? AdminPlayer => this.players.FirstOrDefault(p => p.Token == this.AdminPlayerToken);
+
+    /// <summary>
+    /// Whether the game can be started.
+    /// </summary>
+    public bool CanStart => this.Status == GameStatus.InLobby && this.players.Count >= 2;
 
     /// <summary>
     /// The token of the admin player.
@@ -65,5 +70,30 @@ public class GameEntry
 
         this.players.Add(player);
         return true;
+    }
+
+    public void RemovePlayer(string token)
+    {
+        if (this.Status != GameStatus.InLobby)
+        {
+            return;
+        }
+
+        var index = this.players.FindIndex(p => p.Token == token);
+        if (index >= 0)
+        {
+            this.players.RemoveAt(index);
+        }
+    }
+
+    public void StartGame()
+    {
+        if (this.CanStart == false)
+        {
+            return;
+        }
+
+        this.Game = new UnoGame.Game(this.players.Select(p => p.PlayerName));
+        this.Status = GameStatus.Running;
     }
 }

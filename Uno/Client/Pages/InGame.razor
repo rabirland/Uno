@@ -6,9 +6,13 @@
 
 <JoinGameDialog @bind-Show="showJoinDialog" GameId="@this.Id" OnJoined="OnJoined"/>
 
-@if (lastStatus.State == ListenGameResponse.GameStatus.AwaitingStart)
+@if (lastStatus.Lobby != null)
 {
-	<GameWaitingForStart Status="lastStatus" PlayerName="@playerName" />
+	<GameWaitingForStart Lobby="lastStatus.Lobby" AdminName="@lastStatus.AdminPlayerName" PlayerName="@playerName" OnStart="OnStartGame" />
+}
+else if (lastStatus.Game != null)
+{
+	<InGamePanel />
 }
 
 @code {
@@ -36,6 +40,9 @@
 		}
 	}
 
+	/// <summary>
+	/// When the player is joined to the game (according to the server)
+	/// </summary>
 	private void OnJoined(string playerName)
 	{
 		this.playerName = playerName;
@@ -44,6 +51,9 @@
 			.CatchExceptions();
 	}
 
+	/// <summary>
+	/// Listens for the game status updates.
+	/// </summary>
 	private async Task Listen()
 	{
 		await foreach (var status in api.Game.ListenGameAsync(new ListenGameRequest(this.Id)))
@@ -51,5 +61,13 @@
 			this.lastStatus = status;
 			this.StateHasChanged();
 		}
+	}
+
+	/// <summary>
+	/// When the user requests to start the game.
+	/// </summary>
+	private async void OnStartGame()
+	{
+		await api.Game.StartGameAsync(new StartGameRequest(this.Id));
 	}
 }

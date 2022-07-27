@@ -2,6 +2,7 @@
 using System.Net;
 using Uno.Server.Annotation;
 using Uno.Server.GameService;
+using Uno.Server.Models.Game;
 using Uno.Shared;
 
 namespace Uno.Server.Controllers;
@@ -124,7 +125,7 @@ public class GameController : Controller
     {
         if (string.IsNullOrEmpty(request.GameId))
         {
-            Response.StatusCode = (int)HttpStatusCode.Unauthorized;
+            Response.StatusCode = (int)HttpStatusCode.BadRequest;
             yield break;
         }
 
@@ -152,36 +153,107 @@ public class GameController : Controller
             yield break;
         }
 
-        foreach (var status in ReportLobbyStatus(gameEntry))
+        while (true)
         {
-            yield return status;
-            Thread.Sleep(300);
-        }
+            // Bit of an abuse of IEnumerable, but desperate times needs desperate measures. Each function checks if the game is in the
+            // correct state and simply returns if not.
+            foreach (var status in ReportLobbyStatus(gameEntry, token))
+            {
+                yield return status;
+                Thread.Sleep(250); // Should return when something happens
+            }
 
-        foreach (var status in ReportGameStatus(gameEntry, token))
-        {
-            yield return status;
-            Thread.Sleep(300);
+            foreach (var status in ReportGameStatus(gameEntry, token))
+            {
+                yield return status;
+                Thread.Sleep(250); // Should return when something happens
+            }
         }
     }
 
     [NonAction]
-    public void ListenEnded()
+    public void ListenEnded(ListenGameRequest request)
     {
+        if (string.IsNullOrEmpty(request.GameId))
+        {
+            return;
+        }
 
+        var token = GetPlayerToken(request.GameId);
+
+        if (string.IsNullOrEmpty(token))
+        {
+            return;
+        }
+
+        var gameEntry = gameService.GetGame(request.GameId);
+
+        if (gameEntry == default)
+        {
+            Response.StatusCode = (int)HttpStatusCode.BadRequest;
+            return;
+        }
+
+        gameEntry.RemovePlayer(token);
     }
 
-    private IEnumerable<ListenGameResponse> ReportLobbyStatus(Models.Game.GameEntry gameEntry)
+    [HttpPost(URL.Game.StartGame)]
+    public StartGameResponse StartGame(StartGameRequest request)
     {
-        while (gameEntry.Status == Models.Game.GameStatus.InLobby)
+        if (string.IsNullOrEmpty(request.GameId))
+        {
+            Response.StatusCode = (int)HttpStatusCode.BadRequest;
+            return StartGameResponse.Failed;
+        }
+
+        var token = GetPlayerToken(request.GameId);
+
+        if (string.IsNullOrEmpty(token))
+        {
+            Response.StatusCode = (int)HttpStatusCode.Unauthorized;
+            return StartGameResponse.Failed;
+        }
+
+        var game = this.gameService.GetGame(request.GameId);
+
+        if (game == default)
+        {
+            Response.StatusCode = (int)HttpStatusCode.BadRequest;
+            return StartGameResponse.Failed;
+        }
+
+        // Only the admin can start the game.
+        if (game.AdminPlayerToken != token)
+        {
+            Response.StatusCode = (int)HttpStatusCode.Unauthorized;
+            return StartGameResponse.Failed;
+        }
+
+        if (game.CanStart == false)
+        {
+            return StartGameResponse.Failed;
+        }
+
+        game.StartGame();
+        return new StartGameResponse();
+    }
+
+    private IEnumerable<ListenGameResponse> ReportLobbyStatus(GameEntry gameEntry, string token)
+    {
+        while (gameEntry.Status == GameStatus.InLobby)
         {
             var palyers = gameEntry.Players.Select(p => p.PlayerName);
             var admin = gameEntry.AdminPlayer;
-            yield return ListenGameResponse.AwaitingStart(palyers, admin?.PlayerName ?? string.Empty);
+            // Only the admin can see the can start flag
+            var canStart = token == gameEntry.AdminPlayerToken
+                ? gameEntry.CanStart
+                : false;
+
+            yield return ListenGameResponse.AwaitingStart(palyers, admin?.PlayerName ?? string.Empty, canStart);
         }
     }
 
-    private IEnumerable<ListenGameResponse> ReportGameStatus(Models.Game.GameEntry gameEntry, string listenerToken)
+    private IEnumerable<ListenGameResponse> ReportGameStatus(GameEntry gameEntry, string listenerToken)
     {
         if (gameEntry.Status != Models.Game.GameStatus.Running)
         {
@@ -205,7 +277,7 @@ public class GameController : Controller
             var otherPlayers = game
                    .Players
                    .Where(p => p.Name != gamePlayer.Name)
-                   .Select(p => new ListenGameResponse.PlayerEntry(p.Name, p.Cards.Count()));
+                   .Select(p => new ListenGameResponse.PlayerHand(p.Name, p.Cards.Count()));
 
             var cardsInHand = gamePlayer
                 .Cards
@@ -214,12 +286,14 @@ public class GameController : Controller
                     EnumMapper.CardType.ToListenGameResponse(c.Key.Type),
                     c.Value));
 
-            yield return new ListenGameResponse(
-                ListenGameResponse.GameStatus.AwaitingStart,
-                adminPlayer.PlayerName,
-                game.CurrentPlayer,
+            var gameStatus = new ListenGameResponse.GameStatus(
                 otherPlayers,
                 cardsInHand);
+
+            yield return new ListenGameResponse(
+                adminPlayer.PlayerName,
+                null,
+                gameStatus);
         }
     }
 

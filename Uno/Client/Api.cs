@@ -19,5 +19,8 @@ public record Api(HttpClient client)
 
         public Task<RejoinGameResponse> RejoinGameAsync(RejoinGameRequest request) =>
            this.client.PostAsApiJsonAsync<RejoinGameResponse>(URL.Game.Rejoin, request);
+
+        public Task<StartGameResponse> StartGameAsync(StartGameRequest request) =>
+           this.client.PostAsApiJsonAsync<StartGameResponse>(URL.Game.StartGame, request);
     }
 }

@@ -11,54 +11,56 @@ public record JoinGameResponse(bool IsSuccess)
     public static JoinGameResponse Failed => new JoinGameResponse(false);
 }
 
-//=========================================================================================== Join Game
+//=========================================================================================== Rejoin Game
 public record RejoinGameRequest(string GameId);
 public record RejoinGameResponse(bool IsSuccess, string PlayerName)
 {
     public static RejoinGameResponse Failed => new RejoinGameResponse(false, string.Empty);
 }
 
+//=========================================================================================== Start Game
+public record StartGameRequest(string GameId);
+public record StartGameResponse()
+{
+    public static StartGameResponse Failed => new StartGameResponse();
+}
+
 //=========================================================================================== Listen Game
 public record ListenGameRequest(string GameId);
 public record ListenGameResponse(
-    ListenGameResponse.GameStatus State,
     string AdminPlayerName,
-    string CurrentPlayerName,
-    IEnumerable<ListenGameResponse.PlayerEntry> OtherPlayers,
-    IEnumerable<ListenGameResponse.CardCount> Cards)
+    ListenGameResponse.LobbyStatus? Lobby,
+    ListenGameResponse.GameStatus? Game)
 {
     public static ListenGameResponse Empty => new ListenGameResponse(
-        GameStatus.Unknown,
         string.Empty,
-        string.Empty,
-        Enumerable.Empty<PlayerEntry>(),
-        Enumerable.Empty<CardCount>());
+        null,
+        null);
 
-    public static ListenGameResponse AwaitingStart(IEnumerable<string> players, string adminName) => new ListenGameResponse(
-        GameStatus.AwaitingStart,
+    public static ListenGameResponse AwaitingStart(IEnumerable<string> players, string adminName, bool canStart) => new ListenGameResponse(
         adminName,
-        string.Empty,
-        players.Select(p => new PlayerEntry(p, 0)),
-        Enumerable.Empty<CardCount>());
+        new LobbyStatus(players, canStart),
+        null);
 
-    public enum GameStatus
-    {
-		/// <summary>
-		/// Unused default value.
-		/// </summary>
-        Unknown,
+    /// <summary>
+    /// Stores the status of the game lobby.
+    /// </summary>
+    /// <param name="Players">The name of all joined players.</param>
+    /// <param name="CanStart">Whether the game can be started.</param>
+    public record LobbyStatus(IEnumerable<string> Players, bool CanStart);
 
-        /// <summary>
-        /// The game is waiting for every player to connect.
-        /// </summary>
-        AwaitingStart,
+    /// <summary>
+    /// Stores the status of a running game.
+    /// </summary>
+    /// <param name="OtherPlayerCards">The amount of cards in each player's hands.</param>
+    /// <param name="Cards">The cards in the player's hands who is receiving the message.</param>
+    public record GameStatus(
+        IEnumerable<PlayerHand> OtherPlayerCards,
+        IEnumerable<CardCount> Cards);
 
-        /// <summary>
-        /// The game is running.
-        /// </summary>
-        Running,
-    }
-
+    /// <summary>
+    /// The color of an UNO card.
+    /// </summary>
     public enum CardColor
     {
         Red,
@@ -69,6 +71,9 @@ public record ListenGameResponse(
         Colorless,
     }
 
+    /// <summary>
+    /// The type of an UNO card.
+    /// </summary>
     public enum CardType
     {
         Num0,
@@ -89,7 +94,7 @@ public record ListenGameResponse(
         ColorChange,
     }
 
-    public record PlayerEntry(string PlayerName, int CardCount);
+    public record PlayerHand(string PlayerName, int CardCount);
 
     public record CardCount(CardColor Color, CardType Type, int Count);
 }

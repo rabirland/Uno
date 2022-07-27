@@ -113,14 +113,20 @@ public class DataStreamMiddleware
     {
         object? methodReturn;
 
-        if (parameter == null)
-        {
-            methodReturn = action.Invoke(controller, null);
-        }
-        else
-        {
-            methodReturn = action.Invoke(controller, new[] { parameter });
-        }
+        var paramArray = parameter != null
+            ? new[] { parameter }
+            : Array.Empty<object>();
+
+        methodReturn = action.Invoke(controller, paramArray);
+
+        //if (parameter == null)
+        //{
+        //    methodReturn = action.Invoke(controller, null);
+        //}
+        //else
+        //{
+        //    methodReturn = action.Invoke(controller, new[] { parameter });
+        //}
 
         if (methodReturn == null)
         {
@@ -154,7 +160,7 @@ public class DataStreamMiddleware
             clientDisconnected = context.RequestAborted.IsCancellationRequested;
         }
 
-        CallEnded(controller, action.Name);
+        CallEnded(controller, action, paramArray);
 
         await context.Response.CompleteAsync();
     }
@@ -181,22 +187,36 @@ public class DataStreamMiddleware
         return paramObject;
     }
 
-    private static void CallEnded(object controller, string actionName)
+    private static void CallEnded(object controller, MethodInfo action, object[] parameters)
     {
         var type = controller.GetType();
 
-        var implicitMethod = type.GetMethod($"{actionName}Ended", BindingFlags.Public | BindingFlags.Instance);
+        var implicitMethod = type.GetMethod($"{action.Name}Ended", BindingFlags.Public | BindingFlags.Instance);
 
         if (implicitMethod == null)
         {
             return;
         }
 
-        if (implicitMethod.GetParameters().Length > 0)
+        var parameterList = implicitMethod.GetParameters();
+        var streamParameterList = action.GetParameters();
+
+        if (parameterList.Length != 0 && parameterList.Length != streamParameterList.Length)
         {
-            throw new Exception("Stream end handlers must have no parameters");
+            throw new Exception("Stream end handlers must have zero or the same amount of parameters as the stream function");
         }
 
-        implicitMethod.Invoke(controller, null);
+        for (int i = 0; i < parameterList.Length; i++)
+        {
+            var paramType = parameterList[0].ParameterType;
+            var streamParamType = streamParameterList[0].ParameterType;
+
+            if (paramType != streamParamType)
+            {
+                throw new Exception("Stream end handlers must have the same parameter signature as the stream function");
+            }
+        }
+
+        implicitMethod.Invoke(controller, parameters);
     }
 }

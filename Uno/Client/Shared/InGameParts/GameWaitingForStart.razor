@@ -2,33 +2,42 @@
 
 @namespace Uno.Client.Shared
 
-@if (Status != null)
+@if (this.Lobby != null)
 {
     <div>
-        @foreach (var player in this.Status.OtherPlayers)
+        @foreach (var player in this.Lobby.Players)
         {
             <div class="name-box">
-                <div class="head">@GetImage(player.PlayerName)</div>
-                <div class="name label">@GetCrown(player.PlayerName)@player.PlayerName</div>
+                <div class="head">@GetImage(player)</div>
+                <div class="name label">@GetCrown(player)@player</div>
             </div>
         }
     </div>
 
     @if (IsAdmin)
     {
-        <button class="btn primary" @onclick="OnClickStart">Start</button>
+        <button class="btn primary @StartGameDisabledClass" @onclick="OnClickStart">Start</button>
     }
 }
 
 
 @code {
+    private bool IsAdmin => this.PlayerName == this.AdminName;
+    private string StartGameDisabledClass => (this.Lobby?.CanStart == true)
+        ? ""
+        : "disabled";
+
     [Parameter]
-    public ListenGameResponse? Status { get; set; }
+    public ListenGameResponse.LobbyStatus? Lobby { get; set; }
+
+    [Parameter]
+    public string AdminName { get; set; } = string.Empty;
 
     [Parameter]
     public string PlayerName { get; set; } = string.Empty;
 
-    private bool IsAdmin => this.PlayerName == this.Status?.AdminPlayerName;
+    [Parameter]
+    public EventCallback OnStart { get; set; }
 
     private MarkupString GetImage(string playerName)
     {
@@ -37,7 +46,7 @@
 
     private MarkupString GetCrown(string playerName)
     {
-        if (playerName == this.Status?.AdminPlayerName)
+        if (playerName == this.AdminName)
         {
             return new MarkupString("&#x1F451;"); // Crown
         }
@@ -47,8 +56,15 @@
         }
     }
 
-    private async void OnClickStart()
+    private Task OnClickStart()
     {
-        
+        if (this.Lobby?.CanStart == true)
+        {
+            return OnStart.InvokeAsync();   
+        }
+        else
+        {
+            return Task.CompletedTask;
+        }
     }
 }
