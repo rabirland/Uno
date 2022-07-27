@@ -2,17 +2,22 @@
 
 <div class="container">
     <div>
-        <span class="icon"></span>
+        <span class="icon">@Icon</span>
     </div>
     <div class="name">
         @PlayerName
     </div>
     <div class="cards">
-        Cards: @CardCount
+        @for (int i = 0; i < CardCount; i++)
+        {
+            <UnoCard IsBackFace="true"/>
+        }
     </div>
 </div>
 
 @code {
+    private MarkupString Icon => new MarkupString(Emoji.GetPlayerEmoji(PlayerName));
+
     [Parameter]
     public string PlayerName { get; set; } = string.Empty;
 
