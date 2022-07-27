@@ -194,6 +194,8 @@ public class GameController : Controller
             return;
         }
 
+        // TODO: Handle multiple listening. Currently if the player opens two pages, and closes one,
+        // the player is removed, despite still having an open listening.
         gameEntry.RemovePlayer(token);
     }
 
