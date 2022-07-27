@@ -9,7 +9,12 @@
 
   <ItemGroup>
     <None Remove="Shared\CardBackFace - Copy.razor.css" />
+    <None Remove="Shared\InGameParts\PlayerCards.razor.css" />
     <None Remove="Shared\PlayerNameList.razor.css" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Shared\InGameParts\PlayerCards.razor.css" />
   </ItemGroup>
 
   <ItemGroup>

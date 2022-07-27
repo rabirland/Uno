@@ -257,7 +257,7 @@ public class GameController : Controller
 
     private IEnumerable<ListenGameResponse> ReportGameStatus(GameEntry gameEntry, string listenerToken)
     {
-        if (gameEntry.Status != Models.Game.GameStatus.Running)
+        if (gameEntry.Status != GameStatus.Running)
         {
             yield break;
         }
@@ -269,7 +269,7 @@ public class GameController : Controller
             throw new Exception("Game is running but UnoGame is not initialized");
         }
 
-        while (gameEntry.Status == Models.Game.GameStatus.Running)
+        while (gameEntry.Status == GameStatus.Running)
         {
             var player = gameEntry.Players.First(p => p.Token == listenerToken);
             var adminPlayer = gameEntry.Players.First(p => p.Token == gameEntry.AdminPlayerToken);
@@ -279,7 +279,11 @@ public class GameController : Controller
             var otherPlayers = game
                    .Players
                    .Where(p => p.Name != gamePlayer.Name)
-                   .Select(p => new ListenGameResponse.PlayerHand(p.Name, p.Cards.Count()));
+                   .Select(p =>
+                   {
+                       var cardCount = p.Cards.Select(c => c.Value).Sum();
+                       return new ListenGameResponse.PlayerHand(p.Name, cardCount);
+                   });
 
             var cardsInHand = gamePlayer
                 .Cards

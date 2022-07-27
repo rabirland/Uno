@@ -1,17 +1,19 @@
-﻿using UnoGame.Timer;
+﻿using UnoGame.Decks;
+using UnoGame.Timer;
 
 namespace UnoGame;
 
 public class Game
 {
+    private readonly GameSettings settings;
     private readonly GameTimer Timer = new GameTimer();
-
-    private object playerLock = new object();
+    private readonly object playerLock = new object();
+    private readonly IDeck deck;
 
     /// <summary>
     /// The list of all players in the game.
     /// </summary>
-    private Player[] players;
+    private readonly Player[] players;
 
     /// <summary>
     /// The array index of the current player.
@@ -28,13 +30,28 @@ public class Game
     /// </summary>
     public event Action<GameState> OnStateChange = _ => { };
 
-    public Game(IEnumerable<string> playerNames)
+    public Game(GameSettings settings, IEnumerable<string> playerNames)
     {
+        this.settings = settings;
+
+        this.deck = new InfiniteDeck(); // TODO: Get from settings
+
         this.players = playerNames
             .Select(p => new Player(p))
             .ToArray();
+
+        foreach (var player in this.players)
+        {
+            for (int i = 0; i < this.settings.StartCardCount; i++)
+            {
+                player.AddCard(this.deck.Pull());
+            }
+        }
     }
 
+    /// <summary>
+    /// The name of the player whose round is ongoing.
+    /// </summary>
     public string CurrentPlayer => this.players[currentPlayerIndex].Name;
 
     public IEnumerable<Player> Players => this.players;

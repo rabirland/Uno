@@ -1,0 +1,21 @@
+﻿@namespace Uno.Client.Shared
+
+<div class="container">
+    <div>
+        <span class="icon"></span>
+    </div>
+    <div class="name">
+        @PlayerName
+    </div>
+    <div class="cards">
+        Cards: @CardCount
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public string PlayerName { get; set; } = string.Empty;
+
+    [Parameter]
+    public int CardCount { get; set; } = 0;
+}

@@ -93,7 +93,7 @@ public class GameEntry
             return;
         }
 
-        this.Game = new UnoGame.Game(this.players.Select(p => p.PlayerName));
+        this.Game = new UnoGame.Game(UnoGame.GameSettings.Default, this.players.Select(p => p.PlayerName));
         this.Status = GameStatus.Running;
     }
 }

@@ -1,7 +1,19 @@
 ﻿@namespace Uno.Client.Shared
+@using Uno.Shared
 
-<h3>In game LuL</h3>
+@if (this.Status != null)
+{
+    @foreach (var player in Status.OtherPlayerCards)
+    {
+        <PlayerCards PlayerName="@player.PlayerName" CardCount="player.CardCount" />
+    }
+}
+else
+{
+    <h1>Status not given</h1>
+}
 
 @code {
-
+    [Parameter]
+    public ListenGameResponse.GameStatus? Status { get; set; }
 }
