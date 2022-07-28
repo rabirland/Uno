@@ -1,8 +1,8 @@
 ﻿@namespace Uno.Client.Shared
 
 <div class="container">
-    <div>
-        <span class="icon">@Icon</span>
+    <div class="icon">
+        @Icon
     </div>
     <div class="name">
         @PlayerName
@@ -10,7 +10,9 @@
     <div class="cards">
         @for (int i = 0; i < CardCount; i++)
         {
-            <UnoCard IsBackFace="true"/>
+            <div class="card-wrapper">
+                <UnoCard IsBackFace="true"/>
+            </div>
         }
     </div>
 </div>
