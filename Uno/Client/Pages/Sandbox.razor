@@ -1,15 +1,48 @@
 ﻿@page "/sandbox"
 @using Uno.Shared
 
-<UnoCard IsBackFace="true"/>
-@foreach (var color in Enum.GetValues<ListenGameResponse.CardColor>())
-{
+
+<div style="overflow: auto; word-wrap: unset; white-space: nowrap; font-size:50px;">
+    <UnoCard IsBackFace="true" />
+    <UnoCard IsBackFace="true" />
+    <UnoCard IsBackFace="true" />
+    <UnoCard IsBackFace="true" />
+</div>
+
+<div style="overflow: auto; word-wrap: unset; white-space: nowrap; font-size: 50px;">
     @foreach (var type in Enum.GetValues<ListenGameResponse.CardType>())
     {
-        <UnoCard Type="type" Color="color" IsBackFace="false"/>
+        <UnoCard Type="type" Color="ListenGameResponse.CardColor.Yellow" IsBackFace="false"/>
     }
-}
+</div>
 
+<div style="overflow: auto; word-wrap: unset; white-space: nowrap; font-size: 90px;">
+    @foreach (var type in Enum.GetValues<ListenGameResponse.CardType>())
+    {
+        <UnoCard Type="type" Color="ListenGameResponse.CardColor.Green" IsBackFace="false"/>
+    }
+</div>
+
+<div style="overflow: auto; word-wrap: unset; white-space: nowrap; font-size: 130px;">
+    @foreach (var type in Enum.GetValues<ListenGameResponse.CardType>())
+    {
+        <UnoCard Type="type" Color="ListenGameResponse.CardColor.Blue" IsBackFace="false"/>
+    }
+</div>
+
+<div style="overflow: auto; word-wrap: unset; white-space: nowrap; font-size: 150px;">
+    @foreach (var type in Enum.GetValues<ListenGameResponse.CardType>())
+    {
+        <UnoCard Type="type" Color="ListenGameResponse.CardColor.Red" IsBackFace="false"/>
+    }
+</div>
+
+<div style="overflow: auto; word-wrap: unset; white-space: nowrap; font-size: 220px;">
+    @foreach (var type in Enum.GetValues<ListenGameResponse.CardType>())
+    {
+        <UnoCard Type="type" Color="ListenGameResponse.CardColor.Colorless" IsBackFace="false"/>
+    }
+</div>
 @code {
 
 }

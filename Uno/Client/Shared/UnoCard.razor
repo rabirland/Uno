@@ -15,19 +15,13 @@
 
         @if (this.hasCentralText)
         {
-            <div class="text-anchor">
-                <span class="text @swapArrowClass @charTiltedClass">@this.text</span>
-            </div>   
+            <span class="text @specialCharacterClass">@this.text</span>
         }
 
         @if (this.hasEdgeText)
         {
-            <div class="text-anchor top">
-                <span class="text @swapArrowClass @charTiltedClass">@this.text</span>
-            </div>
-            <div class="text-anchor bottom">
-                <span class="text @swapArrowClass @charTiltedClass">@this.text</span>
-            </div>
+            <span class="text top @specialCharacterClass">@this.text</span>
+            <span class="text bottom @specialCharacterClass">@this.text</span>
         }
 
         @if (this.hasTwoMiniCard)
@@ -59,8 +53,7 @@
     public bool IsBackFace { get; set; }
 
     private MarkupString text = new MarkupString();
-    private string charTiltedClass = string.Empty;
-    private string swapArrowClass = string.Empty;
+    private string specialCharacterClass = string.Empty;
     private string backClass = string.Empty;
     private bool hasCentralText = true;
     private bool hasEdgeText = true;
@@ -91,26 +84,23 @@
                 ListenGameResponse.CardType.Num7 => "7",
                 ListenGameResponse.CardType.Num8 => "8",
                 ListenGameResponse.CardType.Num9 => "9",
-                ListenGameResponse.CardType.Block => "&#x1F6C7;", // 🛇
-                ListenGameResponse.CardType.Reverse => "&#x1F501;", // 🔁
                 ListenGameResponse.CardType.Plus2 => "+2",
                 ListenGameResponse.CardType.Plus4 => "+4",
                 _ => string.Empty,
             };
 
             // Append Unicode variation selector to prevent the texts turning into emojis
-            this.text = new MarkupString(raw + "&#xFE0E;");
-
-            var isTextTilted = this.IsBackFace
-                || Type == ListenGameResponse.CardType.Swap
-                || Type == ListenGameResponse.CardType.Reverse;
-            this.charTiltedClass = isTextTilted
-                ? "tilted"
-                : string.Empty;
+            this.text = new MarkupString(raw);
 
             var isSwapper = Type == ListenGameResponse.CardType.Swap;
-            this.swapArrowClass = isSwapper
+            var isBlock = Type == ListenGameResponse.CardType.Block;
+            var isReverse = Type == ListenGameResponse.CardType.Reverse;
+            this.specialCharacterClass = isSwapper
                 ? "swap-arrow"
+                : isBlock
+                ? "block"
+                : isReverse
+                ? "reverse"
                 : string.Empty;
 
             this.backClass = "front";
@@ -122,7 +112,7 @@
 
             this.hasTwoMiniCard = Type == ListenGameResponse.CardType.Plus2;
             this.hasFourMiniCard = Type == ListenGameResponse.CardType.Plus4;
-            this.hasColorChange = Type == ListenGameResponse.CardType.ColorChange;
+            this.hasColorChange = Type == ListenGameResponse.CardType.ColorChange || Type == ListenGameResponse.CardType.Swap;
         }
     }
 }
