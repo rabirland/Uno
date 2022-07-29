@@ -1,0 +1,24 @@
+﻿@namespace Uno.Client.Shared
+@using Uno.Shared
+
+<div class="grid">
+    <div class="row">
+        @if (RemotePlayers.Length >= 1)
+        {
+            <div class="cell card">
+                <RemotePlayerBox PlayerName="@RemotePlayers[0]."/>
+            </div>
+        }
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public ListenGameResponse.PlayerHand[] RemotePlayers { get; set; }
+
+    [Parameter]
+    public RenderFragment? LocalPlayer { get; set; }
+
+    [Parameter]
+    public RenderFragment? Deck { get; set; }
+}

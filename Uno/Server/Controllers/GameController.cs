@@ -216,27 +216,34 @@ public class GameController : Controller
             return StartGameResponse.Failed;
         }
 
-        var game = this.gameService.GetGame(request.GameId);
+        var gameEntry = this.gameService.GetGame(request.GameId);
 
-        if (game == default)
+        // ======================================= DEBUG CODE
+        int requiredPlayerCount = 7;
+        for (int i = gameEntry.Players.Count(); i < requiredPlayerCount; i++)
+        {
+            gameEntry.TryAddPlayer(new GamePlayer($"GeneratedPlayer{i}", $"GeneratedToken{i}"));
+        }
+
+        if (gameEntry == default)
         {
             Response.StatusCode = (int)HttpStatusCode.BadRequest;
             return StartGameResponse.Failed;
         }
 
         // Only the admin can start the game.
-        if (game.AdminPlayerToken != token)
+        if (gameEntry.AdminPlayerToken != token)
         {
             Response.StatusCode = (int)HttpStatusCode.Unauthorized;
             return StartGameResponse.Failed;
         }
 
-        if (game.CanStart == false)
+        if (gameEntry.CanStart == false)
         {
             return StartGameResponse.Failed;
         }
 
-        game.StartGame();
+        gameEntry.StartGame();
         return new StartGameResponse();
     }
 

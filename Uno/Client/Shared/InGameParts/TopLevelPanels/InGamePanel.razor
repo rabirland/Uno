@@ -1,0 +1,30 @@
+﻿@namespace Uno.Client.Shared
+@using Uno.Shared
+
+@if (this.Status != null)
+{
+        <PlayersLayout RemotePlayers="remotePlayers"/>
+}
+else
+{
+    <h1>Status not given</h1>
+}
+
+@code {
+    private ListenGameResponse.PlayerHand[] remotePlayers = Array.Empty<ListenGameResponse.PlayerHand>();
+
+    [Parameter]
+    public ListenGameResponse.GameStatus? Status { get; set; }
+
+    protected override void OnParametersSet()
+    {
+        if (this.Status != null)
+        {
+            this.remotePlayers = this.Status.OtherPlayerCards.ToArray();   
+        }
+        else
+        {
+            this.remotePlayers = Array.Empty<ListenGameResponse.PlayerHand>();
+        }
+    }
+}
