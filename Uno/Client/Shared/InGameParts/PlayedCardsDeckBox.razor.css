@@ -1,0 +1,38 @@
+﻿.played-deck {
+    width: 100%;
+    height: 100%;
+}
+
+.cards {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    font-size: 15em;
+}
+
+.card-anchor {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+    .card-anchor:nth-child(5n + 0) .card-wrapper {
+        transform: rotate(30deg);
+    }
+
+    .card-anchor:nth-child(5n + 1).card-wrapper {
+        transform: rotate(160deg);
+    }
+
+    .card-anchor:nth-child(5n + 2) .card-wrapper {
+        transform: rotate(190deg);
+    }
+
+    .card-anchor:nth-child(5n + 3) .card-wrapper {
+        transform: rotate(60deg);
+    }
+
+    .card-anchor:nth-child(5n + 4) .card-wrapper {
+        transform: rotate(130deg);
+    }

@@ -78,7 +78,7 @@
         }
 
         <div class="cell double">
-            <DeckBox DeckRemainingCards="this.Status.DeckRemainingCards" PlayedCards="this.Status.PlayedCards" />
+            <PlayedCardsDeckBox PlayedCards="this.Status.PlayedCards" />
         </div>
 
         @if (remotePlayers.Length >= 6)
@@ -89,7 +89,12 @@
         }
     </div>
     <div class="row fill">
-            <LocalPlayerBox Cards="this.Status.Cards"/>
+            <div class="cell">
+                <PullDeckBox DeckRemainingCards="this.Status.DeckRemainingCards" />
+            </div>
+            <div class="cell">
+                <LocalPlayerBox Cards="this.Status.Cards"/>
+            </div>
     </div>
 </div>
 

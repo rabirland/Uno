@@ -1,0 +1,27 @@
+﻿@using Uno.Shared
+
+@namespace Uno.Client.Shared
+
+@if (PlayedCards == null)
+{
+    <h1>Played cards not supplied</h1>
+    return;
+}
+
+<div class="played-deck auto-font-size">
+    <div class="cards">
+        @foreach (var card in this.PlayedCards)
+        {
+            <div class="card-anchor">
+                <div class="card-wrapper">
+                        <UnoCard Color="card.Color" Type="card.Type" />
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public IEnumerable<ListenGameResponse.CardFace>? PlayedCards { get; set; }
+}
