@@ -44,10 +44,10 @@
     private string fillColorClass => this.Color.ToString().ToLowerInvariant();
 
     [Parameter]
-    public ListenGameResponse.CardColor Color { get; set; }
+    public GameMessages.CardColor Color { get; set; }
 
     [Parameter]
-    public ListenGameResponse.CardType Type { get; set; }
+    public GameMessages.CardType Type { get; set; }
 
     [Parameter]
     public bool IsBackFace { get; set; }
@@ -74,27 +74,27 @@
         {
             var raw = Type switch
             {
-                ListenGameResponse.CardType.Num0 => "0",
-                ListenGameResponse.CardType.Num1 => "1",
-                ListenGameResponse.CardType.Num2 => "2",
-                ListenGameResponse.CardType.Num3 => "3",
-                ListenGameResponse.CardType.Num4 => "4",
-                ListenGameResponse.CardType.Num5 => "5",
-                ListenGameResponse.CardType.Num6 => "6",
-                ListenGameResponse.CardType.Num7 => "7",
-                ListenGameResponse.CardType.Num8 => "8",
-                ListenGameResponse.CardType.Num9 => "9",
-                ListenGameResponse.CardType.Plus2 => "+2",
-                ListenGameResponse.CardType.Plus4 => "+4",
+                GameMessages.CardType.Num0 => "0",
+                GameMessages.CardType.Num1 => "1",
+                GameMessages.CardType.Num2 => "2",
+                GameMessages.CardType.Num3 => "3",
+                GameMessages.CardType.Num4 => "4",
+                GameMessages.CardType.Num5 => "5",
+                GameMessages.CardType.Num6 => "6",
+                GameMessages.CardType.Num7 => "7",
+                GameMessages.CardType.Num8 => "8",
+                GameMessages.CardType.Num9 => "9",
+                GameMessages.CardType.Plus2 => "+2",
+                GameMessages.CardType.Plus4 => "+4",
                 _ => string.Empty,
             };
 
             // Append Unicode variation selector to prevent the texts turning into emojis
             this.text = new MarkupString(raw);
 
-            var isSwapper = Type == ListenGameResponse.CardType.Swap;
-            var isBlock = Type == ListenGameResponse.CardType.Block;
-            var isReverse = Type == ListenGameResponse.CardType.Reverse;
+            var isSwapper = Type == GameMessages.CardType.Swap;
+            var isBlock = Type == GameMessages.CardType.Block;
+            var isReverse = Type == GameMessages.CardType.Reverse;
             this.specialCharacterClass = isSwapper
                 ? "swap-arrow"
                 : isBlock
@@ -105,14 +105,14 @@
 
             this.backClass = "front";
 
-            this.hasCentralText = Type != ListenGameResponse.CardType.Plus2
-                && Type != ListenGameResponse.CardType.Plus4;
+            this.hasCentralText = Type != GameMessages.CardType.Plus2
+                && Type != GameMessages.CardType.Plus4;
 
             this.hasEdgeText = true;
 
-            this.hasTwoMiniCard = Type == ListenGameResponse.CardType.Plus2;
-            this.hasFourMiniCard = Type == ListenGameResponse.CardType.Plus4;
-            this.hasColorChange = Type == ListenGameResponse.CardType.ColorChange || Type == ListenGameResponse.CardType.Swap;
+            this.hasTwoMiniCard = Type == GameMessages.CardType.Plus2;
+            this.hasFourMiniCard = Type == GameMessages.CardType.Plus4;
+            this.hasColorChange = Type == GameMessages.CardType.ColorChange || Type == GameMessages.CardType.Swap;
         }
     }
 }

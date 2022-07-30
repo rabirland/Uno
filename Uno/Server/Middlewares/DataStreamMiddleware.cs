@@ -36,12 +36,13 @@ public class DataStreamMiddleware
         this.serviceProvider = serviceProvider;
     }
 
-    public async Task InvokeAsync(HttpContext context)
+    public Task InvokeAsync(HttpContext context)
     {
         Handle(context, serviceProvider);
 
-        // Call the next delegate/middleware in the pipeline.
-        await _next(context);
+        // The stream ends when the client disconnects or the enumeration ends, no need for the rest of the middlewares.
+        //await _next(context);
+        return Task.CompletedTask;
     }
 
     private void Handle(HttpContext context, IServiceProvider serviceProvider)

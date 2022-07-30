@@ -12,7 +12,7 @@
 }
 else if (lastStatus.Game != null)
 {
-	<InGamePanel Status="lastStatus.Game" />
+	<InGamePanel PlayerName="@playerName" Status="lastStatus.Game" OnDropCard="OnDropCard"/>
 }
 
 @code {
@@ -70,4 +70,11 @@ else if (lastStatus.Game != null)
 	{
 		await api.Game.StartGameAsync(new StartGameRequest(this.Id));
 	}
+
+	private async void OnDropCard(DropCardParams eventParams)
+	{
+		await api.Game.DropCardAsync(new DropCardRequest(this.Id, eventParams.Card, eventParams.Count));
+	}
+
+	public record DropCardParams(GameMessages.CardFace Card, int Count);
 }

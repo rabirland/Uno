@@ -58,6 +58,9 @@ public static class HttpClientExtensions
         var response = await client.SendAsync(httpRequest);
         response.EnsureSuccessStatusCode();
 
+        var tst = new StreamReader(await response.Content.ReadAsStreamAsync());
+        var fasz = await tst.ReadToEndAsync();
+
         var ret = await response.Content.ReadFromJsonAsync<TResponse>();
 
         if (ret == null)

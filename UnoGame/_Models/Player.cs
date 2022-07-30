@@ -4,9 +4,9 @@ public class Player
 {
     private Dictionary<CardFace, int> cardsInHand;
 
-    public Player(string name)
+    public Player(string id)
     {
-        this.Name = name;
+        this.Id = id;
         this.cardsInHand = CardMetadata
             .ValidCards
             .ToDictionary(
@@ -15,9 +15,9 @@ public class Player
     }
 
     /// <summary>
-    /// The name of the player.
+    /// The id of the player.
     /// </summary>
-    public string Name { get; }
+    public string Id { get; }
 
     /// <summary>
     /// The current cards in the player's hands.
@@ -37,7 +37,7 @@ public class Player
         }
         catch
         {
-            throw new Exception($"The {Name} player does not knows {cardFace} card.");
+            throw new Exception($"The {Id} player does not knows {cardFace} card.");
         }
     }
 
@@ -45,19 +45,26 @@ public class Player
     /// Removes a card from the player's hand.
     /// </summary>
     /// <param name="cardFace">The face of the card to remove.</param>
-    public void RemoveCard(CardFace cardFace)
+    /// <param name="count">The amount of cards to drop.</param>
+    /// <returns><see langword="true"/> if the cards were dropped, exactly the amount of <paramref name="count"/>.</returns>
+    public bool RemoveCard(CardFace cardFace, int count)
     {
         try
         {
             var currentCount = this.cardsInHand[cardFace];
-            if (currentCount > 0)
+            if (currentCount >= count)
             {
-                this.cardsInHand[cardFace] = currentCount - 1;
+                this.cardsInHand[cardFace] = currentCount - count;
+                return true;
+            }
+            else
+            {
+                return false;
             }
         }
         catch
         {
-            throw new Exception($"The player {Name} has no {cardFace} card in hand.");
+            throw new Exception($"The player {Id} has no {cardFace} card in hand.");
         }
     }
 }

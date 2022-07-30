@@ -61,17 +61,27 @@ public static class EnumMapper
     // Optimized variants
     public static class CardColor
     {
-        public static ListenGameResponse.CardColor ToListenGameResponse(UnoGame.CardColor color)
+        public static GameMessages.CardColor ToGameMessageResponse(UnoGame.CardColor color)
         {
-            return (ListenGameResponse.CardColor)(int)(color);
+            return (GameMessages.CardColor)(int)(color);
+        }
+
+        public static UnoGame.CardColor ToUno(GameMessages.CardColor type)
+        {
+            return (UnoGame.CardColor)(int)(type);
         }
     }
 
     public static class CardType
     {
-        public static ListenGameResponse.CardType ToListenGameResponse(UnoGame.CardType type)
+        public static GameMessages.CardType ToGameMessageResponse(UnoGame.CardType type)
         {
-            return (ListenGameResponse.CardType)(int)(type);
+            return (GameMessages.CardType)(int)(type);
+        }
+
+        public static UnoGame.CardType ToUno(GameMessages.CardType type)
+        {
+            return (UnoGame.CardType)(int)(type);
         }
     }
 }

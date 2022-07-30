@@ -1,9 +1,11 @@
 ﻿@using Uno.Client.GameService
+@using Uno.Client.Pages
 @using Uno.Shared
 
 @namespace Uno.Client.Shared
 
 @inject IGameService gameService
+@inject Api api
 
 @if (this.Cards == null)
 {
@@ -12,17 +14,16 @@
 }
 
 <div class="wrapper auto-font-size">
-    <div class="name">
-        @gameService.PlayerName
-    </div>
-    <div class="cards">
+    <div class="cards @ActiveClass">
         @foreach (var card in this.Cards)
         {
             <div class="card-stack">
-                @for (int i = 0; i < card.Count; i++)
+                @for (int i = card.Count - 1; i >= 0; i--)
                 {
+                    int index = i;
+
                     <div class="stack-entry">
-                        <div class="card-wrapper">
+                        <div class="card-wrapper @GetHoverClass(index)" @onmouseover="() => OnHover(index)" @onmouseout="OnLeave" @onclick="() => OnClickCard(card.Color, card.Type, index)">
                             <UnoCard Color="card.Color" Type="card.Type"/>
                         </div>
                     </div>
@@ -33,6 +34,43 @@
 </div>
 
 @code {
+    private int hoverIndex = -1;
+
     [Parameter]
-    public IEnumerable<ListenGameResponse.CardCount>? Cards { get; set; }
+    public IEnumerable<GameMessages.CardCount>? Cards { get; set; }
+
+    [Parameter]
+    public bool IsActivePlayer { get; set; }
+
+    [Parameter]
+    public EventCallback<InGame.DropCardParams> OnDropCard { get; set; }
+
+    private string ActiveClass => IsActivePlayer ? "active-player" : string.Empty;
+
+    private void OnHover(int index)
+    {
+        this.hoverIndex = index;
+    }
+
+    private void OnLeave()
+    {
+        this.hoverIndex = -1;
+    }
+
+    private string GetHoverClass(int index)
+    {
+        if (this.hoverIndex >= 0 && index <= this.hoverIndex)
+        {
+            return "hover";
+        }
+        else
+        {
+            return string.Empty;
+        }
+    }
+
+    private async void OnClickCard(GameMessages.CardColor color, GameMessages.CardType type, int index)
+    {
+        await OnDropCard.InvokeAsync(new InGame.DropCardParams(new GameMessages.CardFace(color, type), index + 1));
+    }
 }

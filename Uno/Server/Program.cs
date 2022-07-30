@@ -44,7 +44,7 @@ app.UseWhen(context => context.Request.Path.StartsWithSegments("/api"), appBuild
 });*/
 
 // Premature validations
-EnumMapper.EnsureValueMatching<ListenGameResponse.CardColor, UnoGame.CardColor>();
-EnumMapper.EnsureValueMatching<ListenGameResponse.CardType, UnoGame.CardType>();
+EnumMapper.EnsureValueMatching<GameMessages.CardColor, UnoGame.CardColor>();
+EnumMapper.EnsureValueMatching<GameMessages.CardType, UnoGame.CardType>();
 
 app.Run();

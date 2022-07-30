@@ -56,12 +56,24 @@ public record ListenGameResponse(
     /// <param name="Cards">The cards in the player's hands who is receiving the message.</param>
     /// <param name="DeckRemainingCards">The amount of cards remaining in the deck.</param>
     /// <param name="PlayedCards">The list of cards that was played by the players previously.</param>
+    /// <param name="CurrentPlayerName">The name of the player whose round is ongoing.</param>
     public record GameStatus(
-        IEnumerable<PlayerHand> OtherPlayerCards,
-        IEnumerable<CardCount> Cards,
+        IEnumerable<GameMessages.PlayerHand> OtherPlayerCards,
+        IEnumerable<GameMessages.CardCount> Cards,
         int DeckRemainingCards,
-        IEnumerable<CardFace> PlayedCards);
+        IEnumerable<GameMessages.CardFace> PlayedCards,
+        string CurrentPlayerName);
+}
 
+//=========================================================================================== Drop Card
+public record DropCardRequest(string GameId, GameMessages.CardFace Card, int Count);
+public record DropCardResponse()
+{
+    public static DropCardResponse Empty => new DropCardResponse();
+}
+
+public static class GameMessages
+{
     /// <summary>
     /// The color of an UNO card.
     /// </summary>

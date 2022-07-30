@@ -138,7 +138,6 @@ public class GameController : Controller
         }
 
         var gameEntry = gameService.GetGame(request.GameId);
-
         if (gameEntry == default)
         {
             Response.StatusCode = (int)HttpStatusCode.BadRequest;
@@ -218,13 +217,6 @@ public class GameController : Controller
 
         var gameEntry = this.gameService.GetGame(request.GameId);
 
-        // ======================================= DEBUG CODE
-        int requiredPlayerCount = 7;
-        for (int i = gameEntry.Players.Count(); i < requiredPlayerCount; i++)
-        {
-            gameEntry.TryAddPlayer(new GamePlayer($"GeneratedPlayer{i}", $"GeneratedToken{i}"));
-        }
-
         if (gameEntry == default)
         {
             Response.StatusCode = (int)HttpStatusCode.BadRequest;
@@ -245,6 +237,63 @@ public class GameController : Controller
 
         gameEntry.StartGame();
         return new StartGameResponse();
+    }
+
+    [HttpPost(URL.Game.DropCard)]
+    public DropCardResponse DropCard(DropCardRequest request)
+    {
+        if (string.IsNullOrEmpty(request.GameId))
+        {
+            Response.StatusCode = (int)HttpStatusCode.BadRequest;
+            return DropCardResponse.Empty;
+        }
+
+        var token = GetPlayerToken(request.GameId);
+
+        if (string.IsNullOrEmpty(token))
+        {
+            Response.StatusCode = (int)HttpStatusCode.Unauthorized;
+            return DropCardResponse.Empty;
+        }
+
+        var gameEntry = gameService.GetGame(request.GameId);
+        if (gameEntry == default)
+        {
+            Response.StatusCode = (int)HttpStatusCode.BadRequest;
+            return DropCardResponse.Empty;
+        }
+
+        var player = gameEntry.Players.FirstOrDefault(p => p.Token == token);
+        if (player == default)
+        {
+            Response.StatusCode = (int)HttpStatusCode.BadRequest;
+            return DropCardResponse.Empty;
+        }
+
+        if (gameEntry.Status != GameStatus.Running)
+        {
+            Response.StatusCode = (int)HttpStatusCode.BadRequest;
+            return DropCardResponse.Empty;
+        }
+
+        if (gameEntry.Game == null)
+        {
+            throw new Exception("Game is running but the Uno Game is not initialized");
+        }
+
+        var cardColor = EnumMapper.CardColor.ToUno(request.Card.Color);
+        var cardType = EnumMapper.CardType.ToUno(request.Card.Type);
+
+        try
+        {
+            gameEntry.Game.DropCard(player.Token, new UnoGame.CardFace(cardType, cardColor), request.Count);
+            return new DropCardResponse();
+        }
+        catch
+        {
+            Response.StatusCode = (int)HttpStatusCode.BadRequest;
+            return DropCardResponse.Empty;
+        }
     }
 
     private IEnumerable<ListenGameResponse> ReportLobbyStatus(GameEntry gameEntry, string token)
@@ -281,45 +330,42 @@ public class GameController : Controller
             var player = gameEntry.Players.First(p => p.Token == listenerToken);
             var adminPlayer = gameEntry.Players.First(p => p.Token == gameEntry.AdminPlayerToken);
 
-            var gamePlayer = game.Players.First(p => p.Name == player.PlayerName);
+            var gamePlayer = game.Players.First(p => p.Id == player.Token);
 
             var otherPlayers = game
                    .Players
-                   .Where(p => p.Name != gamePlayer.Name)
+                   .Where(p => p.Id != gamePlayer.Id)
                    .Select(p =>
                    {
+                       var playerEntry = gameEntry.Players.First(gp => gp.Token == p.Id);
                        var cardCount = p.Cards.Select(c => c.Value).Sum();
-                       return new ListenGameResponse.PlayerHand(p.Name, cardCount);
+                       return new GameMessages.PlayerHand(playerEntry.PlayerName, cardCount);
                    });
 
             var cardsInHand = gamePlayer
                 .Cards
                 .Where(c => c.Value > 0)
-                .Select(c => new ListenGameResponse.CardCount(
-                    EnumMapper.CardColor.ToListenGameResponse(c.Key.Color),
-                    EnumMapper.CardType.ToListenGameResponse(c.Key.Type),
+                .Select(c => new GameMessages.CardCount(
+                    EnumMapper.CardColor.ToGameMessageResponse(c.Key.Color),
+                    EnumMapper.CardType.ToGameMessageResponse(c.Key.Type),
                     c.Value));
 
             var deckRemainingCards = game.Deck.RemainingCards;
 
-            //var playedCards = game
-            //    .PlayedCards
-            //    .Select(p => new ListenGameResponse.CardFace(
-            //        EnumMapper.CardColor.ToListenGameResponse(p.Color),
-            //        EnumMapper.CardType.ToListenGameResponse(p.Type)));
+            var playedCards = game
+                .PlayedCards
+                .Select(p => new GameMessages.CardFace(
+                    EnumMapper.CardColor.ToGameMessageResponse(p.Color),
+                    EnumMapper.CardType.ToGameMessageResponse(p.Type)));
 
-            var playedCards = UnoGame
-                .CardMetadata
-                .ValidCards
-                .Select(p => new ListenGameResponse.CardFace(
-                    EnumMapper.CardColor.ToListenGameResponse(p.Face.Color),
-                    EnumMapper.CardType.ToListenGameResponse(p.Face.Type)));
+            var currentPlayerEntry = gameEntry.Players.First(p => p.Token == game.CurrentPlayerId);
 
             var gameStatus = new ListenGameResponse.GameStatus(
                 otherPlayers,
                 cardsInHand,
                 deckRemainingCards,
-                playedCards);
+                playedCards,
+                currentPlayerEntry.PlayerName);
 
             yield return new ListenGameResponse(
                 adminPlayer.PlayerName,

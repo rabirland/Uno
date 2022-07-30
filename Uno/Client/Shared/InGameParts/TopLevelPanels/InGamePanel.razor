@@ -1,4 +1,5 @@
 ﻿@namespace Uno.Client.Shared
+@using Uno.Client.Pages
 @using Uno.Shared
 
 @if (this.Status == null)
@@ -93,16 +94,22 @@
                 <PullDeckBox DeckRemainingCards="this.Status.DeckRemainingCards" />
             </div>
             <div class="cell double">
-                <LocalPlayerBox Cards="this.Status.Cards"/>
+                <LocalPlayerBox IsActivePlayer="Status.CurrentPlayerName == PlayerName" Cards="this.Status.Cards" OnDropCard="p => OnDropCard.InvokeAsync(p)"/>
             </div>
     </div>
 </div>
 
 @code {
-    private ListenGameResponse.PlayerHand[] remotePlayers = Array.Empty<ListenGameResponse.PlayerHand>();
+    private GameMessages.PlayerHand[] remotePlayers = Array.Empty<GameMessages.PlayerHand>();
 
     [Parameter]
     public ListenGameResponse.GameStatus? Status { get; set; }
+
+    [Parameter]
+    public EventCallback<InGame.DropCardParams> OnDropCard { get; set; }
+
+    [Parameter]
+    public string? PlayerName { get; set; }
 
     protected override void OnParametersSet()
     {
@@ -112,7 +119,7 @@
         }
         else
         {
-            this.remotePlayers = Array.Empty<ListenGameResponse.PlayerHand>();
+            this.remotePlayers = Array.Empty<GameMessages.PlayerHand>();
         }
     }
 }

@@ -22,5 +22,8 @@ public record Api(HttpClient client)
 
         public Task<StartGameResponse> StartGameAsync(StartGameRequest request) =>
            this.client.PostAsApiJsonAsync<StartGameResponse>(URL.Game.StartGame, request);
+
+        public Task<DropCardResponse> DropCardAsync(DropCardRequest request) =>
+           this.client.PostAsApiJsonAsync<DropCardResponse>(URL.Game.DropCard, request);
     }
 }

@@ -30,13 +30,13 @@ public class Game
     /// </summary>
     public event Action<GameState> OnStateChange = _ => { };
 
-    public Game(GameSettings settings, IEnumerable<string> playerNames)
+    public Game(GameSettings settings, IEnumerable<string> playerIds)
     {
         this.settings = settings;
 
         this.Deck = new InfiniteDeck(); // TODO: Get from settings
 
-        this.players = playerNames
+        this.players = playerIds
             .Select(p => new Player(p))
             .ToArray();
 
@@ -50,9 +50,9 @@ public class Game
     }
 
     /// <summary>
-    /// The name of the player whose round is ongoing.
+    /// The id of the player whose round is ongoing.
     /// </summary>
-    public string CurrentPlayer => this.players[currentPlayerIndex].Name;
+    public string CurrentPlayerId => this.players[currentPlayerIndex].Id;
 
     /// <summary>
     /// The deck to pull cards from.
@@ -72,19 +72,24 @@ public class Game
     /// <summary>
     /// The player tries to drop a card.
     /// </summary>
-    /// <param name="playerName">The name of the player that tries to drop the card.</param>
+    /// <param name="playerId">The id of the player that tries to drop the card.</param>
     /// <param name="cardFace">The face of the card to drop.</param>
-    public void DropCard(string playerName, CardFace cardFace)
+    /// <param name="count">The amount of cards to drop.</param>
+    public void DropCard(string playerId, CardFace cardFace, int count)
     {
         lock (this.playerLock)
         {
-            if (!IsCurrentPlayer(playerName))
+            if (!IsCurrentPlayer(playerId))
             {
                 throw new Exception("Not the current player to play");
             }
 
-            var player = this.players.First(p => p.Name == playerName);
-            player.RemoveCard(cardFace);
+            var player = this.players.First(p => p.Id == playerId);
+            if (player.RemoveCard(cardFace, count))
+            {
+                var droppedCards = Enumerable.Repeat(cardFace, count);
+                this.playedCards.AddRange(droppedCards);
+            }
 
             // TODO: Player action
 
@@ -132,15 +137,15 @@ public class Game
     }
 
     /// <summary>
-    /// Checks if the given <paramref name="playerName"/> is the name of the current active player.
+    /// Checks if the given <paramref name="playerId"/> is the id of the current active player.
     /// </summary>
-    /// <param name="playerName">The player name.</param>
-    /// <returns><see langword="true"/> if the current player's name is <paramref name="playerName"/>.</returns>
-    private bool IsCurrentPlayer(string playerName)
+    /// <param name="playerId">The player name.</param>
+    /// <returns><see langword="true"/> if the current player's name is <paramref name="playerId"/>.</returns>
+    private bool IsCurrentPlayer(string playerId)
     {
         lock (this.playerLock)
         {
-            return this.CurrentPlayer == playerName;
+            return this.CurrentPlayerId == playerId;
         }
     }
 
@@ -158,9 +163,9 @@ public class Game
                     .Where(c => c.Value > 0)
                     .Select(c => new PlayerCardCount(c.Key, c.Value));
 
-                return new PlayerState(p.Name, cardCounts);
+                return new PlayerState(p.Id, cardCounts);
             });
 
-        return new GameState(this.CurrentPlayer, players);
+        return new GameState(this.CurrentPlayerId, players);
     }
 }

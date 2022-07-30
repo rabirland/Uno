@@ -10,37 +10,37 @@
 </div>
 
 <div style="overflow: auto; word-wrap: unset; white-space: nowrap; font-size: 50px;">
-    @foreach (var type in Enum.GetValues<ListenGameResponse.CardType>())
+    @foreach (var type in Enum.GetValues<GameMessages.CardType>())
     {
-        <UnoCard Type="type" Color="ListenGameResponse.CardColor.Yellow" IsBackFace="false"/>
+        <UnoCard Type="type" Color="GameMessages.CardColor.Yellow" IsBackFace="false"/>
     }
 </div>
 
 <div style="overflow: auto; word-wrap: unset; white-space: nowrap; font-size: 90px;">
-    @foreach (var type in Enum.GetValues<ListenGameResponse.CardType>())
+    @foreach (var type in Enum.GetValues<GameMessages.CardType>())
     {
-        <UnoCard Type="type" Color="ListenGameResponse.CardColor.Green" IsBackFace="false"/>
+        <UnoCard Type="type" Color="GameMessages.CardColor.Green" IsBackFace="false"/>
     }
 </div>
 
 <div style="overflow: auto; word-wrap: unset; white-space: nowrap; font-size: 130px;">
-    @foreach (var type in Enum.GetValues<ListenGameResponse.CardType>())
+    @foreach (var type in Enum.GetValues<GameMessages.CardType>())
     {
-        <UnoCard Type="type" Color="ListenGameResponse.CardColor.Blue" IsBackFace="false"/>
+        <UnoCard Type="type" Color="GameMessages.CardColor.Blue" IsBackFace="false"/>
     }
 </div>
 
 <div style="overflow: auto; word-wrap: unset; white-space: nowrap; font-size: 150px;">
-    @foreach (var type in Enum.GetValues<ListenGameResponse.CardType>())
+    @foreach (var type in Enum.GetValues<GameMessages.CardType>())
     {
-        <UnoCard Type="type" Color="ListenGameResponse.CardColor.Red" IsBackFace="false"/>
+        <UnoCard Type="type" Color="GameMessages.CardColor.Red" IsBackFace="false"/>
     }
 </div>
 
 <div style="overflow: auto; word-wrap: unset; white-space: nowrap; font-size: 220px;">
-    @foreach (var type in Enum.GetValues<ListenGameResponse.CardType>())
+    @foreach (var type in Enum.GetValues<GameMessages.CardType>())
     {
-        <UnoCard Type="type" Color="ListenGameResponse.CardColor.Colorless" IsBackFace="false"/>
+        <UnoCard Type="type" Color="GameMessages.CardColor.Colorless" IsBackFace="false"/>
     }
 </div>
 @code {
