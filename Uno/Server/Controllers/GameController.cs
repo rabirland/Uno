@@ -300,9 +300,26 @@ public class GameController : Controller
                     EnumMapper.CardType.ToListenGameResponse(c.Key.Type),
                     c.Value));
 
+            var deckRemainingCards = game.Deck.RemainingCards;
+
+            //var playedCards = game
+            //    .PlayedCards
+            //    .Select(p => new ListenGameResponse.CardFace(
+            //        EnumMapper.CardColor.ToListenGameResponse(p.Color),
+            //        EnumMapper.CardType.ToListenGameResponse(p.Type)));
+
+            var playedCards = UnoGame
+                .CardMetadata
+                .ValidCards
+                .Select(p => new ListenGameResponse.CardFace(
+                    EnumMapper.CardColor.ToListenGameResponse(p.Face.Color),
+                    EnumMapper.CardType.ToListenGameResponse(p.Face.Type)));
+
             var gameStatus = new ListenGameResponse.GameStatus(
                 otherPlayers,
-                cardsInHand);
+                cardsInHand,
+                deckRemainingCards,
+                playedCards);
 
             yield return new ListenGameResponse(
                 adminPlayer.PlayerName,

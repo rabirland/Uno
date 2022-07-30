@@ -5,10 +5,10 @@ namespace UnoGame;
 
 public class Game
 {
+    private List<CardFace> playedCards = new List<CardFace>();
     private readonly GameSettings settings;
     private readonly GameTimer Timer = new GameTimer();
     private readonly object playerLock = new object();
-    private readonly IDeck deck;
 
     /// <summary>
     /// The list of all players in the game.
@@ -34,7 +34,7 @@ public class Game
     {
         this.settings = settings;
 
-        this.deck = new InfiniteDeck(); // TODO: Get from settings
+        this.Deck = new InfiniteDeck(); // TODO: Get from settings
 
         this.players = playerNames
             .Select(p => new Player(p))
@@ -44,7 +44,7 @@ public class Game
         {
             for (int i = 0; i < this.settings.StartCardCount; i++)
             {
-                player.AddCard(this.deck.Pull());
+                player.AddCard(this.Deck.Pull());
             }
         }
     }
@@ -54,7 +54,20 @@ public class Game
     /// </summary>
     public string CurrentPlayer => this.players[currentPlayerIndex].Name;
 
+    /// <summary>
+    /// The deck to pull cards from.
+    /// </summary>
+    public IDeck Deck { get; }
+
+    /// <summary>
+    /// The list of players in the game.
+    /// </summary>
     public IEnumerable<Player> Players => this.players;
+
+    /// <summary>
+    /// The cards those was dropped by the players.
+    /// </summary>
+    public IEnumerable<CardFace> PlayedCards => this.playedCards;
 
     /// <summary>
     /// The player tries to drop a card.

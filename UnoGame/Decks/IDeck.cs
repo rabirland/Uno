@@ -3,7 +3,7 @@
 public interface IDeck
 {
     /// <summary>
-    /// The cards left in the deck.
+    /// The amount of cards left in the deck.
     /// </summary>
     public int RemainingCards { get; }
 

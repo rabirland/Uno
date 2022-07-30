@@ -10,7 +10,6 @@
 }
 
 .grid .row {
-    flex-direction: row;
     flex: 0 1 auto;
     min-height: 0;
 }
@@ -21,6 +20,7 @@
 
 .grid .row .cell {
     display: inline-block;
+    vertical-align: top;
     width: 25%;
     height: 100%;
     padding: 1%;
