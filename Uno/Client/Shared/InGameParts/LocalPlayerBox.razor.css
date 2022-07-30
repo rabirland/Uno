@@ -1,0 +1,56 @@
+﻿.wrapper {
+    width: 100%;
+    height: 100%;
+}
+
+.name {
+    font-size: 20px;
+}
+
+.cards {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    font-size: 10em;
+    counter-reset: card-index;
+    width: 100%;
+    height: 100%;
+}
+
+.card-stack {
+    display: flex;
+    flex-direction: column;
+    justify-content: end;
+    overflow: hidden;
+    z-index: 1; /* No idea why, but required, otherwise cards are rendered weirdly */
+}
+
+    .card-stack:not(:last-of-type) {
+        margin-right: 1px;
+    }
+
+    .card-stack:last-of-type {
+        flex-shrink: 0; /* The last card should be fully visible */
+    }
+
+    .card-stack .stack-entry {
+        display: flex;
+        flex-direction: column;
+        justify-content: end;
+        height: 0.2em;
+        overflow: visible;
+        z-index: 1; /* No idea why, but required */
+        bottom: 0;
+    }
+
+        .card-stack .stack-entry:not(:last-of-type) {
+            margin-bottom: -0.05em;
+        }
+
+        .card-stack .stack-entry:last-of-type {
+            flex-shrink: 0; /* The bottom card should be fully visible */
+        }
+
+    .card-stack .stack-entry .card-wrapper {
+        display: inline-flex;
+    }

@@ -1,0 +1,38 @@
+﻿@using Uno.Client.GameService
+@using Uno.Shared
+
+@namespace Uno.Client.Shared
+
+@inject IGameService gameService
+
+@if (this.Cards == null)
+{
+    <h1>No cards given</h1>
+    return;
+}
+
+<div class="wrapper">
+    <div class="name">
+        @gameService.PlayerName
+    </div>
+    <div class="cards">
+        @foreach (var card in this.Cards)
+        {
+            <div class="card-stack">
+                @for (int i = 0; i < card.Count; i++)
+                {
+                    <div class="stack-entry">
+                        <div class="card-wrapper">
+                            <UnoCard Color="card.Color" Type="card.Type"/>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public IEnumerable<ListenGameResponse.CardCount>? Cards { get; set; }
+}

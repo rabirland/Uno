@@ -294,6 +294,7 @@ public class GameController : Controller
 
             var cardsInHand = gamePlayer
                 .Cards
+                .Where(c => c.Value > 0)
                 .Select(c => new ListenGameResponse.CardCount(
                     EnumMapper.CardColor.ToListenGameResponse(c.Key.Color),
                     EnumMapper.CardType.ToListenGameResponse(c.Key.Type),

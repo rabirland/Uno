@@ -25,7 +25,6 @@
 
 .card-wrapper {
     overflow: hidden;
-    counter-increment: card-index;
     z-index: 1; /* No idea why, but required */
 }
 

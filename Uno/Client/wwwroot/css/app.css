@@ -56,3 +56,8 @@ body {
 * {
     box-sizing: border-box;
 }
+
+.page.scifi > .frame > .content {
+    padding: 2%;
+    min-width: 730px;
+}

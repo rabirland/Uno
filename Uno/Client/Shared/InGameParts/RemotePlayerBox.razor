@@ -1,11 +1,12 @@
 ﻿@namespace Uno.Client.Shared
+@using Uno.Shared
 
 <div class="container">
     <div class="icon">
         @Icon
     </div>
     <div class="name">
-        @PlayerName
+        @Player?.PlayerName
     </div>
     <div class="cards">
         @for (int i = 0; i < CardCount; i++)
@@ -18,11 +19,10 @@
 </div>
 
 @code {
-    private MarkupString Icon => new MarkupString(Emoji.GetPlayerEmoji(PlayerName));
+    private MarkupString Icon => new MarkupString(Emoji.GetPlayerEmoji(Player?.PlayerName ?? string.Empty));
+
+    private int CardCount => this.Player?.CardCount ?? 0;
 
     [Parameter]
-    public string PlayerName { get; set; } = string.Empty;
-
-    [Parameter]
-    public int CardCount { get; set; } = 0;
+    public ListenGameResponse.PlayerHand? Player { get; set; }
 }
