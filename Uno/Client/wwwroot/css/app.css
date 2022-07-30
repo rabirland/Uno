@@ -58,6 +58,66 @@ body {
 }
 
 .page.scifi > .frame > .content {
-    padding: 2%;
-    min-width: 730px;
+    padding: 0 2%;
+}
+/* ================== Auto font size ========================== */
+
+/* A variable is used, so any other "reference" value is supported other than the 1em and the media selectors will use that value */
+/* It only creates a reference scale, so child elements can scale their text by using the "em" unit. */
+.auto-font-size {
+    --auto-size: 1em;
+}
+
+@media screen and (max-width: 900px) {
+    .auto-font-size {
+        font-size: calc(var(--auto-size) * 0.9);
+    }
+}
+
+@media screen and (max-width: 800px) {
+    .auto-font-size {
+        font-size: calc(var(--auto-size) * 0.8);
+    }
+}
+
+@media screen and (max-width: 700px) {
+    .auto-font-size {
+        font-size: calc(var(--auto-size) * 0.7);
+    }
+}
+
+@media screen and (max-width: 600px) {
+    .auto-font-size {
+        font-size: calc(var(--auto-size) * 0.6);
+    }
+}
+
+@media screen and (max-width: 500px) {
+    .auto-font-size {
+        font-size: calc(var(--auto-size) * 0.5);
+    }
+}
+
+@media screen and (max-width: 400px) {
+    .auto-font-size {
+        font-size: calc(var(--auto-size) * 0.4);
+    }
+}
+
+@media screen and (max-width: 300px) {
+    .auto-font-size {
+        font-size: calc(var(--auto-size) * 0.3);
+    }
+}
+
+@media screen and (max-width: 200px) {
+    .auto-font-size {
+        font-size: calc(var(--auto-size) * 0.2);
+    }
+}
+
+@media screen and (max-width: 100px) {
+    .auto-font-size {
+        font-size: calc(var(--auto-size) * 0.1);
+    }
 }
