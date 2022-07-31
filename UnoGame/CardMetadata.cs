@@ -70,6 +70,6 @@ public static class CardMetadata
         /////////////////////////////////////////////// Colorless
         new Card(new CardFace(CardType.Plus4, CardColor.Colorless), CurrentPlayerAction.PickColor, NextPlayerActions.Draw4),
         new Card(new CardFace(CardType.ColorChange, CardColor.Colorless), CurrentPlayerAction.PickColor),
-        new Card(new CardFace(CardType.Swap, CardColor.Colorless), CurrentPlayerAction.PickPlayer),
+        new Card(new CardFace(CardType.Swap, CardColor.Colorless), CurrentPlayerAction.SwapHandDeckWithPlayer | CurrentPlayerAction.PickColor),
     };
 }

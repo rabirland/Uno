@@ -12,68 +12,83 @@
 }
 else if (lastStatus.Game != null)
 {
-	<InGamePanel PlayerName="@playerName" Status="lastStatus.Game" OnDropCard="OnDropCard"/>
+	<InGamePanel PlayerName="@playerName" Status="lastStatus.Game" OnPlayCard="OnPlayCard" OnPullCard="OnPullCard" OnPickPlayer="OnPickPlayer" OnPickColor="OnPickColor"/>
 }
 
 @code {
-	private ListenGameResponse lastStatus = ListenGameResponse.Empty;
-	private string playerName = string.Empty;
-	private bool showJoinDialog = false;
+    private ListenGameResponse lastStatus = ListenGameResponse.Empty;
+    private string playerName = string.Empty;
+    private bool showJoinDialog = false;
 
-	[Parameter]
-	public string Id { get; set; } = string.Empty;
+    [Parameter]
+    public string Id { get; set; } = string.Empty;
 
-	protected override async void OnInitialized()
-	{
-		await base.OnInitializedAsync();
+    protected override async void OnInitialized()
+    {
+        await base.OnInitializedAsync();
 
-		var rejoinResult = await api.Game.RejoinGameAsync(new RejoinGameRequest(this.Id));
+        var rejoinResult = await api.Game.RejoinGameAsync(new RejoinGameRequest(this.Id));
 
-		if (rejoinResult.IsSuccess)
-		{
-			OnJoined(rejoinResult.PlayerName);
-		}
-		else
-		{
-			this.showJoinDialog = true;
-			this.StateHasChanged();
-		}
-	}
+        if (rejoinResult.IsSuccess)
+        {
+            OnJoined(rejoinResult.PlayerName);
+        }
+        else
+        {
+            this.showJoinDialog = true;
+            this.StateHasChanged();
+        }
+    }
 
-	/// <summary>
-	/// When the player is joined to the game (according to the server)
-	/// </summary>
-	private void OnJoined(string playerName)
-	{
-		this.playerName = playerName;
+    /// <summary>
+    /// When the player is joined to the game (according to the server)
+    /// </summary>
+    private void OnJoined(string playerName)
+    {
+        this.playerName = playerName;
 
-		Listen()
-			.CatchExceptions();
-	}
+        Listen()
+            .CatchExceptions();
+    }
 
-	/// <summary>
-	/// Listens for the game status updates.
-	/// </summary>
-	private async Task Listen()
-	{
-		await foreach (var status in api.Game.ListenGameAsync(new ListenGameRequest(this.Id)))
-		{
-			this.lastStatus = status;
-			this.StateHasChanged();
-		}
-	}
+    /// <summary>
+    /// Listens for the game status updates.
+    /// </summary>
+    private async Task Listen()
+    {
+        await foreach (var status in api.Game.ListenGameAsync(new ListenGameRequest(this.Id)))
+        {
+            this.lastStatus = status;
+            this.StateHasChanged();
+        }
+    }
 
-	/// <summary>
-	/// When the user requests to start the game.
-	/// </summary>
-	private async void OnStartGame()
-	{
-		await api.Game.StartGameAsync(new StartGameRequest(this.Id));
-	}
+    /// <summary>
+    /// When the user requests to start the game.
+    /// </summary>
+    private async void OnStartGame()
+    {
+        await api.Game.StartGameAsync(new StartGameRequest(this.Id));
+    }
 
-	private async void OnDropCard(DropCardParams eventParams)
-	{
-		await api.Game.DropCardAsync(new DropCardRequest(this.Id, eventParams.Card, eventParams.Count));
+    private async void OnPlayCard(DropCardParams eventParams)
+    {
+        await api.Game.PlayCardAsync(new PlayCardRequest(this.Id, eventParams.Card, eventParams.Count));
+    }
+
+    private async void OnPullCard()
+    {
+        await api.Game.PullCardAsync(new PullCardRequest(this.Id));
+    }
+
+    private async void OnPickPlayer(string playerName)
+    {
+        await api.Game.PickPlayerAsync(new PickPlayerRequest(this.Id, playerName));
+    }
+
+    private async void OnPickColor(GameMessages.CardColor color)
+    {
+		await api.Game.PickColorAsync(new PickColorRequest(this.Id, color));
 	}
 
 	public record DropCardParams(GameMessages.CardFace Card, int Count);

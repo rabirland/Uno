@@ -159,13 +159,13 @@ public class GameController : Controller
             foreach (var status in ReportLobbyStatus(gameEntry, token))
             {
                 yield return status;
-                Thread.Sleep(250); // Should return when something happens
+                Thread.Sleep(1000 / 30); // 30Hz, should report only when something change
             }
 
             foreach (var status in ReportGameStatus(gameEntry, token))
             {
                 yield return status;
-                Thread.Sleep(250); // Should return when something happens
+                Thread.Sleep(1000 / 30); // 30Hz, should report only when something change
             }
         }
     }
@@ -236,49 +236,20 @@ public class GameController : Controller
         }
 
         gameEntry.StartGame();
+
+        // TODO: DEBUG
+        gameEntry.Game.Players.First().AddCard(new UnoGame.CardFace(UnoGame.CardType.Swap, UnoGame.CardColor.Colorless));
+        gameEntry.Game.Players.ElementAt(1).AddCard(new UnoGame.CardFace(UnoGame.CardType.Swap, UnoGame.CardColor.Colorless));
+
         return new StartGameResponse();
     }
 
-    [HttpPost(URL.Game.DropCard)]
-    public DropCardResponse DropCard(DropCardRequest request)
+    [HttpPost(URL.Game.PlayCard)]
+    public PlayCardResponse PlayCard(PlayCardRequest request)
     {
-        if (string.IsNullOrEmpty(request.GameId))
+        if (AuthenticatePlayerForActiveGame(request.GameId, out var playerData) == false)
         {
-            Response.StatusCode = (int)HttpStatusCode.BadRequest;
-            return DropCardResponse.Empty;
-        }
-
-        var token = GetPlayerToken(request.GameId);
-
-        if (string.IsNullOrEmpty(token))
-        {
-            Response.StatusCode = (int)HttpStatusCode.Unauthorized;
-            return DropCardResponse.Empty;
-        }
-
-        var gameEntry = gameService.GetGame(request.GameId);
-        if (gameEntry == default)
-        {
-            Response.StatusCode = (int)HttpStatusCode.BadRequest;
-            return DropCardResponse.Empty;
-        }
-
-        var player = gameEntry.Players.FirstOrDefault(p => p.Token == token);
-        if (player == default)
-        {
-            Response.StatusCode = (int)HttpStatusCode.BadRequest;
-            return DropCardResponse.Empty;
-        }
-
-        if (gameEntry.Status != GameStatus.Running)
-        {
-            Response.StatusCode = (int)HttpStatusCode.BadRequest;
-            return DropCardResponse.Empty;
-        }
-
-        if (gameEntry.Game == null)
-        {
-            throw new Exception("Game is running but the Uno Game is not initialized");
+            return PlayCardResponse.Empty;
         }
 
         var cardColor = EnumMapper.CardColor.ToUno(request.Card.Color);
@@ -286,13 +257,75 @@ public class GameController : Controller
 
         try
         {
-            gameEntry.Game.DropCard(player.Token, new UnoGame.CardFace(cardType, cardColor), request.Count);
-            return new DropCardResponse();
+            playerData.Game.PlayCard(new UnoGame.CardFace(cardType, cardColor), request.Count);
+            return new PlayCardResponse();
         }
         catch
         {
             Response.StatusCode = (int)HttpStatusCode.BadRequest;
-            return DropCardResponse.Empty;
+            return PlayCardResponse.Empty;
+        }
+    }
+
+    [HttpPost(URL.Game.PullCard)]
+    public PullCardResponse PullCard(PullCardRequest request)
+    {
+        if (AuthenticatePlayerForActiveGame(request.GameId, out var playerData) == false)
+        {
+            return PullCardResponse.Empty;
+        }
+
+        try
+        {
+            playerData.Game.PullCard();
+            return new PullCardResponse();
+        }
+        catch
+        {
+            Response.StatusCode = (int)HttpStatusCode.BadRequest;
+            return PullCardResponse.Empty;
+        }
+    }
+
+    [HttpPost(URL.Game.PickPlayer)]
+    public PickPlayerResponse PickPlayer(PickPlayerRequest request)
+    {
+        if (AuthenticatePlayerForActiveGame(request.GameId, out var playerData) == false)
+        {
+            return PickPlayerResponse.Empty;
+        }
+
+        try
+        {
+            var player = playerData.GameEntry.Players.First(p => p.PlayerName == request.PlayerName);
+            playerData.Game.PickPlayer(player.Token);
+            return new PickPlayerResponse();
+        }
+        catch
+        {
+            Response.StatusCode = (int)HttpStatusCode.BadRequest;
+            return PickPlayerResponse.Empty;
+        }
+    }
+
+    [HttpPost(URL.Game.PickColor)]
+    public PickColorResponse PickColor(PickColorRequest request)
+    {
+        if (AuthenticatePlayerForActiveGame(request.GameId, out var playerData) == false)
+        {
+            return PickColorResponse.Empty;
+        }
+
+        try
+        {
+            var color = EnumMapper.CardColor.ToUno(request.Color);
+            playerData.Game.PickColor(color);
+            return new PickColorResponse();
+        }
+        catch
+        {
+            Response.StatusCode = (int)HttpStatusCode.BadRequest;
+            return PickColorResponse.Empty;
         }
     }
 
@@ -360,12 +393,18 @@ public class GameController : Controller
 
             var currentPlayerEntry = gameEntry.Players.First(p => p.Token == game.CurrentPlayerId);
 
+            var roundPhase = EnumMapper.RoundPhase.ToGameMessageResponse(game.RoundPhase);
+
+            var activeColor = EnumMapper.CardColor.ToGameMessageResponse(game.ActiveColor);
+
             var gameStatus = new ListenGameResponse.GameStatus(
                 otherPlayers,
                 cardsInHand,
                 deckRemainingCards,
                 playedCards,
-                currentPlayerEntry.PlayerName);
+                currentPlayerEntry.PlayerName,
+                roundPhase,
+                activeColor);
 
             yield return new ListenGameResponse(
                 adminPlayer.PlayerName,
@@ -388,5 +427,58 @@ public class GameController : Controller
         options.Secure = true;
         var key = $"{Consts.CookieKeys.PlayerToken}_{gameId}";
         Response.Cookies.Append(key, token, options);
+    }
+
+    private bool AuthenticatePlayerForActiveGame(string gameId, out (GameEntry GameEntry, UnoGame.Game Game, GamePlayer Player) data)
+    {
+        data = default;
+
+        if (string.IsNullOrEmpty(gameId))
+        {
+            Response.StatusCode = (int)HttpStatusCode.BadRequest;
+            return false;
+        }
+
+        var token = GetPlayerToken(gameId);
+
+        if (string.IsNullOrEmpty(token))
+        {
+            Response.StatusCode = (int)HttpStatusCode.Unauthorized;
+            return false;
+        }
+
+        var gameEntry = gameService.GetGame(gameId);
+        if (gameEntry == default)
+        {
+            Response.StatusCode = (int)HttpStatusCode.BadRequest;
+            return false;
+        }
+
+        var player = gameEntry.Players.FirstOrDefault(p => p.Token == token);
+        if (player == default)
+        {
+            Response.StatusCode = (int)HttpStatusCode.BadRequest;
+            return false;
+        }
+
+        if (gameEntry.Status != GameStatus.Running)
+        {
+            Response.StatusCode = (int)HttpStatusCode.BadRequest;
+            return false;
+        }
+
+        if (gameEntry.Game == null)
+        {
+            throw new Exception("Game is running but the Uno Game is not initialized");
+        }
+
+        if (player.Token != gameEntry.Game.CurrentPlayerId)
+        {
+            Response.StatusCode = (int)HttpStatusCode.BadRequest;
+            return false;
+        }
+
+        data = (gameEntry, gameEntry.Game, player);
+        return true;
     }
 }

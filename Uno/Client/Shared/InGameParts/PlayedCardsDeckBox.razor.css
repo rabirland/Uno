@@ -8,6 +8,7 @@
     height: 100%;
     position: relative;
     font-size: 15em;
+    height: 1.2em; /* No idea why: takes the same height as the 15em font-size automatically. Use >= 1 to give space for rotated cards */
 }
 
 .card-anchor {

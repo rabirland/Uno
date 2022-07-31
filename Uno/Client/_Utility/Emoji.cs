@@ -6,9 +6,9 @@ public static class Emoji
 
     public static string GetPlayerEmoji(string playerName)
     {
-        var index = playerName.Select(c => (int)c).Sum();
-        int max = PlayerIconEmojis.Length;
-        var normalizedIndex = index % max;
+        var index = playerName.GetHashCode();
+        int max = PlayerIconEmojis.Length - 1;
+        var normalizedIndex = Math.Abs(index % max);
 
         return PlayerIconEmojis[normalizedIndex];
     }

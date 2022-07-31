@@ -16,4 +16,9 @@ public class InfiniteDeck : IDeck
 
         return CardMetadata.ValidCards[index].Face;
     }
+
+    /// <inheritdoc/>
+    public void Push(CardFace card)
+    {
+    }
 }

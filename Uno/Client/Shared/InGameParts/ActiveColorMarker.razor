@@ -1,0 +1,12 @@
+﻿@namespace Uno.Client.Shared
+@using Uno.Shared
+
+<div class="container @ColorClass">
+</div>
+
+@code {
+    [Parameter]
+    public GameMessages.CardColor Color { get; set; }
+
+    private string ColorClass => Color.ToString().ToLowerInvariant();
+}

@@ -57,23 +57,56 @@ public record ListenGameResponse(
     /// <param name="DeckRemainingCards">The amount of cards remaining in the deck.</param>
     /// <param name="PlayedCards">The list of cards that was played by the players previously.</param>
     /// <param name="CurrentPlayerName">The name of the player whose round is ongoing.</param>
+    /// <param name="RoundPhase">The phae of the current round.</param>
     public record GameStatus(
         IEnumerable<GameMessages.PlayerHand> OtherPlayerCards,
         IEnumerable<GameMessages.CardCount> Cards,
         int DeckRemainingCards,
         IEnumerable<GameMessages.CardFace> PlayedCards,
-        string CurrentPlayerName);
+        string CurrentPlayerName,
+        GameMessages.RoundPhase RoundPhase,
+        GameMessages.CardColor ActiveColor);
 }
 
-//=========================================================================================== Drop Card
-public record DropCardRequest(string GameId, GameMessages.CardFace Card, int Count);
-public record DropCardResponse()
+//=========================================================================================== Play Card
+public record PlayCardRequest(string GameId, GameMessages.CardFace Card, int Count);
+public record PlayCardResponse()
 {
-    public static DropCardResponse Empty => new DropCardResponse();
+    public static PlayCardResponse Empty => new PlayCardResponse();
 }
+
+//=========================================================================================== Pull Card
+public record PullCardRequest(string GameId);
+public record PullCardResponse()
+{
+    public static PullCardResponse Empty => new PullCardResponse();
+}
+
+//=========================================================================================== Pick Player
+public record PickPlayerRequest(string GameId, string PlayerName);
+public record PickPlayerResponse()
+{
+    public static PickPlayerResponse Empty => new PickPlayerResponse();
+}
+
+//=========================================================================================== Pick Color
+public record PickColorRequest(string GameId, GameMessages.CardColor Color);
+public record PickColorResponse()
+{
+    public static PickColorResponse Empty => new PickColorResponse();
+}
+
+//=========================================================================================== Common Models
 
 public static class GameMessages
 {
+    public enum RoundPhase
+    {
+        Card,
+        Color,
+        Player,
+    }
+
     /// <summary>
     /// The color of an UNO card.
     /// </summary>

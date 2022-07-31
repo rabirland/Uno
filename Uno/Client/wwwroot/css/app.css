@@ -1,4 +1,10 @@
-﻿@import url('open-iconic/font/css/open-iconic-bootstrap.min.css');
+﻿:root {
+    --uno-yellow: rgb(230, 200, 0);
+    --uno-green: rgb(0, 200, 0);
+    --uno-blue: rgb(0, 0, 200);
+    --uno-red: rgb(200, 0, 0);
+    --uno-black: rgb(0, 0, 0);
+}
 
 #blazor-error-ui {
     background: lightyellow;
@@ -120,4 +126,21 @@ body {
     .auto-font-size {
         font-size: calc(var(--auto-size) * 0.1);
     }
+}
+
+/* ================== Glow ========================== */
+
+.glow {
+    border: 0.02em solid green;
+    box-shadow: 0 0 0.05em green, 0 0 0.1em green, 0 0 0.2em green;
+}
+
+.glow.red {
+    border-color: red;
+    box-shadow: 0 0 0.05em red, 0 0 0.1em red, 0 0 0.2em red;
+}
+
+.glow.blue {
+    border-color: blue;
+    box-shadow: 0 0 0.05em blue, 0 0 0.1em red, 0 0 0.2em blue;
 }

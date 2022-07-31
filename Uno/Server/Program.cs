@@ -1,3 +1,4 @@
+using System.Net;
 using Uno.Server;
 using Uno.Server.Middlewares;
 using Uno.Shared;
@@ -46,5 +47,6 @@ app.UseWhen(context => context.Request.Path.StartsWithSegments("/api"), appBuild
 // Premature validations
 EnumMapper.EnsureValueMatching<GameMessages.CardColor, UnoGame.CardColor>();
 EnumMapper.EnsureValueMatching<GameMessages.CardType, UnoGame.CardType>();
+EnumMapper.EnsureValueMatching<GameMessages.RoundPhase, UnoGame.RoundPhase>();
 
 app.Run();

@@ -36,13 +36,10 @@ public class DataStreamMiddleware
         this.serviceProvider = serviceProvider;
     }
 
-    public Task InvokeAsync(HttpContext context)
+    public async Task InvokeAsync(HttpContext context)
     {
         Handle(context, serviceProvider);
-
-        // The stream ends when the client disconnects or the enumeration ends, no need for the rest of the middlewares.
-        //await _next(context);
-        return Task.CompletedTask;
+        await _next(context);
     }
 
     private void Handle(HttpContext context, IServiceProvider serviceProvider)
@@ -106,8 +103,6 @@ public class DataStreamMiddleware
             .Wait(); // TODO: Should run in background ?
 
         activator.ReleaseController(controllerContext, controller);
-
-        // We don't call the rest of the middlewares, as this one keeps up a continuous stream of data.
     }
 
     private static async Task RunStream(HttpContext context, object controller, MethodInfo action, object? parameter)

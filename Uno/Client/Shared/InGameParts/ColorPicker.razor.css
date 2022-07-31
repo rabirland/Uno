@@ -1,0 +1,48 @@
+﻿.container {
+    height: 100%;
+    aspect-ratio: 1;
+    padding: 1em;
+    background-color: white;
+    border-radius: 1em;
+    opacity: 0;
+    pointer-events: none;
+    border: 1px solid black;
+}
+
+    .container.show {
+        opacity: 1;
+        pointer-events: all;
+    }
+
+.background {
+    background-color: black;
+    border-radius: 0.8em;
+    display: grid;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+.cell.yellow {
+    background-color: var(--uno-yellow);
+    grid-column: 1;
+}
+
+.cell.green {
+    background-color: var(--uno-green);
+    grid-column: 2;
+}
+
+.cell.blue {
+    background-color: var(--uno-blue);
+    grid-column: 1;
+}
+
+.cell.red {
+    background-color: var(--uno-red);
+    grid-column: 2;
+}
+
+.selectable .cell {
+    cursor: pointer;
+}

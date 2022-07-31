@@ -3,20 +3,24 @@
 /// <summary>
 /// Actions that happens with the player who dropped the card.
 /// </summary>
+/// <remarks>
+/// The value of the enums indicates the order the operations should be done during game.
+/// </remarks>
+[Flags]
 public enum CurrentPlayerAction
 {
     /// <summary>
     /// The card has no effect on the player who dropped it.
     /// </summary>
-    None,
+    None = 0,
 
     /// <summary>
-    /// Waiting for the player to pick a color.
+    /// The player have to pick a player to swap the cards in their hands with.
     /// </summary>
-    PickColor,
+    SwapHandDeckWithPlayer = (1 << 0),
 
     /// <summary>
-    /// Waiting for the player to pick a player.
+    /// The player have to pick an active color.
     /// </summary>
-    PickPlayer,
+    PickColor = (1 << 1),
 }

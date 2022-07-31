@@ -1,0 +1,38 @@
+﻿@namespace Uno.Client.Shared
+@using Uno.Shared
+
+<div class="container @ShowClass @SelectableClass">
+    <div class="background">
+        <div class="cell yellow" @onclick="() => OnClickPickColor(GameMessages.CardColor.Yellow)"></div>
+        <div class="cell green" @onclick="() => OnClickPickColor(GameMessages.CardColor.Green)"></div>
+        <div class="cell blue" @onclick="() => OnClickPickColor(GameMessages.CardColor.Blue)"></div>
+        <div class="cell red" @onclick="() => OnClickPickColor(GameMessages.CardColor.Red)"></div>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public bool Show { get; set; }
+
+    [Parameter]
+    public bool CanPick { get; set; }
+
+    [Parameter]
+    public EventCallback<GameMessages.CardColor> OnPickColor { get; set; }
+
+    private string ShowClass => this.Show ? "show" : string.Empty;
+
+    private string SelectableClass => this.Show ? "selectable" : string.Empty;
+
+    private Task OnClickPickColor(GameMessages.CardColor color)
+    {
+        if (CanPick)
+        {
+            return this.OnPickColor.InvokeAsync(color);
+        }
+        else
+        {
+            return Task.CompletedTask;
+        }
+    }
+}

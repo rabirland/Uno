@@ -40,12 +40,12 @@
     public IEnumerable<GameMessages.CardCount>? Cards { get; set; }
 
     [Parameter]
-    public bool IsActivePlayer { get; set; }
+    public bool CanPlayCard { get; set; }
 
     [Parameter]
-    public EventCallback<InGame.DropCardParams> OnDropCard { get; set; }
+    public EventCallback<InGame.DropCardParams> OnPlayCard { get; set; }
 
-    private string ActiveClass => IsActivePlayer ? "active-player" : string.Empty;
+    private string ActiveClass => CanPlayCard ? "active glow" : string.Empty;
 
     private void OnHover(int index)
     {
@@ -69,8 +69,15 @@
         }
     }
 
-    private async void OnClickCard(GameMessages.CardColor color, GameMessages.CardType type, int index)
+    private Task OnClickCard(GameMessages.CardColor color, GameMessages.CardType type, int index)
     {
-        await OnDropCard.InvokeAsync(new InGame.DropCardParams(new GameMessages.CardFace(color, type), index + 1));
+        if (this.CanPlayCard)
+        {
+            return OnPlayCard.InvokeAsync(new InGame.DropCardParams(new GameMessages.CardFace(color, type), index + 1));   
+        }
+        else
+        {
+            return Task.CompletedTask;
+        }
     }
 }

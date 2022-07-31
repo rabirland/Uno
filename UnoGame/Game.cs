@@ -8,7 +8,7 @@ public class Game
     private List<CardFace> playedCards = new List<CardFace>();
     private readonly GameSettings settings;
     private readonly GameTimer Timer = new GameTimer();
-    private readonly object playerLock = new object();
+    private readonly object gameLock = new object();
 
     /// <summary>
     /// The list of all players in the game.
@@ -28,7 +28,7 @@ public class Game
     /// <summary>
     /// Fired when the state of the game changes.
     /// </summary>
-    public event Action<GameState> OnStateChange = _ => { };
+    public event Action OnStateChange = () => { };
 
     public Game(GameSettings settings, IEnumerable<string> playerIds)
     {
@@ -47,6 +47,17 @@ public class Game
                 player.AddCard(this.Deck.Pull());
             }
         }
+
+        // Ensure the starter card has a color and a number
+        var starterCard = this.Deck.Pull();
+        while (starterCard.Color == CardColor.Colorless || starterCard.Type.IsNumerical() == false)
+        {
+            this.Deck.Push(starterCard);
+            starterCard = this.Deck.Pull();
+        }
+
+        this.playedCards.Add(starterCard);
+        this.ActiveColor = starterCard.Color;
     }
 
     /// <summary>
@@ -60,6 +71,16 @@ public class Game
     public IDeck Deck { get; }
 
     /// <summary>
+    /// The last picked card color.
+    /// </summary>
+    public CardColor ActiveColor { get; private set; }
+
+    /// <summary>
+    /// The current phase of the round.
+    /// </summary>
+    public RoundPhase RoundPhase { get; private set; }
+
+    /// <summary>
     /// The list of players in the game.
     /// </summary>
     public IEnumerable<Player> Players => this.players;
@@ -70,32 +91,190 @@ public class Game
     public IEnumerable<CardFace> PlayedCards => this.playedCards;
 
     /// <summary>
-    /// The player tries to drop a card.
+    /// Plays a card from the actual player.
     /// </summary>
     /// <param name="playerId">The id of the player that tries to drop the card.</param>
     /// <param name="cardFace">The face of the card to drop.</param>
     /// <param name="count">The amount of cards to drop.</param>
-    public void DropCard(string playerId, CardFace cardFace, int count)
+    public void PlayCard(CardFace cardFace, int count)
     {
-        lock (this.playerLock)
+        lock (this.gameLock)
         {
-            if (!IsCurrentPlayer(playerId))
+            var lastlyPlayedCard = LastCard;
+
+            var colorMatch = cardFace.Color == CardColor.Colorless || cardFace.Color == this.ActiveColor;
+            var typeMatch = cardFace.Type == lastlyPlayedCard.Type;
+
+            if (colorMatch == false && typeMatch == false)
             {
-                throw new Exception("Not the current player to play");
+                throw new Exception("Invalid card");
             }
 
-            var player = this.players.First(p => p.Id == playerId);
+            if (this.RoundPhase != RoundPhase.Card)
+            {
+                throw new Exception("Invalid action for the current round phase");
+            }
+
+            var card = CardMetadata.ValidCards.FirstOrDefault(c => c.Face == cardFace);
+
+            var player = this.players.First(p => p.Id == this.CurrentPlayerId);
             if (player.RemoveCard(cardFace, count))
             {
                 var droppedCards = Enumerable.Repeat(cardFace, count);
                 this.playedCards.AddRange(droppedCards);
+
+                // Switching color
+                if (cardFace.Color != CardColor.Colorless)
+                {
+                    this.ActiveColor = cardFace.Color;
+                }
+                else if (card.CurrentAction.HasFlag(CurrentPlayerAction.PickColor) == false)
+                {
+                    throw new Exception("A colorless card must have a pick color \"current round\" flag");
+                }
+
+                // Immediate action
+                switch(card.ImmediateAction)
+                {
+                    case ImmediateAction.None: break;
+                    case ImmediateAction.ReverseOrder: this.gameDirectionRightHand = !this.gameDirectionRightHand; break;
+                    default: throw new Exception("Invalid \"immediate\" action");
+                }
+
+                // Current round action
+                AdvancePhaseByCurrentAction(card.CurrentAction);
+                
             }
-
-            // TODO: Player action
-
-            RoundDone();
+            else
+            {
+                throw new Exception("Invalid action");
+            }
         }
     }
+
+    /// <summary>
+    /// Picks a player by the currently active player.
+    /// </summary>
+    /// <param name="playerId">The id of the other player.</param>
+    public void PickPlayer(string playerId)
+    {
+        lock (this.gameLock)
+        {
+            if (this.RoundPhase != RoundPhase.Player)
+            {
+                throw new Exception("Invalid round phase");
+            }
+
+            var otherPlayer = this.players.FirstOrDefault(p => p.Id == playerId);
+            if (otherPlayer == default)
+            {
+                throw new Exception("Invalid player id");
+            }
+
+            var lastPlayedCard = LastCard;
+            var card = CardMetadata.ValidCards.First(c => c.Face == lastPlayedCard);
+
+            // Do the action
+            if (card.CurrentAction.HasFlag(CurrentPlayerAction.SwapHandDeckWithPlayer))
+            {
+                var currentPlayer = this.players[this.currentPlayerIndex];
+                currentPlayer.SwapCardsWith(otherPlayer);
+            }
+            else
+            {
+                throw new Exception("Invalid action for the last card");
+            }
+
+            AdvancePhaseByCurrentAction(card.CurrentAction);
+        }
+    }
+
+    private void AdvancePhaseByCurrentAction(CurrentPlayerAction action)
+    {
+        if (this.RoundPhase == RoundPhase.Card)
+        {
+            if (action.HasFlag(CurrentPlayerAction.SwapHandDeckWithPlayer))
+            {
+                this.RoundPhase = RoundPhase.Player;
+            }
+            else if (action.HasFlag(CurrentPlayerAction.PickColor))
+            {
+                this.RoundPhase = RoundPhase.Color;
+            }
+            else
+            {
+                RoundDone();
+            }
+        }
+        else if (this.RoundPhase == RoundPhase.Player)
+        {
+            if (action.HasFlag(CurrentPlayerAction.PickColor))
+            {
+                this.RoundPhase = RoundPhase.Color;
+            }
+            else
+            {
+                RoundDone();
+            }
+        }
+        else if (this.RoundPhase == RoundPhase.Color)
+        {
+            RoundDone();
+        }
+        else
+        {
+            throw new Exception("Invalid round phase");
+        }
+    }
+
+    /// <summary>
+    /// Pick the currently active color.
+    /// </summary>
+    /// <param name="color">The card color.</param>
+    public void PickColor(CardColor color)
+    {
+        lock (this.gameLock)
+        {
+            if (this.RoundPhase != RoundPhase.Color)
+            {
+                throw new Exception("Invalid round phase");
+            }
+
+            if (color.IsChromatic() == false)
+            {
+                throw new Exception("Invalid color");
+            }
+
+            var lastPlayedCard = LastCard;
+            var card = CardMetadata.ValidCards.First(c => c.Face == lastPlayedCard);
+
+            // Do the action
+            if (card.CurrentAction.HasFlag(CurrentPlayerAction.PickColor))
+            {
+                this.ActiveColor = color;
+            }
+            else
+            {
+                throw new Exception("Invalid action for the last card");
+            }
+
+            AdvancePhaseByCurrentAction(card.CurrentAction);
+        }
+    }
+
+    /// <summary>
+    /// Pulls a card for the actual player.
+    /// </summary>
+    /// <param name="playerId"></param>
+    public void PullCard()
+    {
+        var player = this.players.First(p => p.Id == this.CurrentPlayerId);
+        player.AddCard(this.Deck.Pull());
+
+        this.RoundDone();
+    }
+
+    private CardFace LastCard => this.playedCards[this.playedCards.Count - 1];
 
     /// <summary>
     /// Calls <see cref="AdvancePlayer"/> and fires <see cref="OnStateChange"/>
@@ -104,9 +283,9 @@ public class Game
     private void RoundDone()
     {
         AdvancePlayer();
+        this.RoundPhase = RoundPhase.Card;
 
-        var state = ConstructCurrentState();
-        this.OnStateChange(state);
+        this.OnStateChange();
     }
 
     /// <summary>
@@ -134,38 +313,5 @@ public class Game
                 this.currentPlayerIndex = playerCount - 1;
             }
         }
-    }
-
-    /// <summary>
-    /// Checks if the given <paramref name="playerId"/> is the id of the current active player.
-    /// </summary>
-    /// <param name="playerId">The player name.</param>
-    /// <returns><see langword="true"/> if the current player's name is <paramref name="playerId"/>.</returns>
-    private bool IsCurrentPlayer(string playerId)
-    {
-        lock (this.playerLock)
-        {
-            return this.CurrentPlayerId == playerId;
-        }
-    }
-
-    /// <summary>
-    /// Constructs a gamestate.
-    /// </summary>
-    /// <returns>The actual state of the game.</returns>
-    private GameState ConstructCurrentState()
-    {
-        var players = this.players
-            .Select(p =>
-            {
-                var cardCounts = p
-                    .Cards
-                    .Where(c => c.Value > 0)
-                    .Select(c => new PlayerCardCount(c.Key, c.Value));
-
-                return new PlayerState(p.Id, cardCounts);
-            });
-
-        return new GameState(this.CurrentPlayerId, players);
     }
 }

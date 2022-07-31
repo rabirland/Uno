@@ -1,7 +1,7 @@
 ﻿@namespace Uno.Client.Shared
 
 <div class="deck auto-font-size">
-    <div class="cards">
+    <div class="cards @ActiveClass" @onclick="OnClickDeck">
         @for (int i = 0; i < this.DeckRemainingCards; i++)
         {
             <div class="card-wrapper">
@@ -13,5 +13,25 @@
 
 @code {
     [Parameter]
+    public bool CanPullCard { get; set; }
+
+    [Parameter]
     public int DeckRemainingCards { get; set; } = 0;
+
+    [Parameter]
+    public EventCallback OnPull { get; set; }
+
+    private string ActiveClass => this.CanPullCard ? "active glow" : string.Empty;
+
+    private Task OnClickDeck()
+    {
+        if (this.CanPullCard)
+        {
+            return this.OnPull.InvokeAsync();
+        }
+        else
+        {
+            return Task.CompletedTask;
+        }
+    }
 }

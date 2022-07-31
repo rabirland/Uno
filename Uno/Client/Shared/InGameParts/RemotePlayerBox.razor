@@ -1,7 +1,7 @@
 ﻿@namespace Uno.Client.Shared
 @using Uno.Shared
 
-<div class="container auto-font-size">
+<div class="container auto-font-size @SelectableClass @ActiveClass" @onclick="OnClickContainer">
     <div class="icon">
         @Icon
     </div>
@@ -21,8 +21,26 @@
 @code {
     private MarkupString Icon => new MarkupString(Emoji.GetPlayerEmoji(Player?.PlayerName ?? string.Empty));
 
-    private int CardCount => this.Player?.CardCount ?? 0;
+    private int CardCount => Player?.CardCount ?? 0;
 
     [Parameter]
     public GameMessages.PlayerHand? Player { get; set; }
+
+    [Parameter]
+    public string? ActivePlayerName { get; set; }
+
+    [Parameter]
+    public bool CanPickPlayer { get; set; }
+
+    [Parameter]
+    public EventCallback<string> OnPickPlayer { get; set; }
+
+    private string SelectableClass => CanPickPlayer ? "selectable glow red" : string.Empty;
+
+    private string ActiveClass => CanPickPlayer ? "active glow blue" : string.Empty;
+
+    public Task OnClickContainer()
+    {
+        return OnPickPlayer.InvokeAsync(this.Player?.PlayerName ?? string.Empty);
+    }
 }

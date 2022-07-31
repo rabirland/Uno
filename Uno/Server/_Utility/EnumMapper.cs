@@ -84,4 +84,17 @@ public static class EnumMapper
             return (UnoGame.CardType)(int)(type);
         }
     }
+
+    public static class RoundPhase
+    {
+        public static GameMessages.RoundPhase ToGameMessageResponse(UnoGame.RoundPhase type)
+        {
+            return (GameMessages.RoundPhase)(int)(type);
+        }
+
+        public static UnoGame.RoundPhase ToUno(GameMessages.RoundPhase type)
+        {
+            return (UnoGame.RoundPhase)(int)(type);
+        }
+    }
 }

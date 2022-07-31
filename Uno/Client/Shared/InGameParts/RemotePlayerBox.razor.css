@@ -35,3 +35,7 @@
     .card-wrapper:last-of-type {
         flex-shrink: 0;
     }
+
+.selectable {
+    cursor: pointer;
+}

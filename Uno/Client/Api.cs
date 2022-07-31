@@ -23,7 +23,16 @@ public record Api(HttpClient client)
         public Task<StartGameResponse> StartGameAsync(StartGameRequest request) =>
            this.client.PostAsApiJsonAsync<StartGameResponse>(URL.Game.StartGame, request);
 
-        public Task<DropCardResponse> DropCardAsync(DropCardRequest request) =>
-           this.client.PostAsApiJsonAsync<DropCardResponse>(URL.Game.DropCard, request);
+        public Task<PlayCardResponse> PlayCardAsync(PlayCardRequest request) =>
+           this.client.PostAsApiJsonAsync<PlayCardResponse>(URL.Game.PlayCard, request);
+
+        public Task<PullCardResponse> PullCardAsync(PullCardRequest request) =>
+           this.client.PostAsApiJsonAsync<PullCardResponse>(URL.Game.PullCard, request);
+
+        public Task<PickPlayerResponse> PickPlayerAsync(PickPlayerRequest request) =>
+           this.client.PostAsApiJsonAsync<PickPlayerResponse>(URL.Game.PickPlayer, request);
+
+        public Task<PickColorResponse> PickColorAsync(PickColorRequest request) =>
+           this.client.PostAsApiJsonAsync<PickColorResponse>(URL.Game.PickColor, request);
     }
 }

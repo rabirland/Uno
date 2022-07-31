@@ -13,7 +13,10 @@
             public const string Rejoin = Controller + "/rejoin";
             public const string Listen = Controller + "/listen";
             public const string StartGame = Controller + "/start-game";
-            public const string DropCard = Controller + "/drop-card";
+            public const string PlayCard = Controller + "/play-card";
+            public const string PullCard = Controller + "/pull-card";
+            public const string PickPlayer = Controller + "/pick-player";
+            public const string PickColor = Controller + "/pick-color";
         }
     }
 }

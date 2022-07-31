@@ -12,6 +12,8 @@
 .grid .row {
     flex: 0 1 auto;
     min-height: 0;
+    display: flex;
+    flex-direction: row;
 }
 
     .grid .row.fill {
@@ -20,12 +22,39 @@
 
 .grid .row .cell {
     display: inline-block;
+    position: relative;
     vertical-align: top;
-    width: 25%;
-    height: 100%;
     padding: 1%;
+    flex: 1;
+    min-width: 0;
 }
 
     .grid .row .cell.double {
-        width: 50%;
+        flex:2;
     }
+
+    .grid .row .cell.octa {
+        flex: 5;
+    }
+
+.selectable {
+    cursor: pointer;
+}
+
+.color-picker {
+    pointer-events: none;
+    position: absolute;
+    height:100%;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.active-color{
+    pointer-events: none;
+    position: absolute;
+    height: 130%;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+}

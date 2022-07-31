@@ -2,7 +2,7 @@
 
 public class Player
 {
-    private Dictionary<CardFace, int> cardsInHand;
+    private readonly Dictionary<CardFace, int> cardsInHand;
 
     public Player(string id)
     {
@@ -65,6 +65,22 @@ public class Player
         catch
         {
             throw new Exception($"The player {Id} has no {cardFace} card in hand.");
+        }
+    }
+
+    public void SwapCardsWith(Player other)
+    {
+        var otherPlayerDeck = other.cardsInHand.ToArray();
+        var currentPlayerDeck = this.cardsInHand.ToArray();
+
+        foreach (var entry in otherPlayerDeck)
+        {
+            this.cardsInHand[entry.Key] = entry.Value;
+        }
+
+        foreach (var entry in currentPlayerDeck)
+        {
+            other.cardsInHand[entry.Key] = entry.Value;
         }
     }
 }
