@@ -70,9 +70,9 @@ public record ListenGameResponse(
 
 //=========================================================================================== Play Card
 public record PlayCardRequest(string GameId, GameMessages.CardFace Card, int Count);
-public record PlayCardResponse()
+public record PlayCardResponse(bool IsSuccess)
 {
-    public static PlayCardResponse Empty => new PlayCardResponse();
+    public static PlayCardResponse Empty => new PlayCardResponse(false);
 }
 
 //=========================================================================================== Pull Card

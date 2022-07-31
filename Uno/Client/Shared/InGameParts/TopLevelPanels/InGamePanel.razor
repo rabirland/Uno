@@ -105,7 +105,7 @@
             <PullDeckBox CanPullCard="CanPlayCard" DeckRemainingCards="this.Status?.DeckRemainingCards ?? 0" OnPull="() => OnPullCard.InvokeAsync()" />
         </div>
         <div class="cell octa">
-            <LocalPlayerBox CanPlayCard="CanPlayCard" Cards="this.Status?.Cards" OnPlayCard="p => OnPlayCard.InvokeAsync(p)"/>
+            <LocalPlayerBox CanPlayCard="CanPlayCard" Cards="this.Status?.Cards" OnPlayCard="p => OnPlayCard.InvokeAsync(p)" CanBePicked="CanPickPlayer" OnPickedPlayer="OnPickPlayerBox" PlayerName="@PlayerName"/>
         </div>
     </div>
 </div>
@@ -117,7 +117,7 @@
     public ListenGameResponse.GameStatus? Status { get; set; }
 
     [Parameter]
-    public EventCallback<InGame.DropCardParams> OnPlayCard { get; set; }
+    public EventCallback<InGame.PlayCardParams> OnPlayCard { get; set; }
 
     [Parameter]
     public EventCallback OnPullCard { get; set; }

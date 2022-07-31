@@ -237,10 +237,6 @@ public class GameController : Controller
 
         gameEntry.StartGame();
 
-        // TODO: DEBUG
-        gameEntry.Game.Players.First().AddCard(new UnoGame.CardFace(UnoGame.CardType.Swap, UnoGame.CardColor.Colorless));
-        gameEntry.Game.Players.ElementAt(1).AddCard(new UnoGame.CardFace(UnoGame.CardType.Swap, UnoGame.CardColor.Colorless));
-
         return new StartGameResponse();
     }
 
@@ -257,8 +253,8 @@ public class GameController : Controller
 
         try
         {
-            playerData.Game.PlayCard(new UnoGame.CardFace(cardType, cardColor), request.Count);
-            return new PlayCardResponse();
+            var success = playerData.Game.PlayCard(new UnoGame.CardFace(cardType, cardColor), request.Count);
+            return new PlayCardResponse(success);
         }
         catch
         {

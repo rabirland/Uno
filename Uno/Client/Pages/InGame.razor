@@ -71,7 +71,7 @@ else if (lastStatus.Game != null)
         await api.Game.StartGameAsync(new StartGameRequest(this.Id));
     }
 
-    private async void OnPlayCard(DropCardParams eventParams)
+    private async void OnPlayCard(PlayCardParams eventParams)
     {
         await api.Game.PlayCardAsync(new PlayCardRequest(this.Id, eventParams.Card, eventParams.Count));
     }
@@ -91,5 +91,5 @@ else if (lastStatus.Game != null)
 		await api.Game.PickColorAsync(new PickColorRequest(this.Id, color));
 	}
 
-	public record DropCardParams(GameMessages.CardFace Card, int Count);
+	public record PlayCardParams(GameMessages.CardFace Card, int Count);
 }

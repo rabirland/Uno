@@ -15,6 +15,9 @@
     font-size: 10em;
     counter-reset: card-index;
     border-radius: 0.08em;
+    background-color: white;
+    padding: 0.1em;
+    border: 1px solid black;
 }
 
 .card-stack {
@@ -61,4 +64,8 @@
     cursor: pointer;
     box-shadow: -0.05em 0.05em 0 black;
     border-radius: 0.1em;
+}
+
+.selectable {
+    cursor: pointer;
 }

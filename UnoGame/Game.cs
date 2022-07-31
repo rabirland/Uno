@@ -5,10 +5,12 @@ namespace UnoGame;
 
 public class Game
 {
-    private List<CardFace> playedCards = new List<CardFace>();
     private readonly GameSettings settings;
     private readonly GameTimer Timer = new GameTimer();
     private readonly object gameLock = new object();
+
+    private List<CardFace> playedCards = new List<CardFace>();
+    private int pullCounter = 1;
 
     /// <summary>
     /// The list of all players in the game.
@@ -96,7 +98,7 @@ public class Game
     /// <param name="playerId">The id of the player that tries to drop the card.</param>
     /// <param name="cardFace">The face of the card to drop.</param>
     /// <param name="count">The amount of cards to drop.</param>
-    public void PlayCard(CardFace cardFace, int count)
+    public bool PlayCard(CardFace cardFace, int count)
     {
         lock (this.gameLock)
         {
@@ -107,7 +109,14 @@ public class Game
 
             if (colorMatch == false && typeMatch == false)
             {
-                throw new Exception("Invalid card");
+                return false;
+            }
+
+            // If +X cards began to be stacked, only +X cards can be dropped.
+            var isDrawCard = cardFace.Type.IsDraw();
+            if (this.pullCounter > 1 && isDrawCard == false)
+            {
+                return false;
             }
 
             if (this.RoundPhase != RoundPhase.Card)
@@ -143,6 +152,8 @@ public class Game
 
                 // Current round action
                 AdvancePhaseByCurrentAction(card.CurrentAction);
+                ApplyNextPlayerEffects(card.NextPlayerAction);
+                return true;
                 
             }
             else
@@ -177,8 +188,12 @@ public class Game
             // Do the action
             if (card.CurrentAction.HasFlag(CurrentPlayerAction.SwapHandDeckWithPlayer))
             {
-                var currentPlayer = this.players[this.currentPlayerIndex];
-                currentPlayer.SwapCardsWith(otherPlayer);
+                // If the player selected himself, Do not swap cards
+                if (otherPlayer.Id != this.CurrentPlayerId)
+                {
+                    var currentPlayer = this.players[this.currentPlayerIndex];
+                    currentPlayer.SwapCardsWith(otherPlayer);
+                }
             }
             else
             {
@@ -269,7 +284,13 @@ public class Game
     public void PullCard()
     {
         var player = this.players.First(p => p.Id == this.CurrentPlayerId);
-        player.AddCard(this.Deck.Pull());
+
+        for (int i = 0; i < this.pullCounter; i++)
+        {
+            player.AddCard(this.Deck.Pull());
+        }
+
+        this.pullCounter = 1;
 
         this.RoundDone();
     }
@@ -312,6 +333,68 @@ public class Game
             {
                 this.currentPlayerIndex = playerCount - 1;
             }
+        }
+    }
+
+    /// <summary>
+    /// Applies the effects from cards that affects the next-in-order player instead the one that played the card.
+    /// </summary>
+    private void ApplyNextPlayerEffects(NextPlayerAction action)
+    {
+        if (action == NextPlayerAction.None)
+        {
+            // Do nothing
+        }
+        else if (action == NextPlayerAction.Skip)
+        {
+            AdvancePlayer();
+        }
+        else if (action == NextPlayerAction.Draw2)
+        {
+            if (this.settings.StackDraw2)
+            {
+                this.BeginStackingDrawCards();
+                this.pullCounter += 2;
+            }
+            else
+            {
+                var player = this.players[this.currentPlayerIndex];
+                player.AddCard(this.Deck.Pull());
+                player.AddCard(this.Deck.Pull());
+                AdvancePlayer();
+            }
+        }
+        else if (action == NextPlayerAction.Draw4)
+        {
+            if (this.settings.StackDraw4)
+            {
+                this.BeginStackingDrawCards();
+                this.pullCounter += 4;
+            }
+            else
+            {
+                var player = this.players[this.currentPlayerIndex];
+                player.AddCard(this.Deck.Pull());
+                player.AddCard(this.Deck.Pull());
+                player.AddCard(this.Deck.Pull());
+                player.AddCard(this.Deck.Pull());
+                AdvancePlayer();
+            }
+        }
+        else
+        {
+            throw new Exception("Invalid action for \"Next player\"");
+        }
+    }
+
+    /// <summary>
+    /// Prepares the pull counter for stacking +X cards.
+    /// </summary>
+    private void BeginStackingDrawCards()
+    {
+        if (this.pullCounter == 1)
+        {
+            this.pullCounter = 0;
         }
     }
 }

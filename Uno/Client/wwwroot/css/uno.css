@@ -52,6 +52,10 @@
             transform: translate(-100%, -100%);
         }
 
+    .uno-card .text.underline {
+        text-decoration: underline;
+    }
+
     /* ================================ +2 Mini card slots */
     .uno-card .mini-slot-2-1 {
         display: inline-block;

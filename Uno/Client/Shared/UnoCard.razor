@@ -15,13 +15,13 @@
 
         @if (this.hasCentralText)
         {
-            <span class="text @specialCharacterClass">@this.text</span>
+            <span class="text @specialCharacterClass @underLineClass">@this.text</span>
         }
 
         @if (this.hasEdgeText)
         {
-            <span class="text top @specialCharacterClass">@this.text</span>
-            <span class="text bottom @specialCharacterClass">@this.text</span>
+            <span class="text top @specialCharacterClass @underLineClass">@this.text</span>
+            <span class="text bottom @specialCharacterClass @underLineClass">@this.text</span>
         }
 
         @if (this.hasTwoMiniCard)
@@ -60,6 +60,7 @@
     private bool hasTwoMiniCard = false;
     private bool hasFourMiniCard = false;
     private bool hasColorChange = false;
+    private string underLineClass = string.Empty;
 
     protected override void OnParametersSet()
     {
@@ -88,6 +89,10 @@
                 GameMessages.CardType.Plus4 => "+4",
                 _ => string.Empty,
             };
+
+            var hasUnderLine = Type == GameMessages.CardType.Num6
+                || Type == GameMessages.CardType.Num9;
+            this.underLineClass = hasUnderLine ? "underline" : string.Empty;
 
             // Append Unicode variation selector to prevent the texts turning into emojis
             this.text = new MarkupString(raw);

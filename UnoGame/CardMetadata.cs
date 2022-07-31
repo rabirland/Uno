@@ -18,9 +18,9 @@ public static class CardMetadata
         new Card(new CardFace(CardType.Num7, CardColor.Red)),
         new Card(new CardFace(CardType.Num8, CardColor.Red)),
         new Card(new CardFace(CardType.Num9, CardColor.Red)),
-        new Card(new CardFace(CardType.Block, CardColor.Red), NextAction: NextPlayerActions.Skip),
+        new Card(new CardFace(CardType.Block, CardColor.Red), NextAction: NextPlayerAction.Skip),
         new Card(new CardFace(CardType.Reverse, CardColor.Red), ImmediateAction: ImmediateAction.ReverseOrder),
-        new Card(new CardFace(CardType.Plus2, CardColor.Red), NextAction: NextPlayerActions.Draw2),
+        new Card(new CardFace(CardType.Plus2, CardColor.Red), NextAction: NextPlayerAction.Draw2),
 
         /////////////////////////////////////////////// Green
         new Card(new CardFace(CardType.Num0, CardColor.Green)),
@@ -33,9 +33,9 @@ public static class CardMetadata
         new Card(new CardFace(CardType.Num7, CardColor.Green)),
         new Card(new CardFace(CardType.Num8, CardColor.Green)),
         new Card(new CardFace(CardType.Num9, CardColor.Green)),
-        new Card(new CardFace(CardType.Block, CardColor.Green), NextAction: NextPlayerActions.Skip),
+        new Card(new CardFace(CardType.Block, CardColor.Green), NextAction: NextPlayerAction.Skip),
         new Card(new CardFace(CardType.Reverse, CardColor.Green), ImmediateAction: ImmediateAction.ReverseOrder),
-        new Card(new CardFace(CardType.Plus2, CardColor.Green), NextAction: NextPlayerActions.Draw2),
+        new Card(new CardFace(CardType.Plus2, CardColor.Green), NextAction: NextPlayerAction.Draw2),
 
         /////////////////////////////////////////////// Blue
         new Card(new CardFace(CardType.Num0, CardColor.Blue)),
@@ -48,9 +48,9 @@ public static class CardMetadata
         new Card(new CardFace(CardType.Num7, CardColor.Blue)),
         new Card(new CardFace(CardType.Num8, CardColor.Blue)),
         new Card(new CardFace(CardType.Num9, CardColor.Blue)),
-        new Card(new CardFace(CardType.Block, CardColor.Blue), NextAction: NextPlayerActions.Skip),
+        new Card(new CardFace(CardType.Block, CardColor.Blue), NextAction: NextPlayerAction.Skip),
         new Card(new CardFace(CardType.Reverse, CardColor.Blue), ImmediateAction: ImmediateAction.ReverseOrder),
-        new Card(new CardFace(CardType.Plus2, CardColor.Blue), NextAction: NextPlayerActions.Draw2),
+        new Card(new CardFace(CardType.Plus2, CardColor.Blue), NextAction: NextPlayerAction.Draw2),
 
         /////////////////////////////////////////////// Yellow
         new Card(new CardFace(CardType.Num0, CardColor.Yellow)),
@@ -63,12 +63,12 @@ public static class CardMetadata
         new Card(new CardFace(CardType.Num7, CardColor.Yellow)),
         new Card(new CardFace(CardType.Num8, CardColor.Yellow)),
         new Card(new CardFace(CardType.Num9, CardColor.Yellow)),
-        new Card(new CardFace(CardType.Block, CardColor.Yellow), NextAction: NextPlayerActions.Skip),
+        new Card(new CardFace(CardType.Block, CardColor.Yellow), NextAction: NextPlayerAction.Skip),
         new Card(new CardFace(CardType.Reverse, CardColor.Yellow), ImmediateAction: ImmediateAction.ReverseOrder),
-        new Card(new CardFace(CardType.Plus2, CardColor.Yellow), NextAction: NextPlayerActions.Draw2),
+        new Card(new CardFace(CardType.Plus2, CardColor.Yellow), NextAction: NextPlayerAction.Draw2),
 
         /////////////////////////////////////////////// Colorless
-        new Card(new CardFace(CardType.Plus4, CardColor.Colorless), CurrentPlayerAction.PickColor, NextPlayerActions.Draw4),
+        new Card(new CardFace(CardType.Plus4, CardColor.Colorless), CurrentPlayerAction.PickColor, NextPlayerAction.Draw4),
         new Card(new CardFace(CardType.ColorChange, CardColor.Colorless), CurrentPlayerAction.PickColor),
         new Card(new CardFace(CardType.Swap, CardColor.Colorless), CurrentPlayerAction.SwapHandDeckWithPlayer | CurrentPlayerAction.PickColor),
     };

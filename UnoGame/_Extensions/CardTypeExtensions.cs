@@ -13,4 +13,10 @@ public static class CardTypeExtensions
 
         return value >= min && value <= max;
     }
+
+    public static bool IsDraw(this CardType type)
+    {
+        return type == CardType.Plus2
+            || type == CardType.Plus4;
+    }
 }

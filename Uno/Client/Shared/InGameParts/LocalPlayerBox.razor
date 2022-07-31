@@ -1,10 +1,8 @@
-﻿@using Uno.Client.GameService
-@using Uno.Client.Pages
+﻿@using Uno.Client.Pages
 @using Uno.Shared
 
 @namespace Uno.Client.Shared
 
-@inject IGameService gameService
 @inject Api api
 
 @if (this.Cards == null)
@@ -13,7 +11,7 @@
     return;
 }
 
-<div class="wrapper auto-font-size">
+<div class="wrapper auto-font-size @SelectableClass" @onclick="OnClickWrapper">
     <div class="cards @ActiveClass">
         @foreach (var card in this.Cards)
         {
@@ -43,9 +41,20 @@
     public bool CanPlayCard { get; set; }
 
     [Parameter]
-    public EventCallback<InGame.DropCardParams> OnPlayCard { get; set; }
+    public bool CanBePicked { get; set; }
+
+    [Parameter]
+    public string? PlayerName { get; set; }
+
+    [Parameter]
+    public EventCallback<InGame.PlayCardParams> OnPlayCard { get; set; }
+
+    [Parameter]
+    public EventCallback<string> OnPickedPlayer { get; set; }
 
     private string ActiveClass => CanPlayCard ? "active glow" : string.Empty;
+
+    private string SelectableClass => CanBePicked ? "selectable glow blue" : string.Empty;
 
     private void OnHover(int index)
     {
@@ -73,7 +82,19 @@
     {
         if (this.CanPlayCard)
         {
-            return OnPlayCard.InvokeAsync(new InGame.DropCardParams(new GameMessages.CardFace(color, type), index + 1));   
+            return OnPlayCard.InvokeAsync(new InGame.PlayCardParams(new GameMessages.CardFace(color, type), index + 1));   
+        }
+        else
+        {
+            return Task.CompletedTask;
+        }
+    }
+
+    private Task OnClickWrapper()
+    {
+        if (this.CanBePicked)
+        {
+            return this.OnPickedPlayer.InvokeAsync(this.PlayerName ?? string.Empty);
         }
         else
         {

@@ -3,7 +3,7 @@
 /// <summary>
 /// Actions that happens with the player next in order.
 /// </summary>
-public enum NextPlayerActions
+public enum NextPlayerAction
 {
     /// <summary>
     /// No action.
