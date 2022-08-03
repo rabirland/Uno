@@ -13,28 +13,28 @@
         @if (remotePlayers.Length >= 1)
         {
             <div class="cell">
-                <RemotePlayerBox Player="remotePlayers[0]" ActivePlayerName="@Status?.CurrentPlayerName" CanPickPlayer="CanPickPlayer" OnPickPlayer="OnPickPlayerBox"/>
+                <RemotePlayerBox Player="remotePlayers[0]" ActivePlayerName="@Status?.CurrentPlayerName" CanBePicked="CanPickPlayer" OnPickPlayer="OnPickPlayerBox"/>
             </div>
         }
         
         @if (remotePlayers.Length >= 2)
         {
             <div class="cell">
-                <RemotePlayerBox Player="remotePlayers[1]" ActivePlayerName="@Status?.CurrentPlayerName" CanPickPlayer="CanPickPlayer" OnPickPlayer="OnPickPlayerBox"/>
+                <RemotePlayerBox Player="remotePlayers[1]" ActivePlayerName="@Status?.CurrentPlayerName" CanBePicked="CanPickPlayer" OnPickPlayer="OnPickPlayerBox"/>
             </div>
         }
 
         @if (remotePlayers.Length >= 3)
         {
             <div class="cell">
-                <RemotePlayerBox Player="remotePlayers[2]" ActivePlayerName="@Status?.CurrentPlayerName" CanPickPlayer="CanPickPlayer" OnPickPlayer="OnPickPlayerBox"/>
+                <RemotePlayerBox Player="remotePlayers[2]" ActivePlayerName="@Status?.CurrentPlayerName" CanBePicked="CanPickPlayer" OnPickPlayer="OnPickPlayerBox"/>
             </div>
         }
 
         @if (remotePlayers.Length >= 4)
         {
             <div class="cell">
-                <RemotePlayerBox Player="remotePlayers[3]" ActivePlayerName="@Status?.CurrentPlayerName" CanPickPlayer="CanPickPlayer" OnPickPlayer="OnPickPlayerBox"/>
+                <RemotePlayerBox Player="remotePlayers[3]" ActivePlayerName="@Status?.CurrentPlayerName" CanBePicked="CanPickPlayer" OnPickPlayer="OnPickPlayerBox"/>
             </div>
         }
     </div>
@@ -45,28 +45,28 @@
             @if (remotePlayers.Length >= (i + 1))
             {
                 <div class="cell">
-                    <RemotePlayerBox Player="remotePlayers[i]" ActivePlayerName="@Status?.CurrentPlayerName" CanPickPlayer="CanPickPlayer" OnPickPlayer="OnPickPlayerBox"/>
+                    <RemotePlayerBox Player="remotePlayers[i]" ActivePlayerName="@Status?.CurrentPlayerName" CanBePicked="CanPickPlayer" OnPickPlayer="OnPickPlayerBox"/>
                 </div>
             }
 
             @if (remotePlayers.Length >= (i + 2))
             {
                 <div class="cell">
-                    <RemotePlayerBox Player="remotePlayers[i + 1]" ActivePlayerName="@Status?.CurrentPlayerName" CanPickPlayer="CanPickPlayer" OnPickPlayer="OnPickPlayerBox"/>
+                    <RemotePlayerBox Player="remotePlayers[i + 1]" ActivePlayerName="@Status?.CurrentPlayerName" CanBePicked="CanPickPlayer" OnPickPlayer="OnPickPlayerBox"/>
                 </div>
             }
 
             @if (remotePlayers.Length >= (i + 3))
             {
                 <div class="cell">
-                    <RemotePlayerBox Player="remotePlayers[i + 2]" ActivePlayerName="@Status?.CurrentPlayerName" CanPickPlayer="CanPickPlayer" OnPickPlayer="OnPickPlayerBox"/>
+                    <RemotePlayerBox Player="remotePlayers[i + 2]" ActivePlayerName="@Status?.CurrentPlayerName" CanBePicked="CanPickPlayer" OnPickPlayer="OnPickPlayerBox"/>
                 </div>
             }
 
              @if (remotePlayers.Length >= (i + 4))
             {
                 <div class="cell">
-                    <RemotePlayerBox Player="remotePlayers[i + 3]" ActivePlayerName="@Status?.CurrentPlayerName" CanPickPlayer="CanPickPlayer" OnPickPlayer="OnPickPlayerBox"/>
+                    <RemotePlayerBox Player="remotePlayers[i + 3]" ActivePlayerName="@Status?.CurrentPlayerName" CanBePicked="CanPickPlayer" OnPickPlayer="OnPickPlayerBox"/>
                 </div>
             }
         </div>
@@ -76,7 +76,7 @@
         @if (remotePlayers.Length >= 5)
         {
             <div class="cell">
-                <RemotePlayerBox Player="remotePlayers[4]" ActivePlayerName="@Status?.CurrentPlayerName" CanPickPlayer="CanPickPlayer" OnPickPlayer="OnPickPlayerBox"/>
+                <RemotePlayerBox Player="remotePlayers[4]" ActivePlayerName="@Status?.CurrentPlayerName" CanBePicked="CanPickPlayer" OnPickPlayer="OnPickPlayerBox"/>
             </div>
         }
 
@@ -96,7 +96,7 @@
         @if (remotePlayers.Length >= 6)
         {
             <div class="cell">
-                <RemotePlayerBox Player="remotePlayers[5]" ActivePlayerName="@Status?.CurrentPlayerName" CanPickPlayer="CanPickPlayer" OnPickPlayer="OnPickPlayerBox"/>
+                <RemotePlayerBox Player="remotePlayers[5]" ActivePlayerName="@Status?.CurrentPlayerName" CanBePicked="CanPickPlayer" OnPickPlayer="OnPickPlayerBox"/>
             </div>
         }
     </div>

@@ -368,7 +368,7 @@ public class GameController : Controller
                    {
                        var playerEntry = gameEntry.Players.First(gp => gp.Token == p.Id);
                        var cardCount = p.Cards.Select(c => c.Value).Sum();
-                       return new GameMessages.PlayerHand(playerEntry.PlayerName, cardCount);
+                       return new GameMessages.PlayerHand(playerEntry.PlayerName, cardCount, p.FinishedNumber);
                    });
 
             var cardsInHand = gamePlayer
@@ -387,7 +387,7 @@ public class GameController : Controller
                     EnumMapper.CardColor.ToGameMessageResponse(p.Color),
                     EnumMapper.CardType.ToGameMessageResponse(p.Type)));
 
-            var currentPlayerEntry = gameEntry.Players.First(p => p.Token == game.CurrentPlayerId);
+            var currentPlayerEntry = gameEntry.Players.First(p => p.Token.Equals(game.CurrentPlayerId, StringComparison.InvariantCulture));
 
             var roundPhase = EnumMapper.RoundPhase.ToGameMessageResponse(game.RoundPhase);
 

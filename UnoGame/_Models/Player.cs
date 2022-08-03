@@ -20,6 +20,16 @@ public class Player
     public string Id { get; }
 
     /// <summary>
+    /// Whether the player is active.
+    /// </summary>
+    public bool Active { get; set; }
+
+    /// <summary>
+    /// The number of the player in the finished player's order, or <c>0</c> if the player haven't finished yet.
+    /// </summary>
+    public int FinishedNumber { get; internal set; }
+
+    /// <summary>
     /// The current cards in the player's hands.
     /// </summary>
     public IEnumerable<KeyValuePair<CardFace, int>> Cards => this.cardsInHand;

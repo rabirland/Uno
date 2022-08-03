@@ -39,7 +39,7 @@ public class Game
         this.Deck = new InfiniteDeck(); // TODO: Get from settings
 
         this.players = playerIds
-            .Select(p => new Player(p))
+            .Select(p => new Player(p) { Active = true, FinishedNumber = 0 })
             .ToArray();
 
         foreach (var player in this.players)
@@ -303,6 +303,14 @@ public class Game
     /// </summary>
     private void RoundDone()
     {
+        var player = this.players[this.currentPlayerIndex];
+
+        if (player.Cards.Any(c => c.Value > 0) == false)
+        {
+            var previousFinisher = this.players.Select(p => p.FinishedNumber).Max();
+            player.FinishedNumber = previousFinisher + 1;
+        }
+
         AdvancePlayer();
         this.RoundPhase = RoundPhase.Card;
 
@@ -316,24 +324,30 @@ public class Game
     {
         var playerCount = this.players.Count();
 
-        if (this.gameDirectionRightHand)
+        Player player;
+        do
         {
-            this.currentPlayerIndex++;
-
-            if (this.currentPlayerIndex >= playerCount)
+            if (this.gameDirectionRightHand)
             {
-                this.currentPlayerIndex = 0;
-            }
-        }
-        else
-        {
-            this.currentPlayerIndex--;
+                this.currentPlayerIndex++;
 
-            if (this.currentPlayerIndex < 0)
-            {
-                this.currentPlayerIndex = playerCount - 1;
+                if (this.currentPlayerIndex >= playerCount)
+                {
+                    this.currentPlayerIndex = 0;
+                }
             }
-        }
+            else
+            {
+                this.currentPlayerIndex--;
+
+                if (this.currentPlayerIndex < 0)
+                {
+                    this.currentPlayerIndex = playerCount - 1;
+                }
+            }
+
+            player = this.players[this.currentPlayerIndex];
+        } while (player.FinishedNumber != 0 && player.Active != true);
     }
 
     /// <summary>

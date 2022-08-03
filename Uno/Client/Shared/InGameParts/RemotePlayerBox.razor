@@ -1,6 +1,12 @@
 ﻿@namespace Uno.Client.Shared
 @using Uno.Shared
 
+@if (Player == null)
+{
+    <h1>Player not set</h1>
+    return;
+}
+
 <div class="container auto-font-size @SelectableClass @ActiveClass" @onclick="OnClickContainer">
     <div class="icon">
         @Icon
@@ -8,14 +14,21 @@
     <div class="name">
         @Player?.PlayerName
     </div>
-    <div class="cards">
-        @for (int i = 0; i < CardCount; i++)
-        {
-            <div class="card-wrapper">
-                <UnoCard IsBackFace="true"/>
-            </div>
-        }
-    </div>
+    @if (Player?.FinishedNumber == 0)
+    {
+         <div class="cards">
+            @for (int i = 0; i < CardCount; i++)
+            {
+                <div class="card-wrapper">
+                    <UnoCard IsBackFace="true"/>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <h3>Finished: @Player?.FinishedNumber</h3>
+    }
 </div>
 
 @code {
@@ -30,14 +43,14 @@
     public string? ActivePlayerName { get; set; }
 
     [Parameter]
-    public bool CanPickPlayer { get; set; }
+    public bool CanBePicked { get; set; }
 
     [Parameter]
     public EventCallback<string> OnPickPlayer { get; set; }
 
-    private string SelectableClass => CanPickPlayer ? "selectable glow red" : string.Empty;
+    private string SelectableClass => CanBePicked ? "selectable glow red" : string.Empty;
 
-    private string ActiveClass => CanPickPlayer ? "active glow blue" : string.Empty;
+    private string ActiveClass => CanBePicked ? "active glow blue" : string.Empty;
 
     public Task OnClickContainer()
     {

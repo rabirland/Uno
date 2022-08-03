@@ -145,7 +145,7 @@ public static class GameMessages
 
     public record CardFace(CardColor Color, CardType Type);
 
-    public record PlayerHand(string PlayerName, int CardCount);
+    public record PlayerHand(string PlayerName, int CardCount, int FinishedNumber);
 
     public record CardCount(CardColor Color, CardType Type, int Count);
 }
