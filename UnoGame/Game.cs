@@ -32,6 +32,11 @@ public class Game
     /// </summary>
     public event Action OnStateChange = () => { };
 
+    /// <summary>
+    /// Fired when the game has finished.
+    /// </summary>
+    public event Action OnGameFinish = () => { };
+
     public Game(GameSettings settings, IEnumerable<string> playerIds)
     {
         this.settings = settings;
@@ -93,6 +98,13 @@ public class Game
     public IEnumerable<CardFace> PlayedCards => this.playedCards;
 
     /// <summary>
+    /// Whether the game has ended.
+    /// </summary>
+    public bool GameFinished { get; private set; }
+
+    private CardFace LastCard => this.playedCards[this.playedCards.Count - 1];
+
+    /// <summary>
     /// Plays a card from the actual player.
     /// </summary>
     /// <param name="playerId">The id of the player that tries to drop the card.</param>
@@ -100,6 +112,11 @@ public class Game
     /// <param name="count">The amount of cards to drop.</param>
     public bool PlayCard(CardFace cardFace, int count)
     {
+        if (this.GameFinished)
+        {
+            return false;
+        }
+
         lock (this.gameLock)
         {
             var lastlyPlayedCard = LastCard;
@@ -169,6 +186,11 @@ public class Game
     /// <param name="playerId">The id of the other player.</param>
     public void PickPlayer(string playerId)
     {
+        if (this.GameFinished)
+        {
+            return;
+        }
+
         lock (this.gameLock)
         {
             if (this.RoundPhase != RoundPhase.Player)
@@ -248,6 +270,11 @@ public class Game
     /// <param name="color">The card color.</param>
     public void PickColor(CardColor color)
     {
+        if (this.GameFinished)
+        {
+            return;
+        }
+
         lock (this.gameLock)
         {
             if (this.RoundPhase != RoundPhase.Color)
@@ -283,6 +310,11 @@ public class Game
     /// <param name="playerId"></param>
     public void PullCard()
     {
+        if (this.GameFinished)
+        {
+            return;
+        }
+
         var player = this.players.First(p => p.Id == this.CurrentPlayerId);
 
         for (int i = 0; i < this.pullCounter; i++)
@@ -295,7 +327,25 @@ public class Game
         this.RoundDone();
     }
 
-    private CardFace LastCard => this.playedCards[this.playedCards.Count - 1];
+    /// <summary>
+    /// Forecefully finishes a game.
+    /// </summary>
+    public void Finish()
+    {
+        var previousFinisher = this.players.Select(p => p.FinishedNumber).Max();
+        var notFinishedPlayers = players.Where(p => p.FinishedNumber == 0);
+        previousFinisher++;
+
+        foreach (var player in notFinishedPlayers)
+        {
+            player.FinishedNumber = previousFinisher;
+            previousFinisher++;
+        }
+
+        this.GameFinished = true;
+        this.OnGameFinish();
+        return;
+    }
 
     /// <summary>
     /// Calls <see cref="AdvancePlayer"/> and fires <see cref="OnStateChange"/>
@@ -303,12 +353,19 @@ public class Game
     /// </summary>
     private void RoundDone()
     {
-        var player = this.players[this.currentPlayerIndex];
+        var currentPlayer = this.players[this.currentPlayerIndex];
+        var previousFinisher = this.players.Select(p => p.FinishedNumber).Max();
 
-        if (player.Cards.Any(c => c.Value > 0) == false)
+        if (currentPlayer.Cards.Any(c => c.Value > 0) == false)
         {
-            var previousFinisher = this.players.Select(p => p.FinishedNumber).Max();
-            player.FinishedNumber = previousFinisher + 1;
+            currentPlayer.FinishedNumber = previousFinisher + 1;
+        }
+
+        var notFinishedPlayers = players.Where(p => p.FinishedNumber == 0);
+        if (notFinishedPlayers.Count() <= 1)
+        {
+            this.Finish();
+            return;
         }
 
         AdvancePlayer();

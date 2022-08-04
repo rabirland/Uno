@@ -101,12 +101,25 @@
         }
     </div>
     <div class="row">
-        <div class="cell">
-            <PullDeckBox CanPullCard="CanPlayCard" DeckRemainingCards="this.Status?.DeckRemainingCards ?? 0" OnPull="() => OnPullCard.InvokeAsync()" />
-        </div>
-        <div class="cell octa">
-            <LocalPlayerBox CanPlayCard="CanPlayCard" Cards="this.Status?.Cards" OnPlayCard="p => OnPlayCard.InvokeAsync(p)" CanBePicked="CanPickPlayer" OnPickedPlayer="OnPickPlayerBox" PlayerName="@PlayerName"/>
-        </div>
+        @if (this.Status?.CurrentPlayerFinishedNumber == 0)
+        {
+            <div class="cell">
+                <PullDeckBox CanPullCard="CanPlayCard" DeckRemainingCards="this.Status?.DeckRemainingCards ?? 0" OnPull="() => OnPullCard.InvokeAsync()" />
+            </div>
+            <div class="cell octa">
+                <LocalPlayerBox
+                    CanPlayCard="CanPlayCard"
+                    Cards="this.Status?.Cards"
+                    OnPlayCard="p => OnPlayCard.InvokeAsync(p)"
+                    CanBePicked="CanPickPlayer"
+                    OnPickedPlayer="OnPickPlayerBox"
+                    PlayerName="@PlayerName" />
+            </div>
+        }
+        else
+        {
+            <h1>Position: @this.Status?.CurrentPlayerFinishedNumber</h1>
+        }
     </div>
 </div>
 
@@ -137,7 +150,7 @@
 
     private bool CanPickPlayer => IsLocalPlayerActive && Status?.RoundPhase == GameMessages.RoundPhase.Player;
 
-    private bool ShowColorPicker => Status?.RoundPhase == GameMessages.RoundPhase.Color;
+    private bool ShowColorPicker => Status?.RoundPhase == GameMessages.RoundPhase.Color && Status.CurrentPlayerName == PlayerName;
 
     private bool CanPickColor => ShowColorPicker && IsLocalPlayerActive;
 
@@ -155,6 +168,13 @@
 
     private Task OnPickPlayerBox(string playerName)
     {
-        return this.OnPickPlayer.InvokeAsync(playerName);
+        if (this.CanPickPlayer)
+        {
+            return this.OnPickPlayer.InvokeAsync(playerName);   
+        }
+        else
+        {
+            return Task.CompletedTask;
+        }
     }
 }

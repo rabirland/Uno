@@ -4,4 +4,5 @@ public enum GameStatus
 {
     InLobby,
     Running,
+    Finished,
 }

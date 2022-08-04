@@ -47,7 +47,7 @@ public class GameController : Controller
                 throw new Exception("The admin is set to null token");
             }
 
-            if (game.TryAddPlayer(new Models.Game.GamePlayer(request.PlayerName, token)))
+            if (game.TryAddPlayer(new GamePlayer(request.PlayerName, token, true)))
             {
                 return new JoinGameResponse(true);
             }
@@ -69,7 +69,7 @@ public class GameController : Controller
             // Otherwise a new player is joining.
             token = TokenCreator.CreateRandomToken(64);
 
-            if (game.TryAddPlayer(new Models.Game.GamePlayer(request.PlayerName, token)))
+            if (game.TryAddPlayer(new GamePlayer(request.PlayerName, token, true)))
             {
                 AppendPlayerToken(game.GameId, token);
                 return new JoinGameResponse(true);
@@ -125,7 +125,7 @@ public class GameController : Controller
     {
         if (string.IsNullOrEmpty(request.GameId))
         {
-            Response.StatusCode = (int)HttpStatusCode.BadRequest;
+            Response.StatusCode = (int)HttpStatusCode.Unauthorized;
             yield break;
         }
 
@@ -140,7 +140,7 @@ public class GameController : Controller
         var gameEntry = gameService.GetGame(request.GameId);
         if (gameEntry == default)
         {
-            Response.StatusCode = (int)HttpStatusCode.BadRequest;
+            Response.StatusCode = (int)HttpStatusCode.Unauthorized;
             yield break;
         }
 
@@ -148,9 +148,11 @@ public class GameController : Controller
         var listeningPlayer = gameEntry.Players.FirstOrDefault(p => p.Token == token);
         if (listeningPlayer == default)
         {
-            Response.StatusCode = (int)HttpStatusCode.BadRequest;
+            Response.StatusCode = (int)HttpStatusCode.Unauthorized;
             yield break;
         }
+
+        gameEntry.PlayerConnected(token);
 
         while (true)
         {
@@ -162,10 +164,10 @@ public class GameController : Controller
                 Thread.Sleep(1000 / 30); // 30Hz, should report only when something change
             }
 
-            foreach (var status in ReportGameStatus(gameEntry, token))
+            foreach (var status in ReportGameRunningStatus(gameEntry, token))
             {
                 yield return status;
-                Thread.Sleep(1000 / 30); // 30Hz, should report only when something change
+                Thread.Sleep(1000 / 30); // 30 Hz
             }
         }
     }
@@ -195,7 +197,7 @@ public class GameController : Controller
 
         // TODO: Handle multiple listening. Currently if the player opens two pages, and closes one,
         // the player is removed, despite still having an open listening.
-        gameEntry.RemovePlayer(token);
+        gameEntry.PlayerDisconnected(token);
     }
 
     [HttpPost(URL.Game.StartGame)]
@@ -340,7 +342,7 @@ public class GameController : Controller
         }
     }
 
-    private IEnumerable<ListenGameResponse> ReportGameStatus(GameEntry gameEntry, string listenerToken)
+    private IEnumerable<ListenGameResponse> ReportGameRunningStatus(GameEntry gameEntry, string listenerToken)
     {
         if (gameEntry.Status != GameStatus.Running)
         {
@@ -385,7 +387,8 @@ public class GameController : Controller
                 .PlayedCards
                 .Select(p => new GameMessages.CardFace(
                     EnumMapper.CardColor.ToGameMessageResponse(p.Color),
-                    EnumMapper.CardType.ToGameMessageResponse(p.Type)));
+                    EnumMapper.CardType.ToGameMessageResponse(p.Type)))
+                .TakeLast(15);
 
             var currentPlayerEntry = gameEntry.Players.First(p => p.Token.Equals(game.CurrentPlayerId, StringComparison.InvariantCulture));
 
@@ -399,8 +402,69 @@ public class GameController : Controller
                 deckRemainingCards,
                 playedCards,
                 currentPlayerEntry.PlayerName,
+                gamePlayer.FinishedNumber,
+                false,
                 roundPhase,
                 activeColor);
+
+            yield return new ListenGameResponse(
+                adminPlayer.PlayerName,
+                null,
+                gameStatus);
+        }
+    }
+
+    private IEnumerable<ListenGameResponse> ReportGameFinishedStatus(GameEntry gameEntry, string listenerToken)
+    {
+        if (gameEntry.Status != GameStatus.Finished)
+        {
+            yield break;
+        }
+
+        var game = gameEntry.Game;
+
+        if (game == default)
+        {
+            throw new Exception("Game is running but UnoGame is not initialized");
+        }
+
+        while (gameEntry.Status == GameStatus.Finished)
+        {
+            var player = gameEntry.Players.First(p => p.Token == listenerToken);
+            var adminPlayer = gameEntry.Players.First(p => p.Token == gameEntry.AdminPlayerToken);
+
+            var gamePlayer = game.Players.First(p => p.Id == player.Token);
+
+            var otherPlayers = game
+                   .Players
+                   .Where(p => p.Id != gamePlayer.Id)
+                   .Select(p =>
+                   {
+                       var playerEntry = gameEntry.Players.First(gp => gp.Token == p.Id);
+                       return new GameMessages.PlayerHand(playerEntry.PlayerName, 0, p.FinishedNumber);
+                   });
+
+            var cardsInHand = Enumerable.Empty<GameMessages.CardCount>();
+
+            var deckRemainingCards = game.Deck.RemainingCards;
+
+            var playedCards = game
+                .PlayedCards
+                .Select(p => new GameMessages.CardFace(
+                    EnumMapper.CardColor.ToGameMessageResponse(p.Color),
+                    EnumMapper.CardType.ToGameMessageResponse(p.Type)))
+                .TakeLast(15);
+
+            var gameStatus = new ListenGameResponse.GameStatus(
+                otherPlayers,
+                cardsInHand,
+                deckRemainingCards,
+                playedCards,
+                string.Empty,
+                gamePlayer.FinishedNumber,
+                true,
+                GameMessages.RoundPhase.Player,
+                GameMessages.CardColor.Colorless);
 
             yield return new ListenGameResponse(
                 adminPlayer.PlayerName,

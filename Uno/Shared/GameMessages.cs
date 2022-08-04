@@ -64,6 +64,8 @@ public record ListenGameResponse(
         int DeckRemainingCards,
         IEnumerable<GameMessages.CardFace> PlayedCards,
         string CurrentPlayerName,
+        int CurrentPlayerFinishedNumber,
+        bool IsGameFinished,
         GameMessages.RoundPhase RoundPhase,
         GameMessages.CardColor ActiveColor);
 }

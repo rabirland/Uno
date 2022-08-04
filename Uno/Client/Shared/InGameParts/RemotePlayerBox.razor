@@ -7,7 +7,7 @@
     return;
 }
 
-<div class="container auto-font-size @SelectableClass @ActiveClass" @onclick="OnClickContainer">
+<div class="container auto-font-size @ActiveClass @SelectableClass" @onclick="OnClickContainer">
     <div class="icon">
         @Icon
     </div>
@@ -50,7 +50,7 @@
 
     private string SelectableClass => CanBePicked ? "selectable glow red" : string.Empty;
 
-    private string ActiveClass => CanBePicked ? "active glow blue" : string.Empty;
+    private string ActiveClass => (Player?.PlayerName == ActivePlayerName) ? "active glow blue" : string.Empty;
 
     public Task OnClickContainer()
     {

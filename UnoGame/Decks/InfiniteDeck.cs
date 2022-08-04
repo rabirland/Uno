@@ -5,6 +5,7 @@
 /// </summary>
 public class InfiniteDeck : IDeck
 {
+    private readonly Random rnd = new Random();
     /// <inheritdoc/>
     public int RemainingCards => CardMetadata.ValidCards.Count;
 
@@ -12,7 +13,7 @@ public class InfiniteDeck : IDeck
     public CardFace Pull()
     {
         var cardCount = CardMetadata.ValidCards.Count;
-        var index = Random.Shared.Next(0, cardCount);
+        var index = this.rnd.Next(0, cardCount);
 
         return CardMetadata.ValidCards[index].Face;
     }

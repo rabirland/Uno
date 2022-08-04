@@ -2,7 +2,7 @@
 
 <div class="deck auto-font-size">
     <div class="cards @ActiveClass" @onclick="OnClickDeck">
-        @for (int i = 0; i < this.DeckRemainingCards; i++)
+        @for (int i = 0; i < this.DisplayCardCount; i++)
         {
             <div class="card-wrapper">
                 <UnoCard IsBackFace="true"/>
@@ -12,6 +12,8 @@
 </div>
 
 @code {
+    private int DisplayCardCount => Math.Min(10, this.DeckRemainingCards);
+
     [Parameter]
     public bool CanPullCard { get; set; }
 

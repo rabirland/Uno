@@ -72,17 +72,54 @@ public class GameEntry
         return true;
     }
 
-    public void RemovePlayer(string token)
+    public void PlayerConnected(string token)
     {
-        if (this.Status != GameStatus.InLobby)
+        var index = this.players.FindIndex(p => p.Token == token);
+        if (index < 0)
+        {
+            throw new Exception("Invalid token");
+        }
+
+        var player = this.players[index];
+        this.players[index] = player with { IsConnected = true };
+
+        if (this.Game != null)
+        {
+            var gamePlayer = this.Game.Players.First(p => p.Id == player.Token);
+            gamePlayer.Active = true;
+        }
+    }
+
+    public void PlayerDisconnected(string token)
+    {
+        var index = this.players.FindIndex(p => p.Token == token);
+
+        if (index < 0)
         {
             return;
         }
 
-        var index = this.players.FindIndex(p => p.Token == token);
-        if (index >= 0)
+        if (this.Status == GameStatus.InLobby)
         {
             this.players.RemoveAt(index);
+        }
+        else if (this.Status == GameStatus.Running)
+        {
+            if (this.Game == null)
+            {
+                throw new Exception("Invalid state");
+            }
+
+            var player = this.players[index];
+            this.players[index] = player with { IsConnected = false };
+            var gamePlayer = this.Game.Players.First(p => p.Id == player.Token);
+            gamePlayer.Active = false;
+
+            var notFinished = this.Players.Where(p => p.IsConnected).Count();
+            if (notFinished <= 1)
+            {
+                this.Game.Finish();
+            }
         }
     }
 
@@ -95,5 +132,17 @@ public class GameEntry
 
         this.Game = new UnoGame.Game(UnoGame.GameSettings.Default, this.players.Select(p => p.Token));
         this.Status = GameStatus.Running;
+        this.Game.OnGameFinish += this.OnGameFinished;
+    }
+
+    private void OnGameFinished()
+    {
+        if (this.Game == null)
+        {
+            throw new Exception("Invalid event");
+        }
+
+        this.Status = GameStatus.Finished;
+        this.Game.OnGameFinish -= this.OnGameFinished;
     }
 }
