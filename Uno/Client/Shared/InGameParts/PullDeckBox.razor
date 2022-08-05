@@ -23,7 +23,7 @@
     [Parameter]
     public EventCallback OnPull { get; set; }
 
-    private string ActiveClass => this.CanPullCard ? "active glow" : string.Empty;
+    private string ActiveClass => this.CanPullCard ? "active" : string.Empty;
 
     private Task OnClickDeck()
     {

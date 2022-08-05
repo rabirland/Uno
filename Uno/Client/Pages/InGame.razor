@@ -30,6 +30,11 @@ else if (lastStatus.Game != null)
     [Parameter]
     public string Id { get; set; } = string.Empty;
 
+    private bool IsActualPlayer => this.lastStatus.Game?.CurrentPlayerName == this.playerName;
+    private bool PickPlayerPhase => this.lastStatus.Game?.RoundPhase == GameMessages.RoundPhase.Player;
+    private bool PickColorPhase => this.lastStatus.Game?.RoundPhase == GameMessages.RoundPhase.Color;
+    private bool PickCardPhase => this.lastStatus.Game?.RoundPhase == GameMessages.RoundPhase.Card;
+
     protected override async void OnInitialized()
     {
         await base.OnInitializedAsync();
@@ -75,27 +80,42 @@ else if (lastStatus.Game != null)
     /// </summary>
     private async void OnStartGame()
     {
-        await api.Game.StartGameAsync(new StartGameRequest(this.Id));
+        if (this.lastStatus.Game == null)
+        {
+            await api.Game.StartGameAsync(new StartGameRequest(this.Id));   
+        }
     }
 
     private async void OnPlayCard(PlayCardParams eventParams)
     {
-        await api.Game.PlayCardAsync(new PlayCardRequest(this.Id, eventParams.Card, eventParams.Count));
+        if (this.IsActualPlayer && this.PickCardPhase)
+        {
+            await api.Game.PlayCardAsync(new PlayCardRequest(this.Id, eventParams.Card, eventParams.Count));   
+        }
     }
 
     private async void OnPullCard()
     {
-        await api.Game.PullCardAsync(new PullCardRequest(this.Id));
+        if (this.IsActualPlayer && this.PickCardPhase)
+        {
+            await api.Game.PullCardAsync(new PullCardRequest(this.Id));   
+        }
     }
 
     private async void OnPickPlayer(string playerName)
     {
-        await api.Game.PickPlayerAsync(new PickPlayerRequest(this.Id, playerName));
+        if (this.IsActualPlayer && this.PickPlayerPhase)
+        {
+            await api.Game.PickPlayerAsync(new PickPlayerRequest(this.Id, playerName));   
+        }
     }
 
     private async void OnPickColor(GameMessages.CardColor color)
     {
-		await api.Game.PickColorAsync(new PickColorRequest(this.Id, color));
+        if (this.IsActualPlayer && this.PickColorPhase)
+        {
+            await api.Game.PickColorAsync(new PickColorRequest(this.Id, color));   
+        }
 	}
 
 	public record PlayCardParams(GameMessages.CardFace Card, int Count);

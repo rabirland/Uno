@@ -77,6 +77,10 @@
             <ColorPicker Show="ShowColorPicker" CanPick="CanPickColor" OnPickColor="c => OnPickColor.InvokeAsync(c)"/>
         </div>
 
+        <div class="active-color">
+            <ActiveColorMarker Color="this.Status?.ActiveColor ?? GameMessages.CardColor.Colorless" />
+        </div>
+
         @if (remotePlayers.Length >= 5)
         {
             <div class="cell">
@@ -84,11 +88,7 @@
             </div>
         }
 
-        <div class="cell">
-            <PullDeckBox CanPullCard="CanPlayCard" DeckRemainingCards="this.Status?.DeckRemainingCards ?? 0" OnPull="() => OnPullCard.InvokeAsync()" />
-        </div>
-
-        <div class="cell">
+        <div class="cell double">
             <PlayedCardsDeckBox PlayedCards="this.Status?.PlayedCards" />
         </div>
 
@@ -99,18 +99,21 @@
             </div>
         }
     </div>
-    <div class="row">
+    <div class="row @LocalPlayerRowClass">
         @if (this.Status?.CurrentPlayerFinishedNumber == 0)
         {
+            <div class="cell">
+                <PullDeckBox CanPullCard="CanPlayCard" DeckRemainingCards="this.Status?.DeckRemainingCards ?? 0" OnPull="() => OnPullCard.InvokeAsync()" />
+            </div>
+
             <div class="cell octa">
                 <LocalPlayerBox
-                    CanPlayCard="CanPlayCard"
+                    CanPlayCard="this.CanPlayCard"
                     Cards="this.Status?.Cards"
                     OnPlayCard="p => OnPlayCard.InvokeAsync(p)"
                     CanBePicked="CanPickPlayer"
                     OnPickedPlayer="OnPickPlayerBox"
-                    PlayerName="@PlayerName"
-                    ActiveColor="this.Status?.ActiveColor ?? GameMessages.CardColor.Colorless" />
+                    PlayerName="@PlayerName" />
             </div>
         }
         else
@@ -150,6 +153,8 @@
     private bool ShowColorPicker => Status?.RoundPhase == GameMessages.RoundPhase.Color && Status.CurrentPlayerName == PlayerName;
 
     private bool CanPickColor => ShowColorPicker && IsLocalPlayerActive;
+
+    private string LocalPlayerRowClass => this.CanPlayCard ? "glow blue" : string.Empty;
 
     protected override void OnParametersSet()
     {

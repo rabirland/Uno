@@ -1,0 +1,44 @@
+﻿.container {
+    height: 100%;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    pointer-events: none;
+    box-shadow: 0 0 2em var(--active-color), 0 0 2em var(--active-color), inset 0 0 5em var(--active-color), inset 0 0 8em var(--active-color);
+}
+
+    .container.yellow {
+        --active-color: var(--uno-yellow);
+    }
+
+    .container.red {
+        --active-color: var(--uno-red);
+    }
+
+    .container.blue {
+        --active-color: var(--uno-blue);
+    }
+
+    .container.green {
+        --active-color: var(--uno-green);
+    }
+
+    /*.container.yellow {
+        border: 1px solid var(--uno-yellow);
+        box-shadow: 0 0 1em var(--uno-yellow), inset 0 0 1em var(--uno-yellow), 0 0 2em var(--uno-yellow), inset 0 0 2em var(--uno-yellow);
+        --active-color: var(--uno-yellow);
+    }
+
+    .container.green {
+        border: 1px solid var(--uno-green);
+        box-shadow: 0 0 1em var(--uno-green), inset 0 0 1em var(--uno-green), 0 0 2em var(--uno-green), inset 0 0 2em var(--uno-green);
+    }
+
+    .container.blue {
+        border: 1px solid var(--uno-blue);
+        box-shadow: 0 0 1em var(--uno-blue), inset 0 0 1em var(--uno-blue), 0 0 2em var(--uno-blue), inset 0 0 2em var(--uno-blue);
+    }
+
+    .container.red {
+        border: 1px solid var(--uno-red);
+        box-shadow: 0 0 1em var(--uno-red), inset 0 0 1em var(--uno-red), 0 0 2em var(--uno-red), inset 0 0 2em var(--uno-red);
+    }*/

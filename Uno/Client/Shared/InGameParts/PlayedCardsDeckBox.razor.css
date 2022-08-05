@@ -23,17 +23,17 @@
     }
 
     .card-anchor:nth-child(5n + 1).card-wrapper {
-        transform: rotate(160deg);
+        transform: rotate(130deg);
     }
 
     .card-anchor:nth-child(5n + 2) .card-wrapper {
-        transform: rotate(190deg);
+        transform: rotate(49deg);
     }
 
     .card-anchor:nth-child(5n + 3) .card-wrapper {
-        transform: rotate(60deg);
+        transform: rotate(10deg);
     }
 
     .card-anchor:nth-child(5n + 4) .card-wrapper {
-        transform: rotate(130deg);
+        transform: rotate(150deg);
     }

@@ -132,18 +132,17 @@ body {
 
 .glow {
     border: 0.02em solid green;
-    box-shadow: 0 0 0.05em green, 0 0 0.1em green, 0 0 0.2em green;
+    --glow-color: green;
+    box-shadow: 0 0 0.1em var(--glow-color), 0 0 0.3em var(--glow-color), 0 0 2em var(--glow-color);
 }
 
-.glow.red {
-    border-color: red;
-    box-shadow: 0 0 0.05em red, 0 0 0.1em red, 0 0 0.2em red;
-}
+    .glow.red {
+        --glow-color: red;
+    }
 
-.glow.blue {
-    border-color: blue;
-    box-shadow: 0 0 0.05em blue, 0 0 0.1em red, 0 0 0.2em blue;
-}
+    .glow.blue {
+        --glow-color: blue;
+    }
 
 /* ================== App stuff ========================== */
 
@@ -155,7 +154,5 @@ body {
 }
 
 .card-wrapper {
-    overflow: hidden;
     z-index: 1; /* No idea why, but required */
-    height: calc(1em + 2px); /* Limit the height to the card height, 1px for the outline */
 }

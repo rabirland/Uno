@@ -38,16 +38,13 @@
     public IEnumerable<GameMessages.CardCount>? Cards { get; set; }
 
     [Parameter]
-    public bool CanPlayCard { get; set; }
-
-    [Parameter]
     public bool CanBePicked { get; set; }
 
     [Parameter]
     public string? PlayerName { get; set; }
 
     [Parameter]
-    public GameMessages.CardColor ActiveColor { get; set; }
+    public bool CanPlayCard { get; set; }
 
     [Parameter]
     public EventCallback<InGame.PlayCardParams> OnPlayCard { get; set; }
@@ -55,9 +52,9 @@
     [Parameter]
     public EventCallback<string> OnPickedPlayer { get; set; }
 
-    private string ActiveClass => CanPlayCard ? "active " + this.ActiveColor.ToString().ToLowerInvariant() : string.Empty;
-
     private string SelectableClass => CanBePicked ? "selectable glow red" : string.Empty;
+
+    private string ActiveClass => CanPlayCard ? "active" : string.Empty;
 
     private void OnHover(int index)
     {
@@ -83,14 +80,7 @@
 
     private Task OnClickCard(GameMessages.CardColor color, GameMessages.CardType type, int index)
     {
-        if (this.CanPlayCard)
-        {
-            return OnPlayCard.InvokeAsync(new InGame.PlayCardParams(new GameMessages.CardFace(color, type), index + 1));   
-        }
-        else
-        {
-            return Task.CompletedTask;
-        }
+        return OnPlayCard.InvokeAsync(new InGame.PlayCardParams(new GameMessages.CardFace(color, type), index + 1));   
     }
 
     private Task OnClickWrapper()
