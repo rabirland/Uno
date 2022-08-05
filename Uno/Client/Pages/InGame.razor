@@ -12,7 +12,14 @@
 }
 else if (lastStatus.Game != null)
 {
-	<InGamePanel PlayerName="@playerName" Status="lastStatus.Game" OnPlayCard="OnPlayCard" OnPullCard="OnPullCard" OnPickPlayer="OnPickPlayer" OnPickColor="OnPickColor"/>
+    @if (lastStatus.Game.IsGameFinished)
+    {
+        <GameFinishedPanel />
+    }
+    else
+    {
+        <InGamePanel PlayerName="@playerName" Status="lastStatus.Game" OnPlayCard="OnPlayCard" OnPullCard="OnPullCard" OnPickPlayer="OnPickPlayer" OnPickColor="OnPickColor"/>   
+    }
 }
 
 @code {

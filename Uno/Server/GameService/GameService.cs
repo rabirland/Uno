@@ -80,7 +80,7 @@ public class GameService : IGameService, IDisposable
                         continue;
                     }
 
-                    var activePlayers = gameEntry.Players.Where(p => p.IsConnected).Count();
+                    var activePlayers = gameEntry.Game.Players.Where(p => p.Active).Count();
                     if (activePlayers <= 1)
                     {
                         removeAt = i;

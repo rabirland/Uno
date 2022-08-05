@@ -1,9 +1,10 @@
-using System.Net;
 using Uno.Server;
 using Uno.Server.Middlewares;
 using Uno.Shared;
 
 var builder = WebApplication.CreateBuilder(args);
+
+//builder.WebHost.UseUrls("https://*:80", "https://localhost:80");
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();

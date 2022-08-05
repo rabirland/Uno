@@ -80,12 +80,9 @@ public class GameEntry
             throw new Exception("Invalid token");
         }
 
-        var player = this.players[index];
-        this.players[index] = player with { IsConnected = true };
-
         if (this.Game != null)
         {
-            var gamePlayer = this.Game.Players.First(p => p.Id == player.Token);
+            var gamePlayer = this.Game.Players.First(p => p.Id == token);
             gamePlayer.Active = true;
         }
     }
@@ -111,11 +108,10 @@ public class GameEntry
             }
 
             var player = this.players[index];
-            this.players[index] = player with { IsConnected = false };
             var gamePlayer = this.Game.Players.First(p => p.Id == player.Token);
             gamePlayer.Active = false;
 
-            var notFinished = this.Players.Where(p => p.IsConnected).Count();
+            var notFinished = this.Game.Players.Where(p => p.Active).Count();
             if (notFinished <= 1)
             {
                 this.Game.Finish();

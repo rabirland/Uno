@@ -47,7 +47,7 @@ public class GameController : Controller
                 throw new Exception("The admin is set to null token");
             }
 
-            if (game.TryAddPlayer(new GamePlayer(request.PlayerName, token, true)))
+            if (game.TryAddPlayer(new GamePlayer(request.PlayerName, token)))
             {
                 return new JoinGameResponse(true);
             }
@@ -69,7 +69,7 @@ public class GameController : Controller
             // Otherwise a new player is joining.
             token = TokenCreator.CreateRandomToken(64);
 
-            if (game.TryAddPlayer(new GamePlayer(request.PlayerName, token, true)))
+            if (game.TryAddPlayer(new GamePlayer(request.PlayerName, token)))
             {
                 AppendPlayerToken(game.GameId, token);
                 return new JoinGameResponse(true);
@@ -168,6 +168,12 @@ public class GameController : Controller
             {
                 yield return status;
                 Thread.Sleep(1000 / 30); // 30 Hz
+            }
+
+            foreach (var status in ReportGameFinishedStatus(gameEntry, token))
+            {
+                yield return status;
+                Thread.Sleep(1000);
             }
         }
     }
