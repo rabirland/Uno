@@ -1,6 +1,5 @@
 ﻿.wrapper {
     width: 100%;
-    height: 100%;
     display: inline-block;
     vertical-align: bottom;
 }
@@ -13,11 +12,6 @@
     flex-direction: row;
     justify-content: center;
     font-size: 10em;
-    counter-reset: card-index;
-    border-radius: 0.08em;
-    background-color: white;
-    padding: 0.1em;
-    border: 1px solid black;
 }
 
 .card-stack {

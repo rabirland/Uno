@@ -11,8 +11,8 @@
     return;
 }
 
-<div class="wrapper auto-font-size @SelectableClass" @onclick="OnClickWrapper">
-    <div class="cards @ActiveClass">
+<div class="wrapper player-box auto-font-size @ActiveClass @SelectableClass" @onclick="OnClickWrapper">
+    <div class="cards">
         @foreach (var card in this.Cards)
         {
             <div class="card-stack">

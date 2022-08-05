@@ -37,7 +37,19 @@ public static class HttpClientExtensions
 
         while (string.IsNullOrEmpty(responseJson) == false)
         {
-            var responseObj = JsonSerializer.Deserialize<TResponse>(responseJson);
+            var responseObj = default(TResponse);
+            int legnth = responseJson.Length;
+            char[] wot = responseJson.ToCharArray();
+            var tst = string.Join("", wot);
+
+            try
+            {
+                responseObj = JsonSerializer.Deserialize<TResponse>(responseJson);
+            }
+            catch (Exception e)
+            {
+                throw new Exception($"Invalid response json: {responseJson}");
+            }
 
             if (responseObj == null)
             {

@@ -14,6 +14,9 @@ public static class TaskExtensions
     {
         task.ContinueWith(task =>
         {
+            Console.WriteLine(task.Exception);
+            Console.WriteLine(task.Exception?.StackTrace);
+
             if (task.IsFaulted)
             {
                 if (logger  != null)

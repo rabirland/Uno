@@ -115,15 +115,6 @@ public class DataStreamMiddleware
 
         methodReturn = action.Invoke(controller, paramArray);
 
-        //if (parameter == null)
-        //{
-        //    methodReturn = action.Invoke(controller, null);
-        //}
-        //else
-        //{
-        //    methodReturn = action.Invoke(controller, new[] { parameter });
-        //}
-
         if (methodReturn == null)
         {
             throw new Exception("Data streams can not return null");

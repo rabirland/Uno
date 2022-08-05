@@ -22,7 +22,7 @@ public class GameService : IGameService, IDisposable
         lock (this.locker)
         {
             var adminToken = TokenCreator.CreateRandomToken(32);
-            var gameToken = TokenCreator.CreateRandomToken(16, true);
+            var gameToken = TokenCreator.CreateRandomToken(8, true);
 
             var entry = new GameEntry(gameToken, adminToken);
             games.Add(entry);

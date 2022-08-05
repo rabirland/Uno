@@ -47,9 +47,15 @@ public class HttpPayloadStream : IDisposable
         }
 
         var payloadBuffer = new char[payloadSize];
-        await reader.ReadAsync(payloadBuffer, 0, payloadSize);
+        int bytesRead = 0;
+        while (bytesRead < payloadBuffer.Length)
+        {
+            int remaining = payloadBuffer.Length - bytesRead;
+            bytesRead += await reader.ReadAsync(payloadBuffer, bytesRead, remaining);
+        }
 
         var payload = new string(payloadBuffer);
+
         return payload;
     }
 }
