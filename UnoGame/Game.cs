@@ -7,7 +7,6 @@ public class Game
 {
     private readonly GameSettings settings;
     private readonly GameTimer Timer = new GameTimer();
-    private readonly object gameLock = new object();
 
     private List<CardFace> playedCards = new List<CardFace>();
     private int pullCounter = 1;
@@ -117,68 +116,77 @@ public class Game
             return false;
         }
 
-        lock (this.gameLock)
+        var lastlyPlayedCard = LastCard;
+
+        var colorMatch = cardFace.Color == CardColor.Colorless || cardFace.Color == this.ActiveColor;
+        var typeMatch = cardFace.Type == lastlyPlayedCard.Type;
+
+        if (colorMatch == false && typeMatch == false)
         {
-            var lastlyPlayedCard = LastCard;
+            return false;
+        }
 
-            var colorMatch = cardFace.Color == CardColor.Colorless || cardFace.Color == this.ActiveColor;
-            var typeMatch = cardFace.Type == lastlyPlayedCard.Type;
-
-            if (colorMatch == false && typeMatch == false)
+        // Handle dropping on a previously dropped PLUS card that hasn't "redeemed" yet
+        if (this.pullCounter > 1)
+        {
+            // Disallow every card if stacking on +4 is not allowed
+            if (lastlyPlayedCard.Type == CardType.Plus4 && settings.StackDraw4 == false)
             {
                 return false;
             }
 
-            // If +X cards began to be stacked, only +X cards can be dropped.
+            // Disallow every card if stacking on +2 is not allowed
+            if (lastlyPlayedCard.Type == CardType.Plus2 && settings.StackDraw2 == false)
+            {
+                return false;
+            }
+
+            // On a non-redeemed plus card, only plus cards can be dropped (unless the previous checks disallowed it)
             var isDrawCard = cardFace.Type.IsDraw();
-            if (this.pullCounter > 1 && isDrawCard == false)
+            if (isDrawCard == false)
             {
                 return false;
-            }
-
-            if (this.RoundPhase != RoundPhase.Card)
-            {
-                throw new Exception("Invalid action for the current round phase");
-            }
-
-            var card = CardMetadata.ValidCards.FirstOrDefault(c => c.Face == cardFace);
-
-            var player = this.players.First(p => p.Id == this.CurrentPlayerId);
-            if (player.RemoveCard(cardFace, count))
-            {
-                var droppedCards = Enumerable.Repeat(cardFace, count);
-                this.playedCards.AddRange(droppedCards);
-
-                // Switching color
-                if (cardFace.Color != CardColor.Colorless)
-                {
-                    this.ActiveColor = cardFace.Color;
-                }
-                else if (card.CurrentAction.HasFlag(CurrentPlayerAction.PickColor) == false)
-                {
-                    throw new Exception("A colorless card must have a pick color \"current round\" flag");
-                }
-
-                // Immediate action
-                switch(card.ImmediateAction)
-                {
-                    case ImmediateAction.None: break;
-                    case ImmediateAction.ReverseOrder: this.gameDirectionRightHand = !this.gameDirectionRightHand; break;
-                    default: throw new Exception("Invalid \"immediate\" action");
-                }
-
-                // Current round action
-                AdvancePhaseByCurrentAction(card.CurrentAction);
-                ApplyNextPlayerEffects(card.NextPlayerAction);
-                this.RoundDone();
-                return true;
-                
-            }
-            else
-            {
-                throw new Exception("Invalid action");
             }
         }
+
+        if (this.RoundPhase != RoundPhase.Card)
+        {
+            return false;
+        }
+
+        var player = this.players.First(p => p.Id == this.CurrentPlayerId);
+        if (player.RemoveCard(cardFace, count) == false)
+        {
+            return false;
+        }
+
+        var card = CardMetadata.ValidCards.First(c => c.Face == cardFace);
+        
+        var newDroppedCards = Enumerable.Repeat(cardFace, count);
+        this.playedCards.AddRange(newDroppedCards);
+
+        // Switching color
+        if (cardFace.Color != CardColor.Colorless)
+        {
+            this.ActiveColor = cardFace.Color;
+        }
+        else if (card.CurrentAction.HasFlag(CurrentPlayerAction.PickColor) == false)
+        {
+            throw new Exception("A colorless card must have a pick color \"current round\" flag");
+        }
+
+        // Immediate action
+        switch(card.ImmediateAction)
+        {
+            case ImmediateAction.None: break;
+            case ImmediateAction.ReverseOrder: this.gameDirectionRightHand = !this.gameDirectionRightHand; break;
+            default: throw new Exception("Invalid \"immediate\" action");
+        }
+
+        this.ApplyNextPlayerEffects(card.NextPlayerAction);
+        this.PhaseDone(card.CurrentAction);
+                
+        return true;
     }
 
     /// <summary>
@@ -192,42 +200,43 @@ public class Game
             return;
         }
 
-        lock (this.gameLock)
+        if (this.RoundPhase != RoundPhase.Player)
         {
-            if (this.RoundPhase != RoundPhase.Player)
-            {
-                throw new Exception("Invalid round phase");
-            }
-
-            var otherPlayer = this.players.FirstOrDefault(p => p.Id == playerId);
-            if (otherPlayer == default)
-            {
-                throw new Exception("Invalid player id");
-            }
-
-            var lastPlayedCard = LastCard;
-            var card = CardMetadata.ValidCards.First(c => c.Face == lastPlayedCard);
-
-            // Do the action
-            if (card.CurrentAction.HasFlag(CurrentPlayerAction.SwapHandDeckWithPlayer))
-            {
-                // If the player selected himself, Do not swap cards
-                if (otherPlayer.Id != this.CurrentPlayerId)
-                {
-                    var currentPlayer = this.players[this.currentPlayerIndex];
-                    currentPlayer.SwapCardsWith(otherPlayer);
-                }
-            }
-            else
-            {
-                throw new Exception("Invalid action for the last card");
-            }
-
-            AdvancePhaseByCurrentAction(card.CurrentAction);
+            throw new Exception("Invalid round phase");
         }
+
+        var otherPlayer = this.players.FirstOrDefault(p => p.Id == playerId);
+        if (otherPlayer == default)
+        {
+            throw new Exception("Invalid player id");
+        }
+
+        var lastPlayedCard = LastCard;
+        var card = CardMetadata.ValidCards.First(c => c.Face == lastPlayedCard);
+
+        // Do the action
+        if (card.CurrentAction.HasFlag(CurrentPlayerAction.SwapHandDeckWithPlayer))
+        {
+            // If the player selected himself, Do not swap cards
+            if (otherPlayer.Id != this.CurrentPlayerId)
+            {
+                var currentPlayer = this.players[this.currentPlayerIndex];
+                currentPlayer.SwapCardsWith(otherPlayer);
+            }
+        }
+        else
+        {
+            throw new Exception("Invalid action for the last card");
+        }
+
+        PhaseDone(card.CurrentAction);
     }
 
-    private void AdvancePhaseByCurrentAction(CurrentPlayerAction action)
+    /// <summary>
+    /// Advances the round phase
+    /// </summary>
+    /// <param name="action">The action oif the card that is currently played.</param>
+    private void PhaseDone(CurrentPlayerAction action)
     {
         if (this.RoundPhase == RoundPhase.Card)
         {
@@ -241,7 +250,7 @@ public class Game
             }
             else
             {
-                return;
+                this.RoundDone();
             }
         }
         else if (this.RoundPhase == RoundPhase.Player)
@@ -252,12 +261,12 @@ public class Game
             }
             else
             {
-                return;
+                this.RoundDone();
             }
         }
         else if (this.RoundPhase == RoundPhase.Color)
         {
-            return;
+            this.RoundDone();
         }
         else
         {
@@ -276,33 +285,30 @@ public class Game
             return;
         }
 
-        lock (this.gameLock)
+        if (this.RoundPhase != RoundPhase.Color)
         {
-            if (this.RoundPhase != RoundPhase.Color)
-            {
-                throw new Exception("Invalid round phase");
-            }
-
-            if (color.IsChromatic() == false)
-            {
-                throw new Exception("Invalid color");
-            }
-
-            var lastPlayedCard = LastCard;
-            var card = CardMetadata.ValidCards.First(c => c.Face == lastPlayedCard);
-
-            // Do the action
-            if (card.CurrentAction.HasFlag(CurrentPlayerAction.PickColor))
-            {
-                this.ActiveColor = color;
-            }
-            else
-            {
-                throw new Exception("Invalid action for the last card");
-            }
-
-            AdvancePhaseByCurrentAction(card.CurrentAction);
+            throw new Exception("Invalid round phase");
         }
+
+        if (color.IsChromatic() == false)
+        {
+            throw new Exception("Invalid color");
+        }
+
+        var lastPlayedCard = LastCard;
+        var card = CardMetadata.ValidCards.First(c => c.Face == lastPlayedCard);
+
+        // Do the action
+        if (card.CurrentAction.HasFlag(CurrentPlayerAction.PickColor))
+        {
+            this.ActiveColor = color;
+        }
+        else
+        {
+            throw new Exception("Invalid action for the last card");
+        }
+
+        this.PhaseDone(card.CurrentAction);
     }
 
     /// <summary>
@@ -398,37 +404,13 @@ public class Game
         }
         else if (action == NextPlayerAction.Draw2)
         {
-            if (this.settings.StackDraw2)
-            {
-                this.BeginStackingDrawCards();
-                this.pullCounter += 2;
-            }
-            else
-            {
-                var nextPlayerIndex = GetNextPlayerIndex();
-                var player = this.players[nextPlayerIndex];
-                player.AddCard(this.Deck.Pull());
-                player.AddCard(this.Deck.Pull());
-                AdvancePlayer();
-            }
+            this.BeginStackingDrawCards();
+            this.pullCounter += 2;
         }
         else if (action == NextPlayerAction.Draw4)
         {
-            if (this.settings.StackDraw4)
-            {
-                this.BeginStackingDrawCards();
-                this.pullCounter += 4;
-            }
-            else
-            {
-                var nextPlayerIndex = GetNextPlayerIndex();
-                var player = this.players[nextPlayerIndex];
-                player.AddCard(this.Deck.Pull());
-                player.AddCard(this.Deck.Pull());
-                player.AddCard(this.Deck.Pull());
-                player.AddCard(this.Deck.Pull());
-                AdvancePlayer();
-            }
+            this.BeginStackingDrawCards();
+            this.pullCounter += 4;
         }
         else
         {
