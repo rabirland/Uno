@@ -170,6 +170,7 @@ public class Game
                 // Current round action
                 AdvancePhaseByCurrentAction(card.CurrentAction);
                 ApplyNextPlayerEffects(card.NextPlayerAction);
+                this.RoundDone();
                 return true;
                 
             }
@@ -240,7 +241,7 @@ public class Game
             }
             else
             {
-                RoundDone();
+                return;
             }
         }
         else if (this.RoundPhase == RoundPhase.Player)
@@ -251,12 +252,12 @@ public class Game
             }
             else
             {
-                RoundDone();
+                return;
             }
         }
         else if (this.RoundPhase == RoundPhase.Color)
         {
-            RoundDone();
+            return;
         }
         else
         {
@@ -379,32 +380,7 @@ public class Game
     /// </summary>
     private void AdvancePlayer()
     {
-        var playerCount = this.players.Count();
-
-        Player player;
-        do
-        {
-            if (this.gameDirectionRightHand)
-            {
-                this.currentPlayerIndex++;
-
-                if (this.currentPlayerIndex >= playerCount)
-                {
-                    this.currentPlayerIndex = 0;
-                }
-            }
-            else
-            {
-                this.currentPlayerIndex--;
-
-                if (this.currentPlayerIndex < 0)
-                {
-                    this.currentPlayerIndex = playerCount - 1;
-                }
-            }
-
-            player = this.players[this.currentPlayerIndex];
-        } while (player.FinishedNumber != 0 && player.Active != true);
+        this.currentPlayerIndex = GetNextPlayerIndex();
     }
 
     /// <summary>
@@ -429,7 +405,8 @@ public class Game
             }
             else
             {
-                var player = this.players[this.currentPlayerIndex];
+                var nextPlayerIndex = GetNextPlayerIndex();
+                var player = this.players[nextPlayerIndex];
                 player.AddCard(this.Deck.Pull());
                 player.AddCard(this.Deck.Pull());
                 AdvancePlayer();
@@ -444,7 +421,8 @@ public class Game
             }
             else
             {
-                var player = this.players[this.currentPlayerIndex];
+                var nextPlayerIndex = GetNextPlayerIndex();
+                var player = this.players[nextPlayerIndex];
                 player.AddCard(this.Deck.Pull());
                 player.AddCard(this.Deck.Pull());
                 player.AddCard(this.Deck.Pull());
@@ -467,5 +445,38 @@ public class Game
         {
             this.pullCounter = 0;
         }
+    }
+
+    private int GetNextPlayerIndex()
+    {
+        int index = this.currentPlayerIndex;
+        int count = this.players.Count();
+        Player player;
+
+        do
+        {
+            if (this.gameDirectionRightHand)
+            {
+                index++;
+
+                if (index >= count)
+                {
+                    index = 0;
+                }
+            }
+            else
+            {
+                index--;
+
+                if (index < 0)
+                {
+                    index = count - 1;
+                }
+            }
+
+            player = this.players[this.currentPlayerIndex];
+        } while (player.FinishedNumber != 0 && player.Active != true);
+
+        return index;
     }
 }
