@@ -47,12 +47,15 @@
     public string? PlayerName { get; set; }
 
     [Parameter]
+    public GameMessages.CardColor ActiveColor { get; set; }
+
+    [Parameter]
     public EventCallback<InGame.PlayCardParams> OnPlayCard { get; set; }
 
     [Parameter]
     public EventCallback<string> OnPickedPlayer { get; set; }
 
-    private string ActiveClass => CanPlayCard ? "active glow" : string.Empty;
+    private string ActiveClass => CanPlayCard ? "active " + this.ActiveColor.ToString().ToLowerInvariant() : string.Empty;
 
     private string SelectableClass => CanBePicked ? "selectable glow red" : string.Empty;
 

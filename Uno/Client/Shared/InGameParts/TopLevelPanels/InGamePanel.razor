@@ -41,7 +41,7 @@
 
     @for (int i = 7; i < remotePlayers.Length; i += 4)
     {
-        <div class="row">
+        <div class="row players">
             @if (remotePlayers.Length >= (i + 1))
             {
                 <div class="cell">
@@ -73,6 +73,10 @@
     }
 
     <div class="row">
+        <div class="color-picker">
+            <ColorPicker Show="ShowColorPicker" CanPick="CanPickColor" OnPickColor="c => OnPickColor.InvokeAsync(c)"/>
+        </div>
+
         @if (remotePlayers.Length >= 5)
         {
             <div class="cell">
@@ -80,17 +84,12 @@
             </div>
         }
 
-        <div class="cell double">
+        <div class="cell">
+            <PullDeckBox CanPullCard="CanPlayCard" DeckRemainingCards="this.Status?.DeckRemainingCards ?? 0" OnPull="() => OnPullCard.InvokeAsync()" />
+        </div>
 
-            <div class="active-color">
-                <ActiveColorMarker Color="this.Status.ActiveColor" />
-            </div>
-
+        <div class="cell">
             <PlayedCardsDeckBox PlayedCards="this.Status?.PlayedCards" />
-
-            <div class="color-picker">
-                <ColorPicker Show="ShowColorPicker" CanPick="CanPickColor" OnPickColor="c => OnPickColor.InvokeAsync(c)"/>
-            </div>
         </div>
 
         @if (remotePlayers.Length >= 6)
@@ -103,9 +102,6 @@
     <div class="row">
         @if (this.Status?.CurrentPlayerFinishedNumber == 0)
         {
-            <div class="cell">
-                <PullDeckBox CanPullCard="CanPlayCard" DeckRemainingCards="this.Status?.DeckRemainingCards ?? 0" OnPull="() => OnPullCard.InvokeAsync()" />
-            </div>
             <div class="cell octa">
                 <LocalPlayerBox
                     CanPlayCard="CanPlayCard"
@@ -113,7 +109,8 @@
                     OnPlayCard="p => OnPlayCard.InvokeAsync(p)"
                     CanBePicked="CanPickPlayer"
                     OnPickedPlayer="OnPickPlayerBox"
-                    PlayerName="@PlayerName" />
+                    PlayerName="@PlayerName"
+                    ActiveColor="this.Status?.ActiveColor ?? GameMessages.CardColor.Colorless" />
             </div>
         }
         else

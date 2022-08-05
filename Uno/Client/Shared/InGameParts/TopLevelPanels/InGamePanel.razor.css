@@ -14,6 +14,7 @@
     min-height: 0;
     display: flex;
     flex-direction: row;
+    position: relative;
 }
 
     .grid .row.fill {
@@ -27,6 +28,7 @@
     padding: 1%;
     flex: 1;
     min-width: 0;
+    z-index: 1;
 }
 
     .grid .row .cell.double {
@@ -48,13 +50,15 @@
     left: 50%;
     top: 50%;
     transform: translate(-50%, -50%);
+    z-index: 100;
 }
 
 .active-color{
     pointer-events: none;
     position: absolute;
-    height: 130%;
+    height: 90%;
     left: 50%;
     top: 50%;
     transform: translate(-50%, -50%);
+    z-index: 0;
 }

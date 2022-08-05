@@ -4,6 +4,26 @@
     vertical-align: bottom;
 }
 
+    .wrapper.active.yellow {
+        --active-color: var(--uno-yellow);
+    }
+
+    .wrapper.active.red {
+        --active-color: var(--uno-red);
+    }
+
+    .wrapper.active.green {
+        --active-color: var(--uno-green);
+    }
+
+    .wrapper.active.blue {
+        --active-color: var(--uno-blue);
+    }
+
+    .wrapper.active {
+        box-shadow: inset 0 0 10em var(--active-color);
+    }
+
 .cards {
     flex-grow: 0;
     flex-shrink: 0;
