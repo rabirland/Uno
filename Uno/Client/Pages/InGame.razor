@@ -14,7 +14,7 @@ else if (lastStatus.Game != null)
 {
     @if (lastStatus.Game.IsGameFinished)
     {
-        <GameFinishedPanel />
+        <GameFinishedPanel Status="this.lastStatus.Game"/>
     }
     else
     {

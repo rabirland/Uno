@@ -6,7 +6,12 @@ public static class Emoji
 
     public static string GetPlayerEmoji(string playerName)
     {
-        var index = playerName.GetHashCode();
+        var index = 0;
+        foreach (var ch in playerName)
+        {
+            index *= 100;
+            index += ch;
+        }
         int max = PlayerIconEmojis.Length - 1;
         var normalizedIndex = Math.Abs(index % max);
 
@@ -78,9 +83,9 @@ public static class Emoji
         // Add professions
         foreach (var professionCode in basePersonCombinators)
         {
-            htmlCodes.Add($"&#x{person:X};;&#x200D;&#x{professionCode:X};"); // Person
-            htmlCodes.Add($"&#x{man:X};;&#x200D;&#x{professionCode:X};"); // Man
-            htmlCodes.Add($"&#x{woman:X};;&#x200D;&#x{professionCode:X};"); // Woman
+            htmlCodes.Add($"&#x{person:X};&#x200D;&#x{professionCode:X};&#xFE0F;"); // Person
+            htmlCodes.Add($"&#x{man:X};&#x200D;&#x{professionCode:X};&#xFE0F;"); // Man
+            htmlCodes.Add($"&#x{woman:X};&#x200D;&#x{professionCode:X};&#xFE0F;"); // Woman
         }
 
         return htmlCodes.ToArray();

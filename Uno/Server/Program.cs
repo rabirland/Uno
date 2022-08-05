@@ -4,7 +4,7 @@ using Uno.Shared;
 
 var builder = WebApplication.CreateBuilder(args);
 
-//builder.WebHost.UseUrls("https://*:80", "https://localhost:80");
+builder.WebHost.UseUrls("https://*:443");
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
