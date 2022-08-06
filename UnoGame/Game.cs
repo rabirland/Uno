@@ -446,24 +446,16 @@ public class Game
             if (this.gameDirectionRightHand)
             {
                 index++;
-
-                if (index >= count)
-                {
-                    index = 0;
-                }
             }
             else
             {
                 index--;
-
-                if (index < 0)
-                {
-                    index = count - 1;
-                }
             }
 
+            index %= count;
+
             player = this.players[this.currentPlayerIndex];
-        } while (player.FinishedNumber != 0 && player.Active != true);
+        } while (player.FinishedNumber != 0 || player.Active != true);
 
         return index;
     }
