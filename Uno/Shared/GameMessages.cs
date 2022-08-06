@@ -30,17 +30,26 @@ public record ListenGameRequest(string GameId);
 public record ListenGameResponse(
     string AdminPlayerName,
     ListenGameResponse.LobbyStatus? Lobby,
-    ListenGameResponse.GameStatus? Game)
+    ListenGameResponse.GameStatus? Game,
+    ListenGameResponse.LeaderBoard? LastLeaderBoard)
 {
     public static ListenGameResponse Empty => new ListenGameResponse(
         string.Empty,
+        null,
         null,
         null);
 
     public static ListenGameResponse AwaitingStart(IEnumerable<string> players, string adminName, bool canStart) => new ListenGameResponse(
         adminName,
         new LobbyStatus(players, canStart),
+        null,
         null);
+
+    public static ListenGameResponse AwaitingStart(IEnumerable<string> players, string adminName, bool canStart, IEnumerable<string> previousGameLeaderboard) => new ListenGameResponse(
+        adminName,
+        new LobbyStatus(players, canStart),
+        null,
+        new LeaderBoard(previousGameLeaderboard));
 
     /// <summary>
     /// Stores the status of the game lobby.
@@ -68,6 +77,8 @@ public record ListenGameResponse(
         bool IsGameFinished,
         GameMessages.RoundPhase RoundPhase,
         GameMessages.CardColor ActiveColor);
+
+    public record LeaderBoard(IEnumerable<string> Players);
 }
 
 //=========================================================================================== Play Card

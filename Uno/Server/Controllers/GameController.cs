@@ -31,6 +31,11 @@ public class GameController : Controller
     {
         var game = this.gameService.GetGame(request.GameId);
 
+        if (string.IsNullOrEmpty(request.PlayerName))
+        {
+            return JoinGameResponse.Failed;
+        }
+
         if (game == null)
         {
             Response.StatusCode = (int)HttpStatusCode.BadRequest;
@@ -168,12 +173,6 @@ public class GameController : Controller
             {
                 yield return status;
                 Thread.Sleep(1000 / 30); // 30 Hz
-            }
-
-            foreach (var status in ReportGameFinishedStatus(gameEntry, token))
-            {
-                yield return status;
-                Thread.Sleep(1000);
             }
         }
     }
@@ -344,7 +343,7 @@ public class GameController : Controller
                 ? gameEntry.CanStart
                 : false;
 
-            yield return ListenGameResponse.AwaitingStart(palyers, admin?.PlayerName ?? string.Empty, canStart);
+            yield return ListenGameResponse.AwaitingStart(palyers, admin?.PlayerName ?? string.Empty, canStart, gameEntry.PreviousGameLeaderboard);
         }
     }
 
@@ -416,66 +415,8 @@ public class GameController : Controller
             yield return new ListenGameResponse(
                 adminPlayer.PlayerName,
                 null,
-                gameStatus);
-        }
-    }
-
-    private IEnumerable<ListenGameResponse> ReportGameFinishedStatus(GameEntry gameEntry, string listenerToken)
-    {
-        if (gameEntry.Status != GameStatus.Finished)
-        {
-            yield break;
-        }
-
-        var game = gameEntry.Game;
-
-        if (game == default)
-        {
-            throw new Exception("Game is running but UnoGame is not initialized");
-        }
-
-        while (gameEntry.Status == GameStatus.Finished)
-        {
-            var player = gameEntry.Players.First(p => p.Token == listenerToken);
-            var adminPlayer = gameEntry.Players.First(p => p.Token == gameEntry.AdminPlayerToken);
-
-            var gamePlayer = game.Players.First(p => p.Id == player.Token);
-
-            var otherPlayers = game
-                   .Players
-                   .Where(p => p.Id != gamePlayer.Id)
-                   .Select(p =>
-                   {
-                       var playerEntry = gameEntry.Players.First(gp => gp.Token == p.Id);
-                       return new GameMessages.PlayerHand(playerEntry.PlayerName, 0, p.FinishedNumber);
-                   });
-
-            var cardsInHand = Enumerable.Empty<GameMessages.CardCount>();
-
-            var deckRemainingCards = game.Deck.RemainingCards;
-
-            var playedCards = game
-                .PlayedCards
-                .Select(p => new GameMessages.CardFace(
-                    EnumMapper.CardColor.ToGameMessageResponse(p.Color),
-                    EnumMapper.CardType.ToGameMessageResponse(p.Type)))
-                .TakeLast(15);
-
-            var gameStatus = new ListenGameResponse.GameStatus(
-                otherPlayers,
-                cardsInHand,
-                deckRemainingCards,
-                playedCards,
-                string.Empty,
-                gamePlayer.FinishedNumber,
-                true,
-                GameMessages.RoundPhase.Player,
-                GameMessages.CardColor.Colorless);
-
-            yield return new ListenGameResponse(
-                adminPlayer.PlayerName,
-                null,
-                gameStatus);
+                gameStatus,
+                null);
         }
     }
 

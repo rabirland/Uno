@@ -8,18 +8,11 @@
 
 @if (lastStatus.Lobby != null)
 {
-	<GameWaitingForStart Lobby="lastStatus.Lobby" AdminName="@lastStatus.AdminPlayerName" PlayerName="@playerName" OnStart="OnStartGame" />
+	<GameWaitingForStart Lobby="lastStatus.Lobby" AdminName="@lastStatus.AdminPlayerName" PlayerName="@playerName" OnStart="OnStartGame" PreviousGameLeaderboard="this.lastStatus.LastLeaderBoard?.Players" />
 }
 else if (lastStatus.Game != null)
 {
-    @if (lastStatus.Game.IsGameFinished)
-    {
-        <GameFinishedPanel PlayerName="@this.playerName" Status="this.lastStatus.Game"/>
-    }
-    else
-    {
-        <InGamePanel PlayerName="@playerName" Status="lastStatus.Game" OnPlayCard="OnPlayCard" OnPullCard="OnPullCard" OnPickPlayer="OnPickPlayer" OnPickColor="OnPickColor"/>   
-    }
+    <InGamePanel PlayerName="@playerName" Status="lastStatus.Game" OnPlayCard="OnPlayCard" OnPullCard="OnPullCard" OnPickPlayer="OnPickPlayer" OnPickColor="OnPickColor"/>   
 }
 
 @code {

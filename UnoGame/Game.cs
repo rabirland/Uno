@@ -183,7 +183,7 @@ public class Game
             default: throw new Exception("Invalid \"immediate\" action");
         }
 
-        this.ApplyNextPlayerEffects(card.NextPlayerAction);
+        this.ApplyNextPlayerEffects(card.NextPlayerAction, count);
         this.PhaseDone(card.CurrentAction);
                 
         return true;
@@ -398,7 +398,7 @@ public class Game
     /// <summary>
     /// Applies the effects from cards that affects the next-in-order player instead the one that played the card.
     /// </summary>
-    private void ApplyNextPlayerEffects(NextPlayerAction action)
+    private void ApplyNextPlayerEffects(NextPlayerAction action, int cardCount)
     {
         if (action == NextPlayerAction.None)
         {
@@ -411,12 +411,12 @@ public class Game
         else if (action == NextPlayerAction.Draw2)
         {
             this.BeginStackingDrawCards();
-            this.pullCounter += 2;
+            this.pullCounter += 2 * cardCount;
         }
         else if (action == NextPlayerAction.Draw4)
         {
             this.BeginStackingDrawCards();
-            this.pullCounter += 4;
+            this.pullCounter += 4 * cardCount;
         }
         else
         {
@@ -453,6 +453,11 @@ public class Game
             }
 
             index %= count;
+
+            if (index < 0)
+            {
+                index = count + index;
+            }
 
             player = this.players[this.currentPlayerIndex];
         } while (player.FinishedNumber != 0 || player.Active != true);

@@ -27,6 +27,11 @@ public class GameEntry
     public UnoGame.Game? Game { get; private set; }
 
     /// <summary>
+    /// The leaderboard of the previous game, or empty enumerable if there was no previous game.
+    /// </summary>
+    public IEnumerable<string> PreviousGameLeaderboard { get; private set; } = Enumerable.Empty<string>();
+
+    /// <summary>
     /// The list of players in the game or waiting for the game.
     /// </summary>
     public IEnumerable<GamePlayer> Players => this.players;
@@ -100,23 +105,23 @@ public class GameEntry
         {
             this.players.RemoveAt(index);
         }
-        //else if (this.Status == GameStatus.Running)
-        //{
-        //    if (this.Game == null)
-        //    {
-        //        throw new Exception("Invalid state");
-        //    }
+        else if (this.Status == GameStatus.Running)
+        {
+            if (this.Game == null)
+            {
+                throw new Exception("Invalid state");
+            }
 
-        //    var player = this.players[index];
-        //    var gamePlayer = this.Game.Players.First(p => p.Id == player.Token);
-        //    gamePlayer.Active = false;
+            var player = this.players[index];
+            var gamePlayer = this.Game.Players.First(p => p.Id == player.Token);
+            gamePlayer.Active = false;
 
-        //    var notFinished = this.Game.Players.Where(p => p.Active).Count();
-        //    if (notFinished <= 1)
-        //    {
-        //        this.Game.Finish();
-        //    }
-        //}
+            var notFinished = this.Game.Players.Where(p => p.Active).Count();
+            if (notFinished <= 0)
+            {
+                this.Game.Finish();
+            }
+        }
     }
 
     public void StartGame()
@@ -138,7 +143,25 @@ public class GameEntry
             throw new Exception("Invalid event");
         }
 
-        this.Status = GameStatus.Finished;
+        var players = this
+            .Game
+            .Players
+            .OrderBy(p => p.FinishedNumber)
+            .Select(p => this.players.First(gp => gp.Token == p.Id))
+            .Select(p => p.PlayerName);
+
+        this.PreviousGameLeaderboard = players.ToArray();
+
+        foreach (var player in this.Game.Players)
+        {
+            if (player.Active == false)
+            {
+                this.players.RemoveAll(p => p.Token == player.Id);
+            }
+        }
+
         this.Game.OnGameFinish -= this.OnGameFinished;
+        this.Game = null;
+        this.Status = GameStatus.InLobby;
     }
 }

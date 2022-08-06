@@ -1,0 +1,17 @@
+﻿@namespace Uno.Client.Shared
+
+@if (PlayerNames != null && PlayerNames.Any())
+{
+    <h3>Previous game leaderBoard</h3>
+    <ul>
+        @foreach (var name in PlayerNames)
+        {
+            <li>@name</li>
+        }
+    </ul>
+}
+
+@code {
+    [Parameter]
+    public IEnumerable<string>? PlayerNames { get; set; }
+}

@@ -68,7 +68,7 @@ public class GameService : IGameService, IDisposable
                     var gameEntry = this.games[i];
 
                     // If all the players disconnected from the lobby.
-                    if (gameEntry.Players.Count() == 0)
+                    if (gameEntry.Players.Count() <= 0)
                     {
                         removeAt = i;
                         break;
@@ -81,7 +81,7 @@ public class GameService : IGameService, IDisposable
                     }
 
                     var activePlayers = gameEntry.Game.Players.Where(p => p.Active).Count();
-                    if (activePlayers <= 1)
+                    if (activePlayers <= 0)
                     {
                         removeAt = i;
                         break;

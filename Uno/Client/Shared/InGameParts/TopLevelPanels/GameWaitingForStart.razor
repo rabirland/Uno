@@ -4,6 +4,8 @@
 
 @if (this.Lobby != null)
 {
+    <LeaderBoard PlayerNames="PreviousGameLeaderboard"/>
+
     <div>
         @foreach (var player in this.Lobby.Players)
         {
@@ -29,6 +31,9 @@
 
     [Parameter]
     public ListenGameResponse.LobbyStatus? Lobby { get; set; }
+
+    [Parameter]
+    public IEnumerable<string>? PreviousGameLeaderboard { get; set; }
 
     [Parameter]
     public string AdminName { get; set; } = string.Empty;
