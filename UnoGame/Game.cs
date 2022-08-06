@@ -211,6 +211,12 @@ public class Game
             throw new Exception("Invalid player id");
         }
 
+        // Can not select an already finished player
+        if (otherPlayer.FinishedNumber != 0)
+        {
+            return;
+        }
+
         var lastPlayedCard = LastCard;
         var card = CardMetadata.ValidCards.First(c => c.Face == lastPlayedCard);
 
