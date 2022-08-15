@@ -32,7 +32,7 @@
 
     private async void OnClickJoin()
     {
-        var joinResult = await api.Game.JoinGameAsync(new Uno.Shared.JoinGameRequest(this.GameId, this.playerName));
+        var joinResult = await api.UnoGame.JoinGameAsync(new Uno.Shared.JoinGameRequest(this.GameId, this.playerName));
 
         if (joinResult.IsSuccess)
         {

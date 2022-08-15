@@ -11,10 +11,10 @@
 @code {
     private async Task OnClickCreateGame()
     {
-        var result = await api.Game.CreateGameAsync(new CreateGameRequest());
+        var result = await api.UnoGame.CreateGameAsync(new CreateGameRequest());
         if (result.IsSuccess)
         {
-            this.navigationManager.NavigateTo($"/game/{result.GameId}");
+            this.navigationManager.NavigateTo($"/uno/{result.GameId}");
         }
     }
 }

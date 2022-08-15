@@ -1,4 +1,4 @@
-﻿@page "/game/{id}"
+﻿@page "/uno/{id}"
 
 @using Uno.Shared
 
@@ -32,7 +32,7 @@ else if (lastStatus.Game != null)
     {
         await base.OnInitializedAsync();
 
-        var rejoinResult = await api.Game.RejoinGameAsync(new RejoinGameRequest(this.Id));
+        var rejoinResult = await api.UnoGame.RejoinGameAsync(new RejoinGameRequest(this.Id));
 
         if (rejoinResult.IsSuccess)
         {
@@ -61,7 +61,7 @@ else if (lastStatus.Game != null)
     /// </summary>
     private async Task Listen()
     {
-        await foreach (var status in api.Game.ListenGameAsync(new ListenGameRequest(this.Id)))
+        await foreach (var status in api.UnoGame.ListenGameAsync(new ListenGameRequest(this.Id)))
         {
             this.lastStatus = status;
             this.StateHasChanged();
@@ -75,7 +75,7 @@ else if (lastStatus.Game != null)
     {
         if (this.lastStatus.Game == null)
         {
-            await api.Game.StartGameAsync(new StartGameRequest(this.Id));   
+            await api.UnoGame.StartGameAsync(new StartGameRequest(this.Id));   
         }
     }
 
@@ -83,7 +83,7 @@ else if (lastStatus.Game != null)
     {
         if (this.IsActualPlayer && this.PickCardPhase)
         {
-            await api.Game.PlayCardAsync(new PlayCardRequest(this.Id, eventParams.Card, eventParams.Count));   
+            await api.UnoGame.PlayCardAsync(new PlayCardRequest(this.Id, eventParams.Card, eventParams.Count));   
         }
     }
 
@@ -91,7 +91,7 @@ else if (lastStatus.Game != null)
     {
         if (this.IsActualPlayer && this.PickCardPhase)
         {
-            await api.Game.PullCardAsync(new PullCardRequest(this.Id));   
+            await api.UnoGame.PullCardAsync(new PullCardRequest(this.Id));   
         }
     }
 
@@ -99,7 +99,7 @@ else if (lastStatus.Game != null)
     {
         if (this.IsActualPlayer && this.PickPlayerPhase)
         {
-            await api.Game.PickPlayerAsync(new PickPlayerRequest(this.Id, playerName));   
+            await api.UnoGame.PickPlayerAsync(new PickPlayerRequest(this.Id, playerName));   
         }
     }
 
@@ -107,7 +107,7 @@ else if (lastStatus.Game != null)
     {
         if (this.IsActualPlayer && this.PickColorPhase)
         {
-            await api.Game.PickColorAsync(new PickColorRequest(this.Id, color));   
+            await api.UnoGame.PickColorAsync(new PickColorRequest(this.Id, color));   
         }
 	}
 

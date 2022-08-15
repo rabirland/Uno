@@ -8,16 +8,18 @@ using Uno.Shared;
 namespace Uno.Server.Controllers;
 
 [ApiController]
-public class GameController : Controller
+public class UnoGameController : Controller
 {
+    private Dictionary<string, int> connectionCounter = new Dictionary<string, int>();
+
     private readonly IGameService gameService;
 
-    public GameController(IGameService gameService)
+    public UnoGameController(IGameService gameService)
     {
         this.gameService = gameService;
     }
 
-    [HttpPost(URL.Game.Create)]
+    [HttpPost(URL.Game.Uno.Create)]
     public CreateGameResponse Create(CreateGameRequest request)
     {
         var result = this.gameService.Create();
@@ -26,7 +28,7 @@ public class GameController : Controller
         return new CreateGameResponse(true, result.GameId);
     }
 
-    [HttpPost(URL.Game.Join)]
+    [HttpPost(URL.Game.Uno.Join)]
     public JoinGameResponse Join(JoinGameRequest request)
     {
         var game = this.gameService.GetGame(request.GameId);
@@ -86,7 +88,7 @@ public class GameController : Controller
         }
     }
 
-    [HttpPost(URL.Game.Rejoin)]
+    [HttpPost(URL.Game.Uno.Rejoin)]
     public RejoinGameResponse Rejoin(RejoinGameRequest request)
     {
         var game = gameService.GetGame(request.GameId);
@@ -125,7 +127,7 @@ public class GameController : Controller
     }
 
     [DataStream]
-    [HttpPost(URL.Game.Listen)]
+    [HttpPost(URL.Game.Uno.Listen)]
     public IEnumerable<ListenGameResponse> Listen(ListenGameRequest request)
     {
         if (string.IsNullOrEmpty(request.GameId))
@@ -157,7 +159,8 @@ public class GameController : Controller
             yield break;
         }
 
-        gameEntry.PlayerConnected(token);
+        gameEntry.SetPlayerActiveByToken(token);
+        this.IncrementConnections(token);
 
         while (true)
         {
@@ -200,12 +203,14 @@ public class GameController : Controller
             return;
         }
 
-        // TODO: Handle multiple listening. Currently if the player opens two pages, and closes one,
-        // the player is removed, despite still having an open listening.
-        gameEntry.PlayerDisconnected(token);
+        var connections = this.DecrementConnections(token);
+        if (connections <= 0)
+        {
+            gameEntry.SetPlayerInactiveByToken(token);
+        }
     }
 
-    [HttpPost(URL.Game.StartGame)]
+    [HttpPost(URL.Game.Uno.StartGame)]
     public StartGameResponse StartGame(StartGameRequest request)
     {
         if (string.IsNullOrEmpty(request.GameId))
@@ -247,7 +252,7 @@ public class GameController : Controller
         return new StartGameResponse();
     }
 
-    [HttpPost(URL.Game.PlayCard)]
+    [HttpPost(URL.Game.Uno.PlayCard)]
     public PlayCardResponse PlayCard(PlayCardRequest request)
     {
         if (AuthenticatePlayerForActiveGame(request.GameId, out var playerData) == false)
@@ -270,7 +275,7 @@ public class GameController : Controller
         }
     }
 
-    [HttpPost(URL.Game.PullCard)]
+    [HttpPost(URL.Game.Uno.PullCard)]
     public PullCardResponse PullCard(PullCardRequest request)
     {
         if (AuthenticatePlayerForActiveGame(request.GameId, out var playerData) == false)
@@ -290,7 +295,7 @@ public class GameController : Controller
         }
     }
 
-    [HttpPost(URL.Game.PickPlayer)]
+    [HttpPost(URL.Game.Uno.PickPlayer)]
     public PickPlayerResponse PickPlayer(PickPlayerRequest request)
     {
         if (AuthenticatePlayerForActiveGame(request.GameId, out var playerData) == false)
@@ -311,7 +316,7 @@ public class GameController : Controller
         }
     }
 
-    [HttpPost(URL.Game.PickColor)]
+    [HttpPost(URL.Game.Uno.PickColor)]
     public PickColorResponse PickColor(PickColorRequest request)
     {
         if (AuthenticatePlayerForActiveGame(request.GameId, out var playerData) == false)
@@ -487,5 +492,36 @@ public class GameController : Controller
 
         data = (gameEntry, gameEntry.Game, player);
         return true;
+    }
+
+    private void IncrementConnections(string token)
+    {
+        var count = 0;
+        if (this.connectionCounter.TryGetValue(token, out count))
+        {
+        }
+
+        this.connectionCounter[token] = count + 1;
+    }
+
+    private int DecrementConnections(string token)
+    {
+        var count = 0;
+        if (this.connectionCounter.TryGetValue(token, out count))
+        {
+        }
+
+        count -= 1;
+
+        if (count > 0)
+        {
+            this.connectionCounter[token] = count;
+        }
+        else
+        {
+            this.connectionCounter.Remove(token);
+        }
+
+        return Math.Max(count, 0);
     }
 }

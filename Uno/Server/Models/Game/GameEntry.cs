@@ -77,7 +77,7 @@ public class GameEntry
         return true;
     }
 
-    public void PlayerConnected(string token)
+    public void SetPlayerActiveByToken(string token)
     {
         var index = this.players.FindIndex(p => p.Token == token);
         if (index < 0)
@@ -92,7 +92,7 @@ public class GameEntry
         }
     }
 
-    public void PlayerDisconnected(string token)
+    public void SetPlayerInactiveByToken(string token)
     {
         var index = this.players.FindIndex(p => p.Token == token);
 
