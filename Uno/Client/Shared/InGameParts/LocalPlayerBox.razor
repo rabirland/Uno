@@ -47,7 +47,7 @@
     public bool CanPlayCard { get; set; }
 
     [Parameter]
-    public EventCallback<InGame.PlayCardParams> OnPlayCard { get; set; }
+    public EventCallback<UnoInGame.PlayCardParams> OnPlayCard { get; set; }
 
     [Parameter]
     public EventCallback<string> OnPickedPlayer { get; set; }
@@ -80,7 +80,7 @@
 
     private Task OnClickCard(GameMessages.CardColor color, GameMessages.CardType type, int index)
     {
-        return OnPlayCard.InvokeAsync(new InGame.PlayCardParams(new GameMessages.CardFace(color, type), index + 1));   
+        return OnPlayCard.InvokeAsync(new UnoInGame.PlayCardParams(new GameMessages.CardFace(color, type), index + 1));   
     }
 
     private Task OnClickWrapper()

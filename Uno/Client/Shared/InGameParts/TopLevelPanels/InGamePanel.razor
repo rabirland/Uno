@@ -110,8 +110,8 @@
                 <LocalPlayerBox
                     CanPlayCard="this.CanPlayCard"
                     Cards="this.Status?.Cards"
-                    OnPlayCard="p => OnPlayCard.InvokeAsync(p)"
                     CanBePicked="CanPickPlayer"
+                    OnPlayCard="p => this.OnPlayCard.InvokeAsync(p)"
                     OnPickedPlayer="OnPickPlayerBox"
                     PlayerName="@PlayerName" />
             </div>
@@ -130,7 +130,7 @@
     public ListenGameResponse.GameStatus? Status { get; set; }
 
     [Parameter]
-    public EventCallback<InGame.PlayCardParams> OnPlayCard { get; set; }
+    public EventCallback<UnoInGame.PlayCardParams> OnPlayCard { get; set; }
 
     [Parameter]
     public EventCallback OnPullCard { get; set; }
