@@ -8,32 +8,31 @@
     height: 100%;
     position: relative;
     font-size: 15em;
-    height: 1.2em; /* No idea why: takes the same height as the 15em font-size automatically. Use >= 1 to give space for rotated cards */
+    height: 100%;
 }
 
 .card-anchor {
     position: absolute;
     top: 50%;
     left: 50%;
-    transform: translate(-50%, -50%);
 }
 
-    .card-anchor:nth-child(5n + 0) .card-wrapper {
-        transform: rotate(30deg);
+    .card-anchor:nth-child(5n + 0) {
+        transform: translateX(-50%) translateY(-50%) rotate(30deg);
     }
 
-    .card-anchor:nth-child(5n + 1).card-wrapper {
-        transform: rotate(130deg);
+    .card-anchor:nth-child(5n + 1) {
+        transform: translateX(-50%) translateY(-50%) rotate(130deg);
     }
 
-    .card-anchor:nth-child(5n + 2) .card-wrapper {
-        transform: rotate(49deg);
+    .card-anchor:nth-child(5n + 2) {
+        transform: translateX(-50%) translateY(-50%) rotate(49deg);
     }
 
-    .card-anchor:nth-child(5n + 3) .card-wrapper {
-        transform: rotate(10deg);
+    .card-anchor:nth-child(5n + 3) {
+        transform: translateX(-50%) translateY(-50%) rotate(10deg);
     }
 
-    .card-anchor:nth-child(5n + 4) .card-wrapper {
-        transform: rotate(150deg);
+    .card-anchor:nth-child(5n + 4) {
+        transform: translateX(-50%) translateY(-50%) rotate(150deg);
     }

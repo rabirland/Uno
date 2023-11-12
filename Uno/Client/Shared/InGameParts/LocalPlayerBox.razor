@@ -11,8 +11,8 @@
     return;
 }
 
-<div class="wrapper player-box auto-font-size @ActiveClass @SelectableClass" @onclick="OnClickWrapper">
-    <div class="cards">
+<PlayerBox IsActive="CanPlayCard" Selectable="CanBePicked" OnClick="OnClickWrapper">
+    <div class="@ActiveClass cards">
         @foreach (var card in this.Cards)
         {
             <div class="card-stack">
@@ -22,14 +22,18 @@
 
                     <div class="stack-entry">
                         <div class="card-wrapper @GetHoverClass(index)" @onmouseover="() => OnHover(index)" @onmouseout="OnLeave" @onclick="() => OnClickCard(card.Color, card.Type, index)">
-                            <UnoCard Color="card.Color" Type="card.Type"/>
+                            <UnoCard Color="card.Color" Type="card.Type" />
                         </div>
                     </div>
                 }
             </div>
         }
     </div>
-</div>
+</PlayerBox>
+
+@* <div class="wrapper player-box auto-font-size @ActiveClass @SelectableClass" @onclick="OnClickWrapper">
+    
+</div> *@
 
 @code {
     private int hoverIndex = -1;

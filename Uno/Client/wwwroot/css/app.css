@@ -153,6 +153,11 @@ body {
     padding: 1em;
 }
 
+.player-box.active {
+    border: 4px solid black;
+    border-style: dashed;
+}
+
 .card-wrapper {
     z-index: 1; /* No idea why, but required */
 }

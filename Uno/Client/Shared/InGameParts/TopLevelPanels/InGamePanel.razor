@@ -8,8 +8,35 @@
     return;
 }
 
-<div class="grid">
-    <div class="row">
+<div class="table">
+    <div class="center">
+        <PullDeckBox CanPullCard="CanPlayCard" DeckRemainingCards="this.Status?.DeckRemainingCards ?? 0" OnPull="() => OnPullCard.InvokeAsync()" />
+
+        <RingBackground Color="this.Status?.ActiveColor ?? GameMessages.CardColor.Colorless">
+            <PlayedCardsDeckBox PlayedCards="this.Status?.PlayedCards" />
+        </RingBackground>
+    </div>
+
+    @if (ShowColorPicker)
+    {
+        <div class="center">
+            <ColorPicker Show="ShowColorPicker" CanPick="CanPickColor" OnPickColor="c => OnPickColor.InvokeAsync(c)" />
+        </div>
+    }
+    
+
+    <div class="bottom">
+            <LocalPlayerBox CanPlayCard="this.CanPlayCard"
+                            Cards="this.Status?.Cards"
+                            CanBePicked="CanPickPlayer"
+                            OnPlayCard="p => this.OnPlayCard.InvokeAsync(p)"
+                            OnPickedPlayer="OnPickPlayerBox"
+                            PlayerName="@PlayerName" />
+    </div>
+</div>
+@* 
+<div class="layout-v">
+    <div class="row min">
         @if (remotePlayers.Length >= 1)
         {
             <div class="cell">
@@ -41,7 +68,7 @@
 
     @for (int i = 7; i < remotePlayers.Length; i += 4)
     {
-        <div class="row players">
+        <div class="row players min">
             @if (remotePlayers.Length >= (i + 1))
             {
                 <div class="cell">
@@ -63,7 +90,7 @@
                 </div>
             }
 
-             @if (remotePlayers.Length >= (i + 4))
+            @if (remotePlayers.Length >= (i + 4))
             {
                 <div class="cell">
                     <RemotePlayerBox Player="remotePlayers[i + 3]" ActivePlayerName="@Status?.CurrentPlayerName" CanBePicked="CanPickPlayer" OnPickPlayer="OnPickPlayerBox"/>
@@ -72,13 +99,9 @@
         </div>
     }
 
-    <div class="row">
+    <div class="row max">
         <div class="color-picker">
-            <ColorPicker Show="ShowColorPicker" CanPick="CanPickColor" OnPickColor="c => OnPickColor.InvokeAsync(c)"/>
-        </div>
-
-        <div class="active-color">
-            <ActiveColorMarker Color="this.Status?.ActiveColor ?? GameMessages.CardColor.Colorless" />
+            
         </div>
 
         @if (remotePlayers.Length >= 5)
@@ -88,8 +111,8 @@
             </div>
         }
 
-        <div class="cell double">
-            <PlayedCardsDeckBox PlayedCards="this.Status?.PlayedCards" />
+        <div class="active-color">
+            
         </div>
 
         @if (remotePlayers.Length >= 6)
@@ -99,29 +122,18 @@
             </div>
         }
     </div>
-    <div class="row @LocalPlayerRowClass">
+
+    <div class="row @LocalPlayerRowClass min">
         @if (this.Status?.CurrentPlayerFinishedNumber == 0)
         {
-            <div class="cell">
-                <PullDeckBox CanPullCard="CanPlayCard" DeckRemainingCards="this.Status?.DeckRemainingCards ?? 0" OnPull="() => OnPullCard.InvokeAsync()" />
-            </div>
-
-            <div class="cell octa">
-                <LocalPlayerBox
-                    CanPlayCard="this.CanPlayCard"
-                    Cards="this.Status?.Cards"
-                    CanBePicked="CanPickPlayer"
-                    OnPlayCard="p => this.OnPlayCard.InvokeAsync(p)"
-                    OnPickedPlayer="OnPickPlayerBox"
-                    PlayerName="@PlayerName" />
-            </div>
+           
         }
         else
         {
             <h1>Position: @this.Status?.CurrentPlayerFinishedNumber</h1>
         }
     </div>
-</div>
+</div> *@
 
 @code {
     private GameMessages.PlayerHand[] remotePlayers = Array.Empty<GameMessages.PlayerHand>();

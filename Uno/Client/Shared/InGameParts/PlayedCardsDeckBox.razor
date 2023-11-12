@@ -13,9 +13,7 @@
         @foreach (var card in this.PlayedCards)
         {
             <div class="card-anchor">
-                <div class="card-wrapper">
-                        <UnoCard Color="card.Color" Type="card.Type" />
-                </div>
+                <UnoCard Color="card.Color" Type="card.Type" />
             </div>
         }
     </div>
