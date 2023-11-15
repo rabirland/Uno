@@ -24,15 +24,30 @@
     transform: translate(0, -100%);
 }
 
-
-.opponent.slot1-1
-{
+.opponent {
     position: absolute;
-    top: 1%;
-    left: 50%;
-    transform: translateX(-50%);
     height: 28vh;
-    width: 50vh;
+    aspect-ratio: 1.3;
     min-height: 0;
     min-width: 0;
 }
+
+.opponent.slot1-1
+{
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+    .opponent.slot1-2 {
+        top: 2%;
+        left: 30%;
+        transform: translateX(-50%);
+        transform: translateX(-50%) rotate(-10deg);
+    }
+
+    .opponent.slot2-2 {
+        top: 2%;
+        left: 60%;
+        transform: translateX(-50%) rotate(10deg);
+    }

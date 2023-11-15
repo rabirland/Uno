@@ -23,12 +23,6 @@
     }
 
     <div class="bottom">
-            @* <LocalPlayerBox CanPlayCard="this.CanPlayCard"
-                            Cards="this.Status?.Cards"
-                            CanBePicked="CanPickPlayer"
-                            OnPlayCard="p => this.OnPlayCard.InvokeAsync(p)"
-                            OnPickedPlayer="OnPickPlayerBox"
-                            PlayerName="@PlayerName" /> *@
         <PlayerBox Cards="this.Status?.Cards"
                    Selectable="CanPickPlayer"
                    OnPlayCard="p => this.OnPlayCard.InvokeAsync(p)"
@@ -40,7 +34,6 @@
         var opponent = remotePlayers[i];
 
         <div class="opponent slot@(i+1)-@(remotePlayers.Length)">
-            @* <RemotePlayerBox Player="remotePlayers[i]" ActivePlayerName="@Status?.CurrentPlayerName" CanBePicked="CanPickPlayer" OnPickPlayer="OnPickPlayerBox" /> *@
             <PlayerBox  Name="@opponent.PlayerName"
                         BlankCardCount="opponent.CardCount"
                         IsActive="Status?.CurrentPlayerName == opponent.PlayerName"

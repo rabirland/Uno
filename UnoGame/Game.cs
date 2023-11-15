@@ -43,6 +43,7 @@ public class Game
         this.Deck = new InfiniteDeck(); // TODO: Get from settings
 
         this.players = playerIds
+            .Concat(new[] { "Fake Player 1", "Fake Player 2" })
             .Select(p => new Player(p) { Active = true, FinishedNumber = 0 })
             .ToArray();
 

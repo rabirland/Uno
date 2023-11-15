@@ -42,3 +42,9 @@
     box-shadow: -0.05em 0.05em 0 black;
     border-radius: 0.1em;
 }
+
+.name {
+    width: 100%;
+    font-size: 5vh;
+    text-align: center;
+}

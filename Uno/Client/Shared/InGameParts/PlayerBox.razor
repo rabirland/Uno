@@ -5,12 +5,8 @@
 <div class="player-box card @ActiveClass @SelectableClass" @onclick="OnClick">
     @if (string.IsNullOrEmpty(Name) == false)
     {
-        <div class="icon">
-            @Icon
-        </div>
-
         <div class="name">
-            @Name
+            @Icon @Name
         </div>
     }
     
