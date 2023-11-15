@@ -8,13 +8,11 @@
     return;
 }
 
-<div class="table">
+<div class="wrapper">
     <div class="center">
         <PullDeckBox CanPullCard="CanPlayCard" DeckRemainingCards="this.Status?.DeckRemainingCards ?? 0" OnPull="() => OnPullCard.InvokeAsync()" />
 
-        <RingBackground Color="this.Status?.ActiveColor ?? GameMessages.CardColor.Colorless">
-            <PlayedCardsDeckBox PlayedCards="this.Status?.PlayedCards" />
-        </RingBackground>
+        <PlayedCardsDeckBox PlayedCards="this.Status?.PlayedCards" />
     </div>
 
     @if (ShowColorPicker)
@@ -23,117 +21,34 @@
             <ColorPicker Show="ShowColorPicker" CanPick="CanPickColor" OnPickColor="c => OnPickColor.InvokeAsync(c)" />
         </div>
     }
-    
 
     <div class="bottom">
-            <LocalPlayerBox CanPlayCard="this.CanPlayCard"
+            @* <LocalPlayerBox CanPlayCard="this.CanPlayCard"
                             Cards="this.Status?.Cards"
                             CanBePicked="CanPickPlayer"
                             OnPlayCard="p => this.OnPlayCard.InvokeAsync(p)"
                             OnPickedPlayer="OnPickPlayerBox"
-                            PlayerName="@PlayerName" />
-    </div>
-</div>
-@* 
-<div class="layout-v">
-    <div class="row min">
-        @if (remotePlayers.Length >= 1)
-        {
-            <div class="cell">
-                <RemotePlayerBox Player="remotePlayers[0]" ActivePlayerName="@Status?.CurrentPlayerName" CanBePicked="CanPickPlayer" OnPickPlayer="OnPickPlayerBox"/>
-            </div>
-        }
-        
-        @if (remotePlayers.Length >= 2)
-        {
-            <div class="cell">
-                <RemotePlayerBox Player="remotePlayers[1]" ActivePlayerName="@Status?.CurrentPlayerName" CanBePicked="CanPickPlayer" OnPickPlayer="OnPickPlayerBox"/>
-            </div>
-        }
-
-        @if (remotePlayers.Length >= 3)
-        {
-            <div class="cell">
-                <RemotePlayerBox Player="remotePlayers[2]" ActivePlayerName="@Status?.CurrentPlayerName" CanBePicked="CanPickPlayer" OnPickPlayer="OnPickPlayerBox"/>
-            </div>
-        }
-
-        @if (remotePlayers.Length >= 4)
-        {
-            <div class="cell">
-                <RemotePlayerBox Player="remotePlayers[3]" ActivePlayerName="@Status?.CurrentPlayerName" CanBePicked="CanPickPlayer" OnPickPlayer="OnPickPlayerBox"/>
-            </div>
-        }
+                            PlayerName="@PlayerName" /> *@
+        <PlayerBox Cards="this.Status?.Cards"
+                   Selectable="CanPickPlayer"
+                   OnPlayCard="p => this.OnPlayCard.InvokeAsync(p)"
+                   IsActive="CanPlayCard" />
     </div>
 
-    @for (int i = 7; i < remotePlayers.Length; i += 4)
+    @for (int i = 0; i < remotePlayers.Length; i++)
     {
-        <div class="row players min">
-            @if (remotePlayers.Length >= (i + 1))
-            {
-                <div class="cell">
-                    <RemotePlayerBox Player="remotePlayers[i]" ActivePlayerName="@Status?.CurrentPlayerName" CanBePicked="CanPickPlayer" OnPickPlayer="OnPickPlayerBox"/>
-                </div>
-            }
+        var opponent = remotePlayers[i];
 
-            @if (remotePlayers.Length >= (i + 2))
-            {
-                <div class="cell">
-                    <RemotePlayerBox Player="remotePlayers[i + 1]" ActivePlayerName="@Status?.CurrentPlayerName" CanBePicked="CanPickPlayer" OnPickPlayer="OnPickPlayerBox"/>
-                </div>
-            }
-
-            @if (remotePlayers.Length >= (i + 3))
-            {
-                <div class="cell">
-                    <RemotePlayerBox Player="remotePlayers[i + 2]" ActivePlayerName="@Status?.CurrentPlayerName" CanBePicked="CanPickPlayer" OnPickPlayer="OnPickPlayerBox"/>
-                </div>
-            }
-
-            @if (remotePlayers.Length >= (i + 4))
-            {
-                <div class="cell">
-                    <RemotePlayerBox Player="remotePlayers[i + 3]" ActivePlayerName="@Status?.CurrentPlayerName" CanBePicked="CanPickPlayer" OnPickPlayer="OnPickPlayerBox"/>
-                </div>
-            }
+        <div class="opponent slot@(i+1)-@(remotePlayers.Length)">
+            @* <RemotePlayerBox Player="remotePlayers[i]" ActivePlayerName="@Status?.CurrentPlayerName" CanBePicked="CanPickPlayer" OnPickPlayer="OnPickPlayerBox" /> *@
+            <PlayerBox  Name="@opponent.PlayerName"
+                        BlankCardCount="opponent.CardCount"
+                        IsActive="Status?.CurrentPlayerName == opponent.PlayerName"
+                        Selectable="CanPickPlayer"
+                        OnClick="() => OnPickPlayerBox(opponent.PlayerName)" />
         </div>
     }
-
-    <div class="row max">
-        <div class="color-picker">
-            
-        </div>
-
-        @if (remotePlayers.Length >= 5)
-        {
-            <div class="cell">
-                <RemotePlayerBox Player="remotePlayers[4]" ActivePlayerName="@Status?.CurrentPlayerName" CanBePicked="CanPickPlayer" OnPickPlayer="OnPickPlayerBox"/>
-            </div>
-        }
-
-        <div class="active-color">
-            
-        </div>
-
-        @if (remotePlayers.Length >= 6)
-        {
-            <div class="cell">
-                <RemotePlayerBox Player="remotePlayers[5]" ActivePlayerName="@Status?.CurrentPlayerName" CanBePicked="CanPickPlayer" OnPickPlayer="OnPickPlayerBox"/>
-            </div>
-        }
-    </div>
-
-    <div class="row @LocalPlayerRowClass min">
-        @if (this.Status?.CurrentPlayerFinishedNumber == 0)
-        {
-           
-        }
-        else
-        {
-            <h1>Position: @this.Status?.CurrentPlayerFinishedNumber</h1>
-        }
-    </div>
-</div> *@
+</div>
 
 @code {
     private GameMessages.PlayerHand[] remotePlayers = Array.Empty<GameMessages.PlayerHand>();
@@ -165,8 +80,6 @@
     private bool ShowColorPicker => Status?.RoundPhase == GameMessages.RoundPhase.Color && Status.CurrentPlayerName == PlayerName;
 
     private bool CanPickColor => ShowColorPicker && IsLocalPlayerActive;
-
-    private string LocalPlayerRowClass => this.CanPlayCard ? "glow blue" : string.Empty;
 
     protected override void OnParametersSet()
     {

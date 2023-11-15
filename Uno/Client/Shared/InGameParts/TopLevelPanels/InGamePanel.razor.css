@@ -1,4 +1,4 @@
-﻿.table {
+﻿.wrapper {
     position: relative;
     width: 100%;
     height: 100%;
@@ -24,30 +24,15 @@
     transform: translate(0, -100%);
 }
 
-.player-box {
-    display: inline-block;
-}
 
-.selectable {
-    cursor: pointer;
-}
-
-.color-picker {
-    pointer-events: none;
+.opponent.slot1-1
+{
     position: absolute;
-    height:100%;
+    top: 1%;
     left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%);
-    z-index: 100;
-}
-
-.active-color{
-    pointer-events: none;
-    position: absolute;
-    height: 90%;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%);
-    z-index: 0;
+    transform: translateX(-50%);
+    height: 28vh;
+    width: 50vh;
+    min-height: 0;
+    min-width: 0;
 }

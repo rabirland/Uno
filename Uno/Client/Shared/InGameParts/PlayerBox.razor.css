@@ -2,3 +2,43 @@
     border: 4px solid black !important;
     border-style: dashed !important;
 }
+
+.cards {
+    display: flex;
+    flex-direction: row;
+    font-size: 18vh;
+    height: fit-content;
+    padding: 0.05em;
+    justify-content: center;
+    align-items: end;
+}
+
+.card-wrapper {
+    min-width: 0;
+    flex-grow: 0;
+    flex-shrink: 1;
+    line-height: 1;
+}
+
+.card-wrapper:last-of-type {
+    min-width: fit-content;
+    flex-grow: 0;
+    flex-shrink: 0;
+}
+
+.card-stack .stack-entry {
+    height: 0.3em;
+    position: relative;
+    margin-bottom: -0.15em;
+}
+
+    .card-stack .stack-entry:last-of-type {
+        height: 1em;
+        margin-bottom: 0;
+    }
+
+.player-box.active .card-stack:hover .stack-entry.hover {
+    cursor: pointer;
+    box-shadow: -0.05em 0.05em 0 black;
+    border-radius: 0.1em;
+}
