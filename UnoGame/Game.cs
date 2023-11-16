@@ -102,6 +102,11 @@ public class Game
     public IEnumerable<CardFace> PlayedCards => this.playedCards;
 
     /// <summary>
+    /// Whether the direction of the game is clockwise.
+    /// </summary>
+    public bool DirectionClockwise => this.gameDirectionRightHand;
+
+    /// <summary>
     /// Whether the game has ended.
     /// </summary>
     public bool GameFinished { get; private set; }

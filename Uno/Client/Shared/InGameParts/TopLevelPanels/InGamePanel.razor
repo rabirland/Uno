@@ -9,6 +9,12 @@
 }
 
 <div class="wrapper">
+    
+    <div class="center">
+        <span class="direction @ReverseClass">⚙</span>
+    </div>
+    
+
     <BlazorSciFi.RingLayout CenterRadiusPercentage="20" Offset="160" Arc="220" CenterItems="true">
         @for (int i = 0; i < remotePlayers.Length; i++)
         {
@@ -87,6 +93,8 @@
     private bool ShowColorPicker => Status?.RoundPhase == GameMessages.RoundPhase.Color && Status.CurrentPlayerName == PlayerName;
 
     private bool CanPickColor => ShowColorPicker && IsLocalPlayerActive;
+
+    private string ReverseClass => Status?.Clockwise == false ? "reverse" : string.Empty;
 
     protected override void OnParametersSet()
     {

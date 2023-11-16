@@ -416,7 +416,8 @@ public class UnoGameController : Controller
                 IsGameFinished: false,
                 RoundPhase: roundPhase,
                 ActiveColor: activeColor,
-                DrawStackCount: game.DrawCardCounter);
+                DrawStackCount: game.DrawCardCounter,
+                Clockwise: game.DirectionClockwise);
 
             yield return new ListenGameResponse(
                 adminPlayer.PlayerName,

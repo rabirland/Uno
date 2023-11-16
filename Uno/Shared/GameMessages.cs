@@ -68,6 +68,7 @@ public record ListenGameResponse(
     /// <param name="CurrentPlayerName">The name of the player whose round is ongoing.</param>
     /// <param name="RoundPhase">The phae of the current round.</param>
     /// <param name="DrawStackCount">The current value of the draw X card stacking.</param>
+    /// <param name="Clockwise"><see langword="true"/> if the game goes clockwise, otherwise false.</param>
     public record GameStatus(
         IEnumerable<GameMessages.PlayerHand> OtherPlayerCards,
         IEnumerable<GameMessages.CardCount> Cards,
@@ -78,7 +79,8 @@ public record ListenGameResponse(
         bool IsGameFinished,
         GameMessages.RoundPhase RoundPhase,
         GameMessages.CardColor ActiveColor,
-        int DrawStackCount);
+        int DrawStackCount,
+        bool Clockwise);
 
     public record LeaderBoard(IEnumerable<string> Players);
 }
