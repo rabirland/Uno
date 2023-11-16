@@ -2,15 +2,15 @@
 @using Uno.Client.Pages
 @using Uno.Shared
 
-<div class="player-box card @ActiveClass @SelectableClass" @onclick="OnClick">
+<div class="player-box card @ActiveClass @SelectableClass" @onclick="OnClick" style="@Style">
     @if (string.IsNullOrEmpty(Name) == false)
     {
-        <div class="name">
-            @Icon @Name
+        <div class="name" style="@NameStyle">
+            @Name (@BlankCardCount)
         </div>
     }
     
-    <div class="cards">
+    <div class="cards" style="font-size: @CardSize;">
         @* Cards with backface *@
         @for (int i = 0; i < BlankCardCount; i++)
         {
@@ -42,8 +42,6 @@
 @code {
     private int hoverIndex = -1;
 
-    private MarkupString Icon => new MarkupString(Emoji.GetPlayerEmoji(Name ?? string.Empty));
-
     [Parameter]
     public string? Name { get; set; }
 
@@ -55,6 +53,15 @@
 
     [Parameter]
     public int BlankCardCount { get; set; }
+
+    [Parameter]
+    public string CardSize { get; set; } = "10vmin";
+
+    [Parameter]
+    public string? NameStyle { get; set; }
+
+    [Parameter]
+    public string? Style { get; set; }
 
     [Parameter]
     public IEnumerable<GameMessages.CardCount>? Cards { get; set; }

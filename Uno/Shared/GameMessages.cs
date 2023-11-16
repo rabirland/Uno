@@ -63,20 +63,22 @@ public record ListenGameResponse(
     /// </summary>
     /// <param name="OtherPlayerCards">The amount of cards in each player's hands.</param>
     /// <param name="Cards">The cards in the player's hands who is receiving the message.</param>
-    /// <param name="DeckRemainingCards">The amount of cards remaining in the deck.</param>
+    /// <param name="DeckRemainingCardCount">The amount of cards remaining in the deck.</param>
     /// <param name="PlayedCards">The list of cards that was played by the players previously.</param>
     /// <param name="CurrentPlayerName">The name of the player whose round is ongoing.</param>
     /// <param name="RoundPhase">The phae of the current round.</param>
+    /// <param name="DrawStackCount">The current value of the draw X card stacking.</param>
     public record GameStatus(
         IEnumerable<GameMessages.PlayerHand> OtherPlayerCards,
         IEnumerable<GameMessages.CardCount> Cards,
-        int DeckRemainingCards,
+        int DeckRemainingCardCount,
         IEnumerable<GameMessages.CardFace> PlayedCards,
         string CurrentPlayerName,
         int CurrentPlayerFinishedNumber,
         bool IsGameFinished,
         GameMessages.RoundPhase RoundPhase,
-        GameMessages.CardColor ActiveColor);
+        GameMessages.CardColor ActiveColor,
+        int DrawStackCount);
 
     public record LeaderBoard(IEnumerable<string> Players);
 }

@@ -51,3 +51,15 @@
         left: 60%;
         transform: translateX(-50%) rotate(10deg);
     }
+
+.draw-counter {
+    width: 40%;
+    height: 35%;
+    pointer-events: none;
+    border-top: 15px solid rgba(64, 0, 128, 0.5);
+    border-bottom: 15px solid rgba(64, 0, 128, 0.5);
+    background-color: rgba(32, 0, 64, 0.5);
+    color: rgba(255, 255, 255, 0.5);
+    border-radius: 1vmin;
+    font-size: 15vmin;
+}

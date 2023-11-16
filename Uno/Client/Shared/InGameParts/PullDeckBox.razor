@@ -1,7 +1,7 @@
 ﻿@namespace Uno.Client.Shared
 
 <div class="deck auto-font-size">
-    <div class="cards @ActiveClass" @onclick="OnClickDeck">
+    <div class="cards @ActiveClass" @onclick="OnClickDeck" style="font-size: @CardSize;">
         @for (int i = 0; i < this.DisplayCardCount; i++)
         {
             <div class="card-wrapper">
@@ -22,6 +22,9 @@
 
     [Parameter]
     public EventCallback OnPull { get; set; }
+
+    [Parameter]
+    public string CardSize { get; set; } = "10vmin";
 
     private string ActiveClass => this.CanPullCard ? "active" : string.Empty;
 

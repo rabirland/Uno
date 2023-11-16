@@ -6,7 +6,6 @@
 .cards {
     display: flex;
     flex-direction: row;
-    font-size: 18vh;
     height: fit-content;
     padding: 0.05em;
     justify-content: center;
@@ -45,6 +44,5 @@
 
 .name {
     width: 100%;
-    font-size: 5vh;
     text-align: center;
 }

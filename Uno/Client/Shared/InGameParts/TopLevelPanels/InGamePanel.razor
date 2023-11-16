@@ -9,10 +9,42 @@
 }
 
 <div class="wrapper">
-    <div class="center">
-        <PullDeckBox CanPullCard="CanPlayCard" DeckRemainingCards="this.Status?.DeckRemainingCards ?? 0" OnPull="() => OnPullCard.InvokeAsync()" />
+    <BlazorSciFi.RingLayout CenterRadiusPercentage="20" Offset="160" Arc="220" CenterItems="true">
+        @for (int i = 0; i < remotePlayers.Length; i++)
+        {
+            var opponent = remotePlayers[i];
+            <BlazorSciFi.RingItem>
+                <PlayerBox Name="@opponent.PlayerName"
+                           BlankCardCount="opponent.CardCount"
+                           IsActive="Status?.CurrentPlayerName == opponent.PlayerName"
+                           Selectable="CanPickPlayer"
+                           OnClick="() => OnPickPlayerBox(opponent.PlayerName)"
+                           CardSize="@cardSize"
+                           Style="width: 30vmin"
+                           NameStyle="font-size: 2vmin;"/>
+            </BlazorSciFi.RingItem>
+        }
+    </BlazorSciFi.RingLayout>
 
-        <PlayedCardsDeckBox PlayedCards="this.Status?.PlayedCards" />
+    <div class="center">
+        <PullDeckBox CanPullCard="CanPlayCard" DeckRemainingCards="this.Status?.DeckRemainingCardCount ?? 0" OnPull="() => OnPullCard.InvokeAsync()" CardSize="@cardSizeLarge" />
+
+        <PlayedCardsDeckBox PlayedCards="this.Status?.PlayedCards" CardSize="@cardSizeLarge" />
+    </div>
+
+    @if (Status?.DrawStackCount > 1)
+    {
+        <div class="center draw-counter">
+            +@Status.DrawStackCount
+        </div>
+    }
+
+    <div class="bottom">
+        <PlayerBox Cards="this.Status?.Cards"
+                   Selectable="CanPickPlayer"
+                   OnPlayCard="p => this.OnPlayCard.InvokeAsync(p)"
+                   IsActive="CanPlayCard"
+                   CardSize="@cardSizeLarge" />
     </div>
 
     @if (ShowColorPicker)
@@ -21,30 +53,12 @@
             <ColorPicker Show="ShowColorPicker" CanPick="CanPickColor" OnPickColor="c => OnPickColor.InvokeAsync(c)" />
         </div>
     }
-
-    <div class="bottom">
-        <PlayerBox Cards="this.Status?.Cards"
-                   Selectable="CanPickPlayer"
-                   OnPlayCard="p => this.OnPlayCard.InvokeAsync(p)"
-                   IsActive="CanPlayCard" />
-    </div>
-
-    @for (int i = 0; i < remotePlayers.Length; i++)
-    {
-        var opponent = remotePlayers[i];
-
-        <div class="opponent slot@(i+1)-@(remotePlayers.Length)">
-            <PlayerBox  Name="@opponent.PlayerName"
-                        BlankCardCount="opponent.CardCount"
-                        IsActive="Status?.CurrentPlayerName == opponent.PlayerName"
-                        Selectable="CanPickPlayer"
-                        OnClick="() => OnPickPlayerBox(opponent.PlayerName)" />
-        </div>
-    }
 </div>
 
 @code {
     private GameMessages.PlayerHand[] remotePlayers = Array.Empty<GameMessages.PlayerHand>();
+    private const string cardSize = "15vmin";
+    private const string cardSizeLarge = "20vmin";
 
     [Parameter]
     public ListenGameResponse.GameStatus? Status { get; set; }

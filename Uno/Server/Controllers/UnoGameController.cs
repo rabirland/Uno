@@ -371,11 +371,11 @@ public class UnoGameController : Controller
             var player = gameEntry.Players.First(p => p.Token == listenerToken);
             var adminPlayer = gameEntry.Players.First(p => p.Token == gameEntry.AdminPlayerToken);
 
-            var gamePlayer = game.Players.First(p => p.Id == player.Token);
+            var currentPlayer = game.Players.First(p => p.Id == player.Token);
 
             var otherPlayers = game
                    .Players
-                   .Where(p => p.Id != gamePlayer.Id)
+                   .Where(p => p.Id != currentPlayer.Id)
                    .Select(p =>
                    {
                        var playerEntry = gameEntry.Players.First(gp => gp.Token == p.Id);
@@ -383,7 +383,7 @@ public class UnoGameController : Controller
                        return new GameMessages.PlayerHand(playerEntry.PlayerName, cardCount, p.FinishedNumber);
                    });
 
-            var cardsInHand = gamePlayer
+            var cardsInHand = currentPlayer
                 .Cards
                 .Where(c => c.Value > 0)
                 .Select(c => new GameMessages.CardCount(
@@ -391,7 +391,7 @@ public class UnoGameController : Controller
                     EnumMapper.CardType.ToGameMessageResponse(c.Key.Type),
                     c.Value));
 
-            var deckRemainingCards = game.Deck.RemainingCards;
+            var deckRemainingCardCount = game.Deck.RemainingCards;
 
             var playedCards = game
                 .PlayedCards
@@ -407,15 +407,16 @@ public class UnoGameController : Controller
             var activeColor = EnumMapper.CardColor.ToGameMessageResponse(game.ActiveColor);
 
             var gameStatus = new ListenGameResponse.GameStatus(
-                otherPlayers,
-                cardsInHand,
-                deckRemainingCards,
-                playedCards,
-                currentPlayerEntry.PlayerName,
-                gamePlayer.FinishedNumber,
-                false,
-                roundPhase,
-                activeColor);
+                OtherPlayerCards: otherPlayers,
+                Cards: cardsInHand,
+                DeckRemainingCardCount: deckRemainingCardCount,
+                PlayedCards: playedCards,
+                CurrentPlayerName: currentPlayerEntry.PlayerName,
+                CurrentPlayerFinishedNumber: currentPlayer.FinishedNumber,
+                IsGameFinished: false,
+                RoundPhase: roundPhase,
+                ActiveColor: activeColor,
+                DrawStackCount: game.DrawCardCounter);
 
             yield return new ListenGameResponse(
                 adminPlayer.PlayerName,

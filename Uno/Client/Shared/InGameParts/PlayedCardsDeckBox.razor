@@ -9,7 +9,7 @@
 }
 
 <div class="played-deck auto-font-size">
-    <div class="cards">
+    <div class="cards" style="font-size: @CardSize;">
         @foreach (var card in this.PlayedCards)
         {
             <div class="card-anchor">
@@ -22,4 +22,7 @@
 @code {
     [Parameter]
     public IEnumerable<GameMessages.CardFace>? PlayedCards { get; set; }
+
+    [Parameter]
+    public string CardSize { get; set; } = "10vmin";
 }

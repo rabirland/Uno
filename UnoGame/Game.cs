@@ -36,6 +36,11 @@ public class Game
     /// </summary>
     public event Action OnGameFinish = () => { };
 
+    /// <summary>
+    /// The current amount of stacked draw X cards.
+    /// </summary>
+    public int DrawCardCounter => pullCounter;
+
     public Game(GameSettings settings, IEnumerable<string> playerIds)
     {
         this.settings = settings;
@@ -43,7 +48,6 @@ public class Game
         this.Deck = new InfiniteDeck(); // TODO: Get from settings
 
         this.players = playerIds
-            .Concat(new[] { "Fake Player 1", "Fake Player 2" })
             .Select(p => new Player(p) { Active = true, FinishedNumber = 0 })
             .ToArray();
 
@@ -287,6 +291,7 @@ public class Game
     /// <param name="color">The card color.</param>
     public void PickColor(CardColor color)
     {
+        // Validate if a valid action
         if (this.GameFinished)
         {
             return;
@@ -303,6 +308,8 @@ public class Game
         }
 
         var lastPlayedCard = LastCard;
+
+        // Check if a card is a valid card.
         var card = CardMetadata.ValidCards.First(c => c.Face == lastPlayedCard);
 
         // Do the action
@@ -314,6 +321,9 @@ public class Game
         {
             throw new Exception("Invalid action for the last card");
         }
+
+        // Override the color of the last card on the player card list.
+        this.playedCards[^1] = new CardFace(lastPlayedCard.Type, color);
 
         this.PhaseDone(card.CurrentAction);
     }
