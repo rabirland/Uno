@@ -74,7 +74,7 @@
 
     private string ActiveClass => IsActive ? "active" : string.Empty;
 
-    private string SelectableClass => IsActive ? "selectable" : string.Empty;
+    private string SelectableClass => Selectable ? "selectable" : string.Empty;
 
     private Task OnClickCard(GameMessages.CardColor color, GameMessages.CardType type, int index)
     {

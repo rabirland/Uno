@@ -3,6 +3,12 @@
     border-style: dashed !important;
 }
 
+.player-box.selectable {
+    border: 5px solid red !important;
+    border-style: dashed !important;
+    cursor: pointer;
+}
+
 .cards {
     display: flex;
     flex-direction: row;
